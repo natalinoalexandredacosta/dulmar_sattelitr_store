@@ -467,7 +467,7 @@
                 href="{{ route('store.index') }}"
                 class="reset-button"
             >
-                hamos
+                Hamoos
             </a>
 
         </form>
@@ -480,7 +480,7 @@
                 <strong>
                     {{ $products->count() }}
                 </strong>
-                produk
+                produtu
 
                 @if ($search !== '')
                     dengan pencarian
@@ -518,7 +518,7 @@
                 class="reset-button"
                 style="display: inline-flex;"
             >
-                Tampilkan Semua Produk
+                hamosu Produtu hotu
             </a>
 
         </div>
