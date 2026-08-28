@@ -376,8 +376,9 @@
 
     <p>
      Buka receiver, parabola, kabel, remote,
-    no TV No sasan seluk tan.
+    no TV No sasan cleseluk tan.
     Hili sasán ne'ebé ita hakarak no halo pedidu diretamente liuhusi WhatsApp.
+
     </p>
 
 </section>
@@ -391,8 +392,7 @@
         </h2>
 
         <p>
-            Cari produk yang Anda butuhkan berdasarkan
-            nama atau kategori.
+            Hili produtu ne'ebé ita presiza ho naran ka kategoria.
         </p>
 
     </div>
