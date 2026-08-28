@@ -9,6 +9,7 @@
     >
 
     <title>Tambah TV Voucher - Dulmar Satellite Store</title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo-dulmar.jpg') }}">
 
     <style>
         * {

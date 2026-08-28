@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Inventaris - Dulmar Satellite Store</title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo-dulmar.jpg') }}">
 
     <style>
         * { box-sizing: border-box; }
