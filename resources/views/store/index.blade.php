@@ -375,9 +375,9 @@
     </h1>
 
     <p>
-        Temukan receiver, parabola, kabel, remote,
-        aksesoris TV satelit dan berbagai produk lainnya.
-        Pilih produk dan pesan langsung melalui WhatsApp.
+     Buka receiver, parabola, kabel, remote,
+    no TV No sasan seluk tan.
+    Hili sasán ne'ebé ita hakarak no halo pedidu diretamente liuhusi WhatsApp.
     </p>
 
 </section>
