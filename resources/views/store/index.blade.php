@@ -417,7 +417,7 @@
                     name="search"
                     class="filter-control"
                     value="{{ $search }}"
-                    placeholder="Contoh: Receiver, K-Vision, HDMI..."
+                    placeholder="Ex: Receiver, K-Vision, HDMI..."
                 >
 
             </div>
