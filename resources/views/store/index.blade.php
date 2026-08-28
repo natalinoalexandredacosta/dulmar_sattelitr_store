@@ -505,12 +505,11 @@
         <div class="empty-state">
 
             <h3>
-                Produk tidak ditemukan
+                La hetan produtu.
             </h3>
 
             <p>
-                Tidak ada produk yang sesuai dengan
-                pencarian atau kategori yang dipilih.
+                La iha produtu ne’ebé ita buka..
             </p>
 
             <a
