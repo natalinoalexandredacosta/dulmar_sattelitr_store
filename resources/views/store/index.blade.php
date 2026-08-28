@@ -425,7 +425,7 @@
             <div class="filter-group">
 
                 <label for="category">
-                    Kategori
+                    Kategoria
                 </label>
 
                 <select
@@ -435,7 +435,7 @@
                 >
 
                     <option value="">
-                        Semua Kategori
+                        Kategoria sira
                     </option>
 
                     @foreach ($categories as $categoryItem)
@@ -460,14 +460,14 @@
                 type="submit"
                 class="filter-button"
             >
-                Cari
+                buka
             </button>
 
             <a
                 href="{{ route('store.index') }}"
                 class="reset-button"
             >
-                Reset
+                hamos
             </a>
 
         </form>
