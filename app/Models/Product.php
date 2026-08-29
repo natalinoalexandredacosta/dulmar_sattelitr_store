@@ -18,6 +18,13 @@ class Product extends Model
         'purchase_price',
         'selling_price',
         'image',
+
+        // Detail / spesifikasi produk
+        'description',
+        'brand',
+        'model',
+        'connectivity',
+        'warranty',
     ];
 
     protected $casts = [
@@ -27,67 +34,19 @@ class Product extends Model
         'selling_price' => 'decimal:2',
     ];
 
-    /**
-     * Riwayat stok masuk produk.
-     */
     public function stockIns(): HasMany
     {
-        return $this->hasMany(
-            StockIn::class
-        );
+        return $this->hasMany(StockIn::class);
     }
 
-    /**
-     * Riwayat stok keluar produk.
-     */
     public function stockOuts(): HasMany
     {
-        return $this->hasMany(
-            StockOut::class
-        );
+        return $this->hasMany(StockOut::class);
     }
 
-    /**
-     * Keuntungan per unit.
-     */
     public function getProfitPerUnitAttribute(): float
     {
-        return
-            (float) $this->selling_price
+        return (float) $this->selling_price
             - (float) $this->purchase_price;
-    }
-
-    /**
-     * Harga yang ditampilkan kepada customer.
-     */
-    public function getDisplayPriceAttribute(): float
-    {
-        return (float) (
-            $this->selling_price
-            ?? $this->price
-            ?? 0
-        );
-    }
-
-    /**
-     * Produk masih tersedia.
-     */
-    public function getIsAvailableAttribute(): bool
-    {
-        return (int) $this->stock > 0;
-    }
-
-    /**
-     * URL gambar produk.
-     */
-    public function getImageUrlAttribute(): ?string
-    {
-        if (empty($this->image)) {
-            return null;
-        }
-
-        return asset(
-            'storage/' . $this->image
-        );
     }
 }

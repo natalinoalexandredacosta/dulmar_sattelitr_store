@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="tet">
 <head>
     <meta charset="UTF-8">
 
@@ -9,352 +9,916 @@
     >
 
     <title>Dulmar Satellite Store</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo-dulmar.jpg') }}">
+
+    <link
+        rel="icon"
+        type="image/jpeg"
+        href="{{ asset('images/logo-dulmar.jpg') }}"
+    >
 
     <style>
+        :root {
+            --navy-1: #0b2544;
+            --navy-2: #1d4488;
+            --blue-link: #2563eb;
+            --green: #16a34a;
+            --green-dark: #128a3e;
+            --amber: #c07a05;
+            --red: #dc2626;
+            --bg: #f3f5f8;
+            --card: #ffffff;
+            --border: #e3e7ee;
+            --text: #1a1f2b;
+            --muted: #667085;
+        }
+
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1f2937;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            background: var(--bg);
+            color: var(--text);
         }
 
-        .navbar {
+        /*
+        |--------------------------------------------------------------------------
+        | ANCHOR OFFSET
+        |--------------------------------------------------------------------------
+        */
+
+        #home,
+        #produtu,
+        #pagamentu,
+        #kontaktu {
+            scroll-margin-top: 90px;
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOPBAR
+        |--------------------------------------------------------------------------
+        */
+
+        .topbar {
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+
+            background: var(--navy-1);
+            color: white;
+
+            box-shadow:
+                0 2px 10px
+                rgba(0, 0, 0, 0.15);
+        }
+
+        .topbar-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 16px 24px;
+
             display: flex;
             align-items: center;
-            padding: 18px 7%;
-            background: #1f2b3a;
-            color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            justify-content: space-between;
+            gap: 25px;
         }
 
         .brand {
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 17px;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
+        nav ul {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+
+            list-style: none;
+        }
+
+        nav a {
+            color: #c9d6ec;
+            text-decoration: none;
+
+            font-size: 13.5px;
+            font-weight: 500;
+
+            transition: color 0.2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: white;
+        }
+
+        .topbar-cta {
+            padding: 9px 16px;
+
+            border-radius: 6px;
+            background: var(--green);
+
+            color: white;
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            transition: background 0.2s;
+        }
+
+        .topbar-cta:hover {
+            background: var(--green-dark);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | HERO
+        |--------------------------------------------------------------------------
+        */
+
         .hero {
-            padding: 70px 7%;
-            text-align: center;
+            padding: 72px 24px 64px;
+
             background: linear-gradient(
                 135deg,
-                #1f2b3a,
-                #2563eb
+                var(--navy-1),
+                var(--navy-2)
             );
+
             color: white;
+            text-align: center;
         }
 
         .hero h1 {
-            margin: 0 0 15px;
-            font-size: 44px;
+            margin-bottom: 14px;
+
+            font-size: 34px;
+            font-weight: 800;
         }
 
         .hero p {
+            max-width: 680px;
             margin: 0 auto;
-            max-width: 700px;
-            font-size: 19px;
-            line-height: 1.6;
+
+            color: #dbe7fa;
+
+            font-size: 14.5px;
+            line-height: 1.7;
         }
 
-        .content {
-            padding: 45px 7%;
+        /*
+        |--------------------------------------------------------------------------
+        | TRUST BAR
+        |--------------------------------------------------------------------------
+        */
+
+        .trust-bar {
+            background: var(--navy-2);
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.12);
         }
 
-        .section-header {
-            margin-bottom: 25px;
+        .trust-bar-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 14px 24px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            gap: 45px;
+            flex-wrap: wrap;
         }
 
-        .section-header h2 {
-            margin: 0 0 8px;
-            font-size: 31px;
+        .trust-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            color: white;
+            font-size: 13px;
         }
 
-        .section-header p {
-            margin: 0;
-            color: #6b7280;
+        .trust-stat b {
+            font-weight: 700;
         }
 
-        .filter-card {
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 10px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        /*
+        |--------------------------------------------------------------------------
+        | SECTION
+        |--------------------------------------------------------------------------
+        */
+
+        section {
+            padding: 38px 0;
         }
 
-        .filter-form {
+        #produtu {
+            padding-bottom: 48px;
+        }
+
+        #pagamentu {
+            padding-top: 44px;
+        }
+
+        #kontaktu {
+            padding-top: 30px;
+        }
+
+        .section-title {
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+
+        .sub {
+            margin-bottom: 22px;
+
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH
+        |--------------------------------------------------------------------------
+        */
+
+        .search-bar {
             display: grid;
+
             grid-template-columns:
                 minmax(250px, 1fr)
-                250px
+                240px
                 auto
                 auto;
+
             gap: 12px;
             align-items: end;
+
+            margin-bottom: 28px;
+            padding: 20px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 10px;
+            background: var(--card);
         }
 
-        .filter-group label {
+        .field label {
             display: block;
-            margin-bottom: 7px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #374151;
+
+            margin-bottom: 6px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .filter-control {
+        .field input,
+        .field select {
             width: 100%;
-            height: 44px;
+            height: 42px;
+
             padding: 0 12px;
-            border: 1px solid #d1d5db;
+
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 7px;
+
             background: white;
-            font-size: 15px;
+
+            font-size: 13px;
         }
 
-        .filter-control:focus {
-            border-color: #2563eb;
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--blue-link);
             outline: none;
+
             box-shadow:
                 0 0 0 2px
-                rgba(37, 99, 235, 0.12);
+                rgba(37, 99, 235, 0.08);
         }
 
-        .filter-button {
-            height: 44px;
-            padding: 0 20px;
-            border: none;
+        .btn-primary,
+        .btn-ghost {
+            height: 42px;
+
+            padding: 0 18px;
+
             border-radius: 7px;
-            background: #2563eb;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
+
+            font-size: 13px;
+            font-weight: 600;
+
             cursor: pointer;
         }
 
-        .filter-button:hover {
+        .btn-primary {
+            border: none;
+
+            background: var(--blue-link);
+            color: white;
+        }
+
+        .btn-primary:hover {
             background: #1d4ed8;
         }
 
-        .reset-button {
+        .btn-ghost {
             display: flex;
-            height: 44px;
             align-items: center;
             justify-content: center;
-            padding: 0 20px;
-            border-radius: 7px;
-            background: #6b7280;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
+
+            border:
+                1px solid
+                var(--border);
+
+            background: white;
+            color: var(--text);
+
             text-decoration: none;
         }
 
-        .reset-button:hover {
-            background: #4b5563;
+        .btn-ghost:hover {
+            background: #f8fafc;
         }
 
         .filter-result {
-            margin-top: 14px;
-            color: #6b7280;
-            font-size: 14px;
+            margin-top: -12px;
+            margin-bottom: 22px;
+
+            color: var(--muted);
+            font-size: 13px;
         }
 
-        .product-grid {
+        /*
+        |--------------------------------------------------------------------------
+        | PRODUCT GRID
+        |--------------------------------------------------------------------------
+        */
+
+        .grid {
             display: grid;
-            grid-template-columns: repeat(
-                auto-fill,
-                minmax(250px, 1fr)
-            );
-            gap: 22px;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 18px;
+            align-items: stretch;
         }
 
-        .product-card {
+        .card {
+            display: flex;
+            flex-direction: column;
+
+            height: 100%;
             overflow: hidden;
-            border-radius: 12px;
-            background: white;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 10px;
+            background: var(--card);
+
             box-shadow:
-                0 2px 10px
-                rgba(0, 0, 0, 0.08);
+                0 2px 7px
+                rgba(0, 0, 0, 0.04);
+
             transition:
                 transform 0.2s,
                 box-shadow 0.2s;
         }
 
-        .product-card:hover {
-            transform: translateY(-4px);
+        .card:hover {
+            transform: translateY(-3px);
+
             box-shadow:
-                0 6px 18px
-                rgba(0, 0, 0, 0.12);
+                0 7px 18px
+                rgba(0, 0, 0, 0.09);
         }
 
-        .product-image {
+        .thumb {
+            position: relative;
+
+            display: flex;
+
             width: 100%;
-            height: 210px;
+            height: 190px;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
             overflow: hidden;
-            background: #e5e7eb;
+
+            background: #e9edf3;
+
+            color: var(--muted);
+            font-size: 12px;
         }
 
-        .product-image img {
+        .thumb img {
             display: block;
+
             width: 100%;
             height: 100%;
+
             object-fit: cover;
         }
 
-        .no-image {
+        .thumb-tag {
+            position: absolute;
+
+            top: 8px;
+            left: 8px;
+            z-index: 2;
+
+            padding: 4px 7px;
+
+            border-radius: 4px;
+
+            background:
+                rgba(0, 0, 0, 0.62);
+
+            color: white;
+
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .card-body {
             display: flex;
-            width: 100%;
-            height: 100%;
-            align-items: center;
-            justify-content: center;
-            color: #6b7280;
-            font-size: 14px;
+            flex-direction: column;
+
+            flex: 1;
+
+            padding: 14px;
         }
 
-        .product-body {
-            padding: 18px;
-        }
-
-        .category {
+        .badge {
             display: inline-block;
-            margin-bottom: 10px;
-            padding: 5px 9px;
-            border-radius: 999px;
-            background: #dbeafe;
-            color: #1d4ed8;
-            font-size: 12px;
-            font-weight: bold;
+            align-self: flex-start;
+
+            margin-bottom: 8px;
+            padding: 3px 8px;
+
+            border-radius: 5px;
+
+            background: #e8f0fe;
+            color: var(--blue-link);
+
+            font-size: 11px;
+            font-weight: 600;
         }
 
-        .product-name {
-            margin: 0 0 12px;
-            font-size: 21px;
+        .card-title {
+            min-height: 42px;
+
+            margin-bottom: 7px;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            line-height: 1.4;
         }
 
         .price {
-            margin-bottom: 10px;
-            color: #2563eb;
-            font-size: 23px;
-            font-weight: bold;
+            margin-bottom: 7px;
+
+            color: var(--blue-link);
+
+            font-size: 16px;
+            font-weight: 700;
         }
 
-        .stock {
-            margin-bottom: 16px;
-            font-size: 14px;
-            font-weight: bold;
+        .stock-line {
+            min-height: 18px;
+            margin-bottom: 12px;
         }
 
-        .stock.available {
-            color: #16a34a;
+        .stock-ok {
+            color: var(--green-dark);
+
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .stock.low {
-            color: #d97706;
+        .stock-low {
+            color: var(--amber);
+
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .stock.empty {
-            color: #dc2626;
+        .stock-out {
+            color: var(--red);
+
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .whatsapp-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            border-radius: 7px;
-            background: #16a34a;
+        .card-actions {
+            display: flex;
+
+            gap: 7px;
+
+            margin-top: auto;
+            padding-top: 8px;
+        }
+
+        .btn-wa {
+            display: flex;
+
+            flex: 1;
+
+            align-items: center;
+            justify-content: center;
+
+            min-height: 40px;
+            padding: 10px;
+
+            border: none;
+            border-radius: 6px;
+
+            background: var(--green);
             color: white;
+
             text-align: center;
             text-decoration: none;
-            font-weight: bold;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            transition: background 0.2s;
         }
 
-        .whatsapp-button:hover {
-            background: #15803d;
+        .btn-wa:hover {
+            background: var(--green-dark);
         }
 
-        .whatsapp-button.disabled {
+        .btn-wa.disabled {
             pointer-events: none;
             background: #9ca3af;
-            cursor: not-allowed;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | EMPTY STATE
+        |--------------------------------------------------------------------------
+        */
+
         .empty-state {
-            padding: 45px;
+            padding: 50px 20px;
+
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 10px;
+
             background: white;
-            color: #6b7280;
+
             text-align: center;
-            box-shadow:
-                0 2px 10px
-                rgba(0, 0, 0, 0.06);
         }
 
         .empty-state h3 {
-            margin: 0 0 10px;
-            color: #1f2937;
+            margin-bottom: 8px;
         }
 
         .empty-state p {
-            margin: 0 0 20px;
+            margin-bottom: 18px;
+
+            color: var(--muted);
         }
 
-        footer {
-            margin-top: 40px;
-            padding: 25px 7%;
-            background: #1f2b3a;
+        /*
+        |--------------------------------------------------------------------------
+        | PAYMENT / DELIVERY
+        |--------------------------------------------------------------------------
+        */
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 16px;
+        }
+
+        .info-card {
+            padding: 20px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 10px;
+            background: var(--card);
+
+            box-shadow:
+                0 2px 7px
+                rgba(0, 0, 0, 0.03);
+        }
+
+        .info-card h3 {
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .pay-methods {
+            display: flex;
+            flex-wrap: wrap;
+
+            gap: 8px;
+        }
+
+        .pay-chip {
+            padding: 7px 11px;
+
+            border-radius: 6px;
+
+            background: #eef1f5;
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .step-list {
+            list-style: none;
+            font-size: 13px;
+        }
+
+        .step-list li {
+            display: flex;
+            gap: 10px;
+
+            padding: 9px 0;
+
+            border-bottom:
+                1px solid
+                #f0f2f5;
+
+            line-height: 1.5;
+        }
+
+        .step-list li:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            display: flex;
+
+            width: 22px;
+            height: 22px;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: var(--navy-2);
+            color: white;
+
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTACT
+        |--------------------------------------------------------------------------
+        */
+
+        .contact-box {
+            padding: 28px;
+
+            border-radius: 10px;
+
+            background: linear-gradient(
+                135deg,
+                var(--navy-1),
+                var(--navy-2)
+            );
+
             color: white;
             text-align: center;
         }
 
-        @media (max-width: 950px) {
-            .filter-form {
-                grid-template-columns: 1fr 1fr;
+        .contact-box h3 {
+            margin-bottom: 8px;
+            font-size: 19px;
+        }
+
+        .contact-box p {
+            max-width: 600px;
+
+            margin: 0 auto 15px;
+
+            color: #dbe7fa;
+
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .contact-button {
+            display: inline-block;
+
+            padding: 10px 18px;
+
+            border-radius: 6px;
+
+            background: var(--green);
+
+            color: white;
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition: background 0.2s;
+        }
+
+        .contact-button:hover {
+            background: var(--green-dark);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | FOOTER
+        |--------------------------------------------------------------------------
+        */
+
+        footer {
+            margin-top: 20px;
+            padding: 24px;
+
+            background: var(--navy-1);
+            color: #c9d6ec;
+
+            text-align: center;
+
+            font-size: 12px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE - TABLET
+        |--------------------------------------------------------------------------
+        */
+
+        @media (max-width: 1000px) {
+
+            .grid {
+                grid-template-columns:
+                    repeat(3, minmax(0, 1fr));
+            }
+
+            .search-bar {
+                grid-template-columns:
+                    1fr 1fr;
             }
         }
 
-        @media (max-width: 700px) {
-            .navbar {
-                padding: 14px 18px;
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE - MOBILE
+        |--------------------------------------------------------------------------
+        */
+
+        @media (max-width: 760px) {
+
+            .topbar-inner {
+                flex-wrap: wrap;
             }
 
-            .brand {
-                font-size: 18px;
+            nav {
+                order: 3;
+
+                width: 100%;
+
+                overflow-x: auto;
+            }
+
+            nav ul {
+                min-width: max-content;
+
+                gap: 18px;
+                padding-top: 6px;
             }
 
             .hero {
-                padding: 50px 18px;
+                padding: 48px 20px;
             }
 
             .hero h1 {
-                font-size: 32px;
+                font-size: 29px;
             }
 
             .hero p {
-                font-size: 16px;
+                font-size: 14px;
             }
 
-            .content {
-                padding: 30px 16px;
+            .trust-bar-inner {
+                gap: 18px;
+                justify-content: flex-start;
             }
 
-            .filter-form {
+            .grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE - SMALL MOBILE
+        |--------------------------------------------------------------------------
+        */
+
+        @media (max-width: 560px) {
+
+            .wrap {
+                padding: 0 14px;
+            }
+
+            .topbar-inner {
+                padding: 13px 14px;
+            }
+
+            .brand {
+                font-size: 15px;
+            }
+
+            .topbar-cta {
+                padding: 8px 11px;
+
+                font-size: 11px;
+            }
+
+            .search-bar {
                 grid-template-columns: 1fr;
             }
 
-            .filter-button,
-            .reset-button {
+            .btn-primary,
+            .btn-ghost {
                 width: 100%;
             }
 
-            .product-grid {
+            .grid {
                 grid-template-columns: 1fr;
+            }
+
+            .thumb {
+                height: 220px;
+            }
+
+            #home,
+            #produtu,
+            #pagamentu,
+            #kontaktu {
+                scroll-margin-top: 125px;
             }
         }
     </style>
@@ -362,67 +926,184 @@
 
 <body>
 
-<nav class="navbar">
-    <div class="brand">
-        Dulmar Satellite Store
-    </div>
-</nav>
+@php
+    $storeWhatsapp = '67076732586';
 
-<section class="hero">
+    $generalWhatsappMessage =
+        "Bondia Dulmar Satellite Store,\n\n"
+        . "Hau hakarak husu informasaun kona-ba "
+        . "produtu sira.";
+
+    $generalWhatsappUrl =
+        'https://wa.me/'
+        . $storeWhatsapp
+        . '?text='
+        . urlencode($generalWhatsappMessage);
+@endphp
+
+
+{{-- ============================================================
+    TOPBAR
+============================================================ --}}
+
+<div class="topbar">
+
+    <div class="topbar-inner">
+
+        <div class="brand">
+            Dulmar Satellite Store
+        </div>
+
+        <nav>
+
+            <ul>
+
+                <li>
+                    <a
+                        href="#home"
+                        class="active"
+                    >
+                        Uma
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#produtu">
+                        Produtu
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#pagamentu">
+                        Pagamentu & Entrega
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#kontaktu">
+                        Kontaktu
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+        <a
+            class="topbar-cta"
+            href="{{ $generalWhatsappUrl }}"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            WhatsApp
+        </a>
+
+    </div>
+
+</div>
+
+
+{{-- ============================================================
+    HERO
+============================================================ --}}
+
+<div
+    class="hero"
+    id="home"
+>
 
     <h1>
         Dulmar Satellite Store
     </h1>
 
     <p>
-     Buka receiver, parabola, kabel, remote,
-    no TV No sasan seluk tan.
-    Hili sasán ne'ebé ita hakarak bele liga diretamente liu husi WhatsApp.
-
+        Buka receiver, parabola, kabel, remote,
+        TV no sasán eletróniku seluk tan.
+        Hili produtu ne'ebé ita hakarak no halo
+        pedidu diretamente liuhusi WhatsApp.
     </p>
 
-</section>
+</div>
 
-<main class="content">
 
-    <div class="section-header">
+{{-- ============================================================
+    TRUST BAR
+============================================================ --}}
 
-        <h2>
-            Ami Nia Produtu
-        </h2>
+<div class="trust-bar">
 
-        <p>
-            Hili produtu ne'ebé ita presiza ho naran ka kategoria.
-        </p>
+    <div class="trust-bar-inner">
+
+        <div class="trust-stat">
+            ✓
+            <b>Produtu Atual</b>
+        </div>
+
+        <div class="trust-stat">
+            ✓
+            <b>Stok Atual</b>
+        </div>
+
+        <div class="trust-stat">
+            ✓
+            <b>Order WhatsApp</b>
+        </div>
+
+        <div class="trust-stat">
+            ✓
+            <b>Servisu 24 Jam</b>
+        </div>
 
     </div>
 
-    <div class="filter-card">
+</div>
+
+
+<div class="wrap">
+
+
+    {{-- ========================================================
+        PRODUCT SECTION
+    ========================================================= --}}
+
+    <section id="produtu">
+
+        <h2 class="section-title">
+            Ami Nia Produtu
+        </h2>
+
+        <p class="sub">
+            Hili produtu ne'ebé ita presiza
+            ho naran ka kategoria.
+        </p>
+
+
+        {{-- SEARCH --}}
 
         <form
             action="{{ route('store.index') }}"
             method="GET"
-            class="filter-form"
+            class="search-bar"
         >
 
-            <div class="filter-group">
+            <div class="field">
 
                 <label for="search">
-                    Cari Produk
+                    Buka Produtu
                 </label>
 
                 <input
                     type="text"
                     id="search"
                     name="search"
-                    class="filter-control"
-                    value="{{ $search }}"
+                    value="{{ $search ?? '' }}"
                     placeholder="Ex: Receiver, K-Vision, HDMI..."
                 >
 
             </div>
 
-            <div class="filter-group">
+
+            <div class="field">
 
                 <label for="category">
                     Kategoria
@@ -431,18 +1112,17 @@
                 <select
                     id="category"
                     name="category"
-                    class="filter-control"
                 >
 
                     <option value="">
-                        Kategoria sira
+                        Kategoria hotu
                     </option>
 
                     @foreach ($categories as $categoryItem)
 
                         <option
                             value="{{ $categoryItem }}"
-                            {{ $category === $categoryItem
+                            {{ ($category ?? '') === $categoryItem
                                 ? 'selected'
                                 : ''
                             }}
@@ -456,229 +1136,410 @@
 
             </div>
 
+
             <button
                 type="submit"
-                class="filter-button"
+                class="btn-primary"
             >
-                buka
+                Buka
             </button>
+
 
             <a
                 href="{{ route('store.index') }}"
-                class="reset-button"
+                class="btn-ghost"
             >
                 Hamoos
             </a>
 
         </form>
 
-        @if ($search !== '' || $category !== '')
+
+        @if (($search ?? '') !== '' || ($category ?? '') !== '')
 
             <div class="filter-result">
 
-                Ditemukan
+                Rezultadu:
+
                 <strong>
                     {{ $products->count() }}
                 </strong>
-                produtu
 
-                @if ($search !== '')
-                    dengan pencarian
-                    "<strong>{{ $search }}</strong>"
-                @endif
-
-                @if ($category !== '')
-                    pada kategori
-                    "<strong>{{ $category }}</strong>"
-                @endif
-
-                .
+                produtu.
 
             </div>
 
         @endif
 
-    </div>
 
-    @if ($products->isEmpty())
+        {{-- ====================================================
+            PRODUCTS
+        ===================================================== --}}
 
-        <div class="empty-state">
+        @if ($products->isEmpty())
+
+            <div class="empty-state">
+
+                <h3>
+                    Produtu la hetan
+                </h3>
+
+                <p>
+                    La iha produtu ne'ebé
+                    corresponde ho buka ne'e.
+                </p>
+
+                <a
+                    href="{{ route('store.index') }}"
+                    class="btn-primary"
+                    style="
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        text-decoration: none;
+                    "
+                >
+                    Haree Produtu Hotu
+                </a>
+
+            </div>
+
+        @else
+
+
+            <div class="grid">
+
+                @foreach ($products as $product)
+
+                    @php
+                        $productName =
+                            $product->product_name
+                            ?? 'Produtu';
+
+                        $productCategory =
+                            $product->category
+                            ?? '-';
+
+                        $price =
+                            (float) (
+                                $product->selling_price
+                                ?? 0
+                            );
+
+                        $stock =
+                            (int) (
+                                $product->stock
+                                ?? 0
+                            );
+
+                        $productMessage =
+                            "Bondia Dulmar Satellite Store,\n\n"
+                            . "Hau hakarak halo pedidu "
+                            . "produtu ida-ne'e:\n\n"
+
+                            . "Produtu: {$productName}\n"
+
+                            . "Kategoria: {$productCategory}\n"
+
+                            . "Presu: $"
+                            . number_format(
+                                $price,
+                                2
+                            )
+                            . "\n"
+
+                            . "Kuantidade: 1\n\n"
+
+                            . "Favor konfirma disponibilidade "
+                            . "no total pagamentu.\n\n"
+
+                            . "Obrigadu.";
+
+                        $productWhatsappUrl =
+                            'https://wa.me/'
+                            . $storeWhatsapp
+                            . '?text='
+                            . urlencode(
+                                $productMessage
+                            );
+                    @endphp
+
+
+                    <article class="card">
+
+
+                        {{-- FOTO PRODUK --}}
+
+                        <div class="thumb">
+
+                            @if ($stock > 0 && $stock <= 5)
+
+                                <span class="thumb-tag">
+                                    Stok Limitadu
+                                </span>
+
+                            @endif
+
+
+                            @if (!empty($product->image))
+
+                                <img
+                                    src="{{ asset(
+                                        'storage/'
+                                        . $product->image
+                                    ) }}"
+                                    alt="{{ $productName }}"
+                                    loading="lazy"
+                                >
+
+                            @else
+
+                                Foto la disponivel
+
+                            @endif
+
+                        </div>
+
+
+                        {{-- INFORMASI PRODUK --}}
+
+                        <div class="card-body">
+
+
+                            @if (!empty($product->category))
+
+                                <span class="badge">
+                                    {{ $product->category }}
+                                </span>
+
+                            @endif
+
+
+                            <div class="card-title">
+                                {{ $productName }}
+                            </div>
+
+
+                            <div class="price">
+
+                                ${{ number_format(
+                                    $price,
+                                    2
+                                ) }}
+
+                            </div>
+
+
+                            <div class="stock-line">
+
+                                @if ($stock > 5)
+
+                                    <span class="stock-ok">
+                                        ✓ Disponivel
+                                    </span>
+
+
+                                @elseif ($stock > 0)
+
+                                    <span class="stock-low">
+                                        ⚠ Stok Limitadu
+                                    </span>
+
+
+                                @else
+
+                                    <span class="stock-out">
+                                        Stok Hotu
+                                    </span>
+
+                                @endif
+
+                            </div>
+
+
+                            <div class="card-actions">
+
+                                <a
+                                    href="{{ $stock > 0
+                                        ? $productWhatsappUrl
+                                        : '#'
+                                    }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="btn-wa
+                                        {{ $stock <= 0
+                                            ? 'disabled'
+                                            : ''
+                                        }}"
+                                >
+
+                                    {{ $stock > 0
+                                        ? 'Order via WhatsApp'
+                                        : 'Stok Hotu'
+                                    }}
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                @endforeach
+
+            </div>
+
+        @endif
+
+    </section>
+
+
+    {{-- ========================================================
+        PAYMENT & DELIVERY
+    ========================================================= --}}
+
+    <section id="pagamentu">
+
+        <h2 class="section-title">
+            Pagamentu & Entrega
+        </h2>
+
+        <p class="sub">
+            Informasaun importante antes
+            halo pedidu liuhusi WhatsApp.
+        </p>
+
+
+        <div class="info-grid">
+
+
+            {{-- PAYMENT --}}
+
+            <div class="info-card">
+
+                <h3>
+                    Métodu Pagamentu
+                </h3>
+
+                <div class="pay-methods">
+
+                    <span class="pay-chip">
+                        Dinheiru / Cash
+                    </span>
+
+                    <span class="pay-chip">
+                        Transferénsia Banku
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            {{-- ORDER PROCESS --}}
+
+            <div class="info-card">
+
+                <h3>
+                    Prosesu Order
+                </h3>
+
+                <ul class="step-list">
+
+                    <li>
+
+                        <div class="step-num">
+                            1
+                        </div>
+
+                        <div>
+                            Hili produtu no klik
+                            "Order via WhatsApp".
+                        </div>
+
+                    </li>
+
+
+                    <li>
+
+                        <div class="step-num">
+                            2
+                        </div>
+
+                        <div>
+                            Konfirma produtu,
+                            kuantidade no entrega.
+                        </div>
+
+                    </li>
+
+
+                    <li>
+
+                        <div class="step-num">
+                            3
+                        </div>
+
+                        <div>
+                            Konfirma pagamentu
+                            no simu produtu.
+                        </div>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {{-- ========================================================
+        CONTACT
+    ========================================================= --}}
+
+    <section id="kontaktu">
+
+        <div class="contact-box">
 
             <h3>
-                La hetan produtu.
+                Presiza Ajuda?
             </h3>
 
             <p>
-                La iha produtu ne’ebé ita buka..
+                Kontaktu ami diretamente liuhusi
+                WhatsApp atu husu kona-ba produtu,
+                presu ka disponibilidade.
             </p>
 
             <a
-                href="{{ route('store.index') }}"
-                class="reset-button"
-                style="display: inline-flex;"
+                href="{{ $generalWhatsappUrl }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-button"
             >
-                hamosu Produtu hotu
+                Kontaktu via WhatsApp
             </a>
 
         </div>
 
-    @else
+    </section>
 
-        <div class="product-grid">
+</div>
 
-            @foreach ($products as $product)
 
-                @php
-
-                    $productName =
-                        $product->product_name ?? 'Produk';
-
-                    $productCategory =
-                        $product->category ?? '-';
-
-                    $price =
-                        (float) (
-                            $product->selling_price
-                            ?? 0
-                        );
-
-                    $stock =
-                        (int) (
-                            $product->stock
-                            ?? 0
-                        );
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | WhatsApp Dulmar Satellite Store
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $whatsappNumber =
-                        '67076732586';
-
-                    $whatsappMessage =
-                        "Halo Dulmar Satellite Store,\n\n"
-                        . "Saya tertarik dengan produk berikut:\n\n"
-                        . "Produk: {$productName}\n"
-                        . "Kategori: {$productCategory}\n"
-                        . "Harga: $"
-                        . number_format($price, 2)
-                        . "\n"
-                        . "Jumlah yang ingin dipesan: 1\n\n"
-                        . "Mohon konfirmasi ketersediaan produk "
-                        . "dan total pembayaran.\n\n"
-                        . "Terima kasih.";
-
-                    $whatsappUrl =
-                        'https://wa.me/'
-                        . $whatsappNumber
-                        . '?text='
-                        . urlencode(
-                            $whatsappMessage
-                        );
-
-                @endphp
-
-                <article class="product-card">
-
-                    <div class="product-image">
-
-                        @if (!empty($product->image))
-
-                            <img
-                                src="{{ asset(
-                                    'storage/'
-                                    . $product->image
-                                ) }}"
-                                alt="{{ $productName }}"
-                            >
-
-                        @else
-
-                            <div class="no-image">
-                                Foto belum tersedia
-                            </div>
-
-                        @endif
-
-                    </div>
-
-                    <div class="product-body">
-
-                        @if (!empty($product->category))
-
-                            <span class="category">
-                                {{ $product->category }}
-                            </span>
-
-                        @endif
-
-                        <h3 class="product-name">
-                            {{ $productName }}
-                        </h3>
-
-                        <div class="price">
-                            ${{ number_format(
-                                $price,
-                                2
-                            ) }}
-                        </div>
-
-                        @if ($stock > 5)
-
-                            <div class="stock available">
-                                ✓ Tersedia
-                            </div>
-
-                        @elseif ($stock > 0)
-
-                            <div class="stock low">
-                                ⚠ Stok Terbatas
-                            </div>
-
-                        @else
-
-                            <div class="stock empty">
-                                Stok Habis
-                            </div>
-
-                        @endif
-
-                        <a
-                            href="{{ $stock > 0
-                                ? $whatsappUrl
-                                : '#'
-                            }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="whatsapp-button
-                                {{ $stock <= 0
-                                    ? 'disabled'
-                                    : ''
-                                }}"
-                        >
-                            {{ $stock > 0
-                                ? 'Order via WhatsApp'
-                                : 'Stok Habis'
-                            }}
-                        </a>
-
-                    </div>
-
-                </article>
-
-            @endforeach
-
-        </div>
-
-    @endif
-
-</main>
+{{-- ============================================================
+    FOOTER
+============================================================ --}}
 
 <footer>
+
     © {{ date('Y') }}
     Dulmar Satellite Store
+
 </footer>
 
 </body>
