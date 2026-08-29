@@ -19,11 +19,13 @@ class ProductController extends Controller
                 'string',
                 'max:100',
             ],
+
             'category' => [
                 'nullable',
                 'string',
                 'max:255',
             ],
+
             'stock_status' => [
                 'nullable',
                 'in:available,low,out',
@@ -200,6 +202,24 @@ class ProductController extends Controller
              */
             'image' =>
                 $imagePath,
+
+            /*
+             * Detail / spesifikasi produk.
+             */
+            'description' =>
+                $data['description'] ?? null,
+
+            'brand' =>
+                $data['brand'] ?? null,
+
+            'model' =>
+                $data['model'] ?? null,
+
+            'connectivity' =>
+                $data['connectivity'] ?? null,
+
+            'warranty' =>
+                $data['warranty'] ?? null,
         ]);
 
         return redirect()
@@ -299,6 +319,24 @@ class ProductController extends Controller
              */
             'image' =>
                 $imagePath,
+
+            /*
+             * Detail / spesifikasi produk.
+             */
+            'description' =>
+                $data['description'] ?? null,
+
+            'brand' =>
+                $data['brand'] ?? null,
+
+            'model' =>
+                $data['model'] ?? null,
+
+            'connectivity' =>
+                $data['connectivity'] ?? null,
+
+            'warranty' =>
+                $data['warranty'] ?? null,
 
             /*
              * Stok tidak diubah melalui Edit Produk.
@@ -510,6 +548,39 @@ class ProductController extends Controller
             ],
 
             /*
+             * Detail / spesifikasi produk.
+             */
+            'description' => [
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+
+            'brand' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'model' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'connectivity' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'warranty' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
              * Foto tidak wajib.
              *
              * Format:
@@ -568,6 +639,41 @@ class ProductController extends Controller
 
             'selling_price.gte' =>
                 'Harga jual harus sama dengan atau lebih besar dari harga beli.',
+
+
+            'description.string' =>
+                'Deskripsi produk harus berupa teks.',
+
+            'description.max' =>
+                'Deskripsi produk maksimal 5000 karakter.',
+
+
+            'brand.string' =>
+                'Brand produk harus berupa teks.',
+
+            'brand.max' =>
+                'Brand produk maksimal 255 karakter.',
+
+
+            'model.string' =>
+                'Model produk harus berupa teks.',
+
+            'model.max' =>
+                'Model produk maksimal 255 karakter.',
+
+
+            'connectivity.string' =>
+                'Konektivitas produk harus berupa teks.',
+
+            'connectivity.max' =>
+                'Konektivitas produk maksimal 255 karakter.',
+
+
+            'warranty.string' =>
+                'Garansi produk harus berupa teks.',
+
+            'warranty.max' =>
+                'Garansi produk maksimal 255 karakter.',
 
 
             'image.image' =>

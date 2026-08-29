@@ -55,12 +55,6 @@
             color: var(--text);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | ANCHOR OFFSET
-        |--------------------------------------------------------------------------
-        */
-
         #home,
         #produtu,
         #pagamentu,
@@ -114,17 +108,14 @@
             display: flex;
             align-items: center;
             gap: 26px;
-
             list-style: none;
         }
 
         nav a {
             color: #c9d6ec;
             text-decoration: none;
-
             font-size: 13.5px;
             font-weight: 500;
-
             transition: color 0.2s;
         }
 
@@ -135,11 +126,11 @@
 
         .topbar-cta {
             padding: 9px 16px;
-
             border-radius: 6px;
-            background: var(--green);
 
+            background: var(--green);
             color: white;
+
             text-decoration: none;
 
             font-size: 13px;
@@ -210,8 +201,8 @@
             padding: 14px 24px;
 
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
 
             gap: 45px;
             flex-wrap: wrap;
@@ -295,7 +286,6 @@
 
         .field label {
             display: block;
-
             margin-bottom: 6px;
 
             color: var(--muted);
@@ -318,7 +308,6 @@
             border-radius: 7px;
 
             background: white;
-
             font-size: 13px;
         }
 
@@ -335,7 +324,6 @@
         .btn-primary,
         .btn-ghost {
             height: 42px;
-
             padding: 0 18px;
 
             border-radius: 7px;
@@ -412,6 +400,7 @@
                 var(--border);
 
             border-radius: 10px;
+
             background: var(--card);
 
             box-shadow:
@@ -429,6 +418,12 @@
             box-shadow:
                 0 7px 18px
                 rgba(0, 0, 0, 0.09);
+        }
+
+        .thumb-link {
+            display: block;
+            color: inherit;
+            text-decoration: none;
         }
 
         .thumb {
@@ -459,6 +454,12 @@
             height: 100%;
 
             object-fit: cover;
+
+            transition: transform 0.25s;
+        }
+
+        .card:hover .thumb img {
+            transform: scale(1.025);
         }
 
         .thumb-tag {
@@ -508,13 +509,20 @@
 
         .card-title {
             min-height: 42px;
-
             margin-bottom: 7px;
 
             font-size: 14px;
             font-weight: 700;
-
             line-height: 1.4;
+        }
+
+        .card-title a {
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .card-title a:hover {
+            color: var(--blue-link);
         }
 
         .price {
@@ -553,7 +561,11 @@
         }
 
         .card-actions {
-            display: flex;
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                auto;
 
             gap: 7px;
 
@@ -561,22 +573,18 @@
             padding-top: 8px;
         }
 
-        .btn-wa {
+        .btn-wa,
+        .btn-detail {
             display: flex;
-
-            flex: 1;
 
             align-items: center;
             justify-content: center;
 
             min-height: 40px;
-            padding: 10px;
 
-            border: none;
+            padding: 9px 12px;
+
             border-radius: 6px;
-
-            background: var(--green);
-            color: white;
 
             text-align: center;
             text-decoration: none;
@@ -584,7 +592,17 @@
             font-size: 12px;
             font-weight: 700;
 
-            transition: background 0.2s;
+            transition:
+                background 0.2s,
+                border-color 0.2s,
+                color 0.2s;
+        }
+
+        .btn-wa {
+            border: none;
+
+            background: var(--green);
+            color: white;
         }
 
         .btn-wa:hover {
@@ -594,6 +612,24 @@
         .btn-wa.disabled {
             pointer-events: none;
             background: #9ca3af;
+        }
+
+        .btn-detail {
+            min-width: 72px;
+
+            border:
+                1px solid
+                #cfd6df;
+
+            background: white;
+            color: var(--text);
+        }
+
+        .btn-detail:hover {
+            border-color: var(--blue-link);
+
+            background: #eff6ff;
+            color: var(--blue-link);
         }
 
         /*
@@ -649,6 +685,7 @@
                 var(--border);
 
             border-radius: 10px;
+
             background: var(--card);
 
             box-shadow:
@@ -664,7 +701,6 @@
         .pay-methods {
             display: flex;
             flex-wrap: wrap;
-
             gap: 8px;
         }
 
@@ -766,8 +802,8 @@
             border-radius: 6px;
 
             background: var(--green);
-
             color: white;
+
             text-decoration: none;
 
             font-size: 13px;
@@ -800,12 +836,11 @@
 
         /*
         |--------------------------------------------------------------------------
-        | RESPONSIVE - TABLET
+        | RESPONSIVE
         |--------------------------------------------------------------------------
         */
 
         @media (max-width: 1000px) {
-
             .grid {
                 grid-template-columns:
                     repeat(3, minmax(0, 1fr));
@@ -817,23 +852,14 @@
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | RESPONSIVE - MOBILE
-        |--------------------------------------------------------------------------
-        */
-
         @media (max-width: 760px) {
-
             .topbar-inner {
                 flex-wrap: wrap;
             }
 
             nav {
                 order: 3;
-
                 width: 100%;
-
                 overflow-x: auto;
             }
 
@@ -871,14 +897,7 @@
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | RESPONSIVE - SMALL MOBILE
-        |--------------------------------------------------------------------------
-        */
-
         @media (max-width: 560px) {
-
             .wrap {
                 padding: 0 14px;
             }
@@ -893,7 +912,6 @@
 
             .topbar-cta {
                 padding: 8px 11px;
-
                 font-size: 11px;
             }
 
@@ -912,6 +930,12 @@
 
             .thumb {
                 height: 220px;
+            }
+
+            .card-actions {
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    90px;
             }
 
             #home,
@@ -942,10 +966,7 @@
 @endphp
 
 
-{{-- ============================================================
-    TOPBAR
-============================================================ --}}
-
+{{-- TOPBAR --}}
 <div class="topbar">
 
     <div class="topbar-inner">
@@ -1003,10 +1024,7 @@
 </div>
 
 
-{{-- ============================================================
-    HERO
-============================================================ --}}
-
+{{-- HERO --}}
 <div
     class="hero"
     id="home"
@@ -1026,10 +1044,7 @@
 </div>
 
 
-{{-- ============================================================
-    TRUST BAR
-============================================================ --}}
-
+{{-- TRUST BAR --}}
 <div class="trust-bar">
 
     <div class="trust-bar-inner">
@@ -1061,11 +1076,7 @@
 
 <div class="wrap">
 
-
-    {{-- ========================================================
-        PRODUCT SECTION
-    ========================================================= --}}
-
+    {{-- PRODUCT SECTION --}}
     <section id="produtu">
 
         <h2 class="section-title">
@@ -1079,7 +1090,6 @@
 
 
         {{-- SEARCH --}}
-
         <form
             action="{{ route('store.index') }}"
             method="GET"
@@ -1172,10 +1182,7 @@
         @endif
 
 
-        {{-- ====================================================
-            PRODUCTS
-        ===================================================== --}}
-
+        {{-- PRODUCTS --}}
         @if ($products->isEmpty())
 
             <div class="empty-state">
@@ -1236,32 +1243,21 @@
                             "Bondia Dulmar Satellite Store,\n\n"
                             . "Hau hakarak halo pedidu "
                             . "produtu ida-ne'e:\n\n"
-
                             . "Produtu: {$productName}\n"
-
                             . "Kategoria: {$productCategory}\n"
-
                             . "Presu: $"
-                            . number_format(
-                                $price,
-                                2
-                            )
+                            . number_format($price, 2)
                             . "\n"
-
                             . "Kuantidade: 1\n\n"
-
                             . "Favor konfirma disponibilidade "
                             . "no total pagamentu.\n\n"
-
                             . "Obrigadu.";
 
                         $productWhatsappUrl =
                             'https://wa.me/'
                             . $storeWhatsapp
                             . '?text='
-                            . urlencode(
-                                $productMessage
-                            );
+                            . urlencode($productMessage);
                     @endphp
 
 
@@ -1269,40 +1265,49 @@
 
 
                         {{-- FOTO PRODUK --}}
+                        <a
+                            href="{{ route(
+                                'store.product.show',
+                                $product
+                            ) }}"
+                            class="thumb-link"
+                            aria-label="Haree detallu {{ $productName }}"
+                        >
 
-                        <div class="thumb">
+                            <div class="thumb">
 
-                            @if ($stock > 0 && $stock <= 5)
+                                @if ($stock > 0 && $stock <= 5)
 
-                                <span class="thumb-tag">
-                                    Stok Limitadu
-                                </span>
+                                    <span class="thumb-tag">
+                                        Stok Limitadu
+                                    </span>
 
-                            @endif
+                                @endif
 
 
-                            @if (!empty($product->image))
+                                @if (!empty($product->image))
 
-                                <img
-                                    src="{{ asset(
-                                        'storage/'
-                                        . $product->image
-                                    ) }}"
-                                    alt="{{ $productName }}"
-                                    loading="lazy"
-                                >
+                                    <img
+                                        src="{{ asset(
+                                            'storage/'
+                                            . $product->image
+                                        ) }}"
+                                        alt="{{ $productName }}"
+                                        loading="lazy"
+                                    >
 
-                            @else
+                                @else
 
-                                Foto la disponivel
+                                    Foto la disponivel
 
-                            @endif
+                                @endif
 
-                        </div>
+                            </div>
+
+                        </a>
 
 
                         {{-- INFORMASI PRODUK --}}
-
                         <div class="card-body">
 
 
@@ -1316,7 +1321,16 @@
 
 
                             <div class="card-title">
-                                {{ $productName }}
+
+                                <a
+                                    href="{{ route(
+                                        'store.product.show',
+                                        $product
+                                    ) }}"
+                                >
+                                    {{ $productName }}
+                                </a>
+
                             </div>
 
 
@@ -1338,13 +1352,11 @@
                                         ✓ Disponivel
                                     </span>
 
-
                                 @elseif ($stock > 0)
 
                                     <span class="stock-low">
                                         ⚠ Stok Limitadu
                                     </span>
-
 
                                 @else
 
@@ -1372,12 +1384,21 @@
                                             : ''
                                         }}"
                                 >
-
                                     {{ $stock > 0
                                         ? 'Order via WhatsApp'
                                         : 'Stok Hotu'
                                     }}
+                                </a>
 
+
+                                <a
+                                    href="{{ route(
+                                        'store.product.show',
+                                        $product
+                                    ) }}"
+                                    class="btn-detail"
+                                >
+                                    Detallu
                                 </a>
 
                             </div>
@@ -1395,10 +1416,7 @@
     </section>
 
 
-    {{-- ========================================================
-        PAYMENT & DELIVERY
-    ========================================================= --}}
-
+    {{-- PAYMENT & DELIVERY --}}
     <section id="pagamentu">
 
         <h2 class="section-title">
@@ -1413,8 +1431,6 @@
 
         <div class="info-grid">
 
-
-            {{-- PAYMENT --}}
 
             <div class="info-card">
 
@@ -1436,8 +1452,6 @@
 
             </div>
 
-
-            {{-- ORDER PROCESS --}}
 
             <div class="info-card">
 
@@ -1497,10 +1511,7 @@
     </section>
 
 
-    {{-- ========================================================
-        CONTACT
-    ========================================================= --}}
-
+    {{-- CONTACT --}}
     <section id="kontaktu">
 
         <div class="contact-box">
@@ -1531,15 +1542,9 @@
 </div>
 
 
-{{-- ============================================================
-    FOOTER
-============================================================ --}}
-
 <footer>
-
     © {{ date('Y') }}
     Dulmar Satellite Store
-
 </footer>
 
 </body>

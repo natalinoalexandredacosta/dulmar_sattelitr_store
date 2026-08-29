@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Halaman ini dapat dibuka tanpa login.
+|
 | Customer dapat:
 | - Melihat produk
 | - Mencari produk
@@ -26,8 +27,15 @@ use Illuminate\Support\Facades\Route;
 | - Melihat harga jual
 | - Melihat foto
 | - Melihat status stok
+| - Melihat detail / spesifikasi produk
 | - Order melalui WhatsApp
 |
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Halaman Utama Website Pelanggan
+|--------------------------------------------------------------------------
 */
 
 Route::get('/', function (Request $request) {
@@ -129,28 +137,81 @@ Route::get('/', function (Request $request) {
 
 })->name('store.index');
 
+
 /*
 |--------------------------------------------------------------------------
-| Login dan Verifikasi OTP
+| Detail / Spesifikasi Produk Publik
+|--------------------------------------------------------------------------
+|
+| Contoh:
+|
+| /produtu/53
+|
+| Customer dapat melihat:
+| - Foto produk
+| - Nama produk
+| - Kategori
+| - Harga
+| - Status stok
+| - Deskripsi
+| - Brand / Merek
+| - Model
+| - Konektivitas
+| - Garansi
+| - Tombol order WhatsApp
+|
+*/
+
+Route::get(
+    '/produtu/{product}',
+    function (Product $product) {
+
+        return view(
+            'store.show',
+            compact('product')
+        );
+
+    }
+)->name('store.product.show');
+
+
+/*
+|--------------------------------------------------------------------------
+| LOGIN DAN VERIFIKASI OTP
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('guest')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/login', [
         AuthController::class,
         'showLogin',
     ])->name('login');
 
+
     Route::post('/login', [
         AuthController::class,
         'login',
     ])->name('login.process');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verifikasi OTP
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/verify-otp', [
         AuthController::class,
         'showOtpForm',
     ])->name('otp.form');
+
 
     Route::post('/verify-otp', [
         AuthController::class,
@@ -158,9 +219,10 @@ Route::middleware('guest')->group(function () {
     ])->name('otp.verify');
 });
 
+
 /*
 |--------------------------------------------------------------------------
-| Halaman yang hanya dapat diakses setelah login
+| HALAMAN YANG HANYA DAPAT DIAKSES SETELAH LOGIN
 |--------------------------------------------------------------------------
 */
 
@@ -177,6 +239,7 @@ Route::middleware('auth')->group(function () {
         'index',
     ])->name('dashboard');
 
+
     /*
     |--------------------------------------------------------------------------
     | Logout
@@ -188,45 +251,70 @@ Route::middleware('auth')->group(function () {
         'logout',
     ])->name('logout');
 
+
     /*
     |--------------------------------------------------------------------------
-    | Daftar Barang
+    | DAFTAR BARANG
     |--------------------------------------------------------------------------
     */
 
+    /*
+     * Daftar produk.
+     */
     Route::get('/products', [
         ProductController::class,
         'index',
     ])->name('products.index');
 
+
+    /*
+     * Form tambah produk.
+     */
     Route::get('/products/create', [
         ProductController::class,
         'create',
     ])->name('products.create');
 
+
+    /*
+     * Simpan produk baru.
+     */
     Route::post('/products', [
         ProductController::class,
         'store',
     ])->name('products.store');
 
+
+    /*
+     * Form edit produk.
+     */
     Route::get('/products/{product}/edit', [
         ProductController::class,
         'edit',
     ])->name('products.edit');
 
+
+    /*
+     * Update produk.
+     */
     Route::put('/products/{product}', [
         ProductController::class,
         'update',
     ])->name('products.update');
 
+
+    /*
+     * Hapus produk.
+     */
     Route::delete('/products/{product}', [
         ProductController::class,
         'destroy',
     ])->name('products.destroy');
 
+
     /*
     |--------------------------------------------------------------------------
-    | Stok Masuk
+    | STOK MASUK
     |--------------------------------------------------------------------------
     */
 
@@ -235,34 +323,40 @@ Route::middleware('auth')->group(function () {
         'index',
     ])->name('stock-ins.index');
 
+
     Route::get('/stock-ins/create', [
         StockInController::class,
         'create',
     ])->name('stock-ins.create');
+
 
     Route::post('/stock-ins', [
         StockInController::class,
         'store',
     ])->name('stock-ins.store');
 
+
     Route::get('/stock-ins/{stockIn}/edit', [
         StockInController::class,
         'edit',
     ])->name('stock-ins.edit');
+
 
     Route::put('/stock-ins/{stockIn}', [
         StockInController::class,
         'update',
     ])->name('stock-ins.update');
 
+
     Route::delete('/stock-ins/{stockIn}', [
         StockInController::class,
         'destroy',
     ])->name('stock-ins.destroy');
 
+
     /*
     |--------------------------------------------------------------------------
-    | Stok Keluar
+    | STOK KELUAR
     |--------------------------------------------------------------------------
     */
 
@@ -271,34 +365,40 @@ Route::middleware('auth')->group(function () {
         'index',
     ])->name('stock-outs.index');
 
+
     Route::get('/stock-outs/create', [
         StockOutController::class,
         'create',
     ])->name('stock-outs.create');
+
 
     Route::post('/stock-outs', [
         StockOutController::class,
         'store',
     ])->name('stock-outs.store');
 
+
     Route::get('/stock-outs/{stockOut}/edit', [
         StockOutController::class,
         'edit',
     ])->name('stock-outs.edit');
+
 
     Route::put('/stock-outs/{stockOut}', [
         StockOutController::class,
         'update',
     ])->name('stock-outs.update');
 
+
     Route::delete('/stock-outs/{stockOut}', [
         StockOutController::class,
         'destroy',
     ])->name('stock-outs.destroy');
 
+
     /*
     |--------------------------------------------------------------------------
-    | Supplier Barang
+    | SUPPLIER BARANG
     |--------------------------------------------------------------------------
     */
 
@@ -309,9 +409,10 @@ Route::middleware('auth')->group(function () {
         'show',
     ]);
 
+
     /*
     |--------------------------------------------------------------------------
-    | Pelanggan
+    | PELANGGAN
     |--------------------------------------------------------------------------
     */
 
@@ -322,9 +423,10 @@ Route::middleware('auth')->group(function () {
         'show',
     ]);
 
+
     /*
     |--------------------------------------------------------------------------
-    | TV Voucher
+    | TV VOUCHER
     |--------------------------------------------------------------------------
     */
 
@@ -339,6 +441,7 @@ Route::middleware('auth')->group(function () {
         ]
     )->name('tv-vouchers.report');
 
+
     /*
      * Verifikasi pembayaran customer.
      */
@@ -349,6 +452,7 @@ Route::middleware('auth')->group(function () {
             'verifyCustomerPayment',
         ]
     )->name('tv-vouchers.verify-payment');
+
 
     /*
      * Konfirmasi setoran petugas.
@@ -361,6 +465,7 @@ Route::middleware('auth')->group(function () {
         ]
     )->name('tv-vouchers.confirm-deposit');
 
+
     /*
      * CRUD TV Voucher.
      */
@@ -371,9 +476,10 @@ Route::middleware('auth')->group(function () {
         'tv-vouchers' => 'tvVoucher',
     ]);
 
+
     /*
     |--------------------------------------------------------------------------
-    | Laporan Inventaris
+    | LAPORAN INVENTARIS
     |--------------------------------------------------------------------------
     */
 
@@ -381,6 +487,7 @@ Route::middleware('auth')->group(function () {
         ReportController::class,
         'index',
     ])->name('reports.index');
+
 
     Route::get('/reports/export-excel', [
         ReportController::class,
