@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Tambah Produk - Dulmar Satellite Store</title>
 
@@ -175,7 +180,9 @@
         .form-control:focus {
             border-color: #2563eb;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+            box-shadow:
+                0 0 0 2px
+                rgba(37, 99, 235, 0.08);
         }
 
         .help-text {
@@ -191,6 +198,113 @@
             font-size: 13px;
             font-weight: normal;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROMO
+        |--------------------------------------------------------------------------
+        */
+
+        .promo-toggle-box {
+            margin-bottom: 20px;
+            padding: 18px;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            background-color: #fffbeb;
+        }
+
+        .promo-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .promo-toggle-label input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .promo-toggle-title {
+            color: #92400e;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .promo-fields {
+            display: none;
+        }
+
+        .promo-fields.active {
+            display: block;
+        }
+
+        .promo-information-box {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            background-color: #fffaf5;
+        }
+
+        .promo-information-box h4 {
+            margin: 0 0 7px;
+            color: #9a3412;
+            font-size: 17px;
+        }
+
+        .promo-information-box > p {
+            margin: 0 0 20px;
+            color: #7c2d12;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .promo-preview {
+            margin-bottom: 25px;
+            padding: 18px;
+            border: 1px solid #fdba74;
+            border-radius: 8px;
+            background-color: #fff7ed;
+        }
+
+        .promo-preview-title {
+            margin-bottom: 10px;
+            color: #9a3412;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .promo-price-normal {
+            margin-right: 10px;
+            color: #6b7280;
+            font-size: 15px;
+            text-decoration: line-through;
+        }
+
+        .promo-price-final {
+            color: #dc2626;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .promo-discount-label {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            background-color: #dc2626;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMAGE
+        |--------------------------------------------------------------------------
+        */
 
         .image-preview-wrapper {
             display: none;
@@ -229,6 +343,12 @@
             font-size: 13px;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | PROFIT
+        |--------------------------------------------------------------------------
+        */
+
         .profit-preview {
             margin-bottom: 25px;
             padding: 18px;
@@ -242,6 +362,12 @@
             font-size: 17px;
             font-weight: bold;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTION
+        |--------------------------------------------------------------------------
+        */
 
         .form-actions {
             display: flex;
@@ -276,6 +402,12 @@
         .button-cancel:hover {
             background-color: #4b5563;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE
+        |--------------------------------------------------------------------------
+        */
 
         @media (max-width: 850px) {
             .container {
@@ -319,6 +451,7 @@
             }
         }
     </style>
+
 </head>
 
 <body>
@@ -395,7 +528,8 @@
             </h2>
 
             <p>
-                Tambahkan produk baru beserta detail dan spesifikasinya.
+                Tambahkan produk baru beserta detail,
+                spesifikasi, dan promo.
             </p>
 
         </div>
@@ -433,9 +567,9 @@
                 @csrf
 
 
-                {{-- =====================================================
-                    INFORMASI UTAMA
-                ====================================================== --}}
+                {{-- ========================================================
+                    INFORMASI PRODUK
+                ========================================================= --}}
 
                 <div class="section-label">
 
@@ -444,7 +578,8 @@
                     </h3>
 
                     <p>
-                        Masukkan informasi utama produk yang akan disimpan.
+                        Masukkan informasi utama produk
+                        yang akan disimpan.
                     </p>
 
                 </div>
@@ -488,9 +623,9 @@
                 </div>
 
 
-                {{-- =====================================================
-                    HARGA
-                ====================================================== --}}
+                {{-- ========================================================
+                    HARGA PRODUK
+                ========================================================= --}}
 
                 <hr class="section-divider">
 
@@ -501,7 +636,8 @@
                     </h3>
 
                     <p>
-                        Masukkan harga beli dan harga jual produk.
+                        Masukkan harga beli dan harga jual
+                        normal produk.
                     </p>
 
                 </div>
@@ -525,7 +661,7 @@
                             min="0"
                             step="0.01"
                             required
-                            oninput="hitungLaba()"
+                            oninput="hitungHarga()"
                         >
 
                         <span class="help-text">
@@ -538,7 +674,7 @@
                     <div class="form-group">
 
                         <label for="selling_price">
-                            Harga Jual
+                            Harga Jual Normal
                         </label>
 
                         <input
@@ -551,11 +687,11 @@
                             min="0"
                             step="0.01"
                             required
-                            oninput="hitungLaba()"
+                            oninput="hitungHarga()"
                         >
 
                         <span class="help-text">
-                            Harga penjualan untuk satu unit produk.
+                            Harga normal sebelum promo atau diskon.
                         </span>
 
                     </div>
@@ -565,7 +701,7 @@
 
                 <div class="profit-preview">
 
-                    Laba per unit:
+                    Laba normal per unit:
 
                     <span id="profitValue">
                         $0.00
@@ -574,9 +710,287 @@
                 </div>
 
 
-                {{-- =====================================================
-                    SPESIFIKASI
-                ====================================================== --}}
+                {{-- ========================================================
+                    PROMO / DISKON
+                ========================================================= --}}
+
+                <hr class="section-divider">
+
+                <div class="section-label">
+
+                    <h3>
+                        Promo / Diskon
+                    </h3>
+
+                    <p>
+                        Atur promo produk, judul promo,
+                        alasan promo, nilai diskon dan
+                        periode berlakunya.
+                    </p>
+
+                </div>
+
+
+                <div class="promo-toggle-box">
+
+                    <label class="promo-toggle-label">
+
+                        <input
+                            type="checkbox"
+                            id="is_promo"
+                            name="is_promo"
+                            value="1"
+                            {{ old('is_promo') ? 'checked' : '' }}
+                            onchange="togglePromo()"
+                        >
+
+                        <span class="promo-toggle-title">
+                            Aktifkan Promo untuk Produk Ini
+                        </span>
+
+                    </label>
+
+                    <span class="help-text">
+                        Promo hanya akan tampil pada website
+                        apabila status promo aktif dan tanggalnya
+                        masih berlaku.
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="promoFields"
+                    class="promo-fields"
+                >
+
+                    {{-- INFORMASI / ALASAN PROMO --}}
+
+                    <div class="promo-information-box">
+
+                        <h4>
+                            Informasi Promo
+                        </h4>
+
+                        <p>
+                            Informasi ini dapat digunakan untuk
+                            menjelaskan kepada pelanggan kenapa
+                            promo diberikan.
+                        </p>
+
+
+                        <div class="form-group">
+
+                            <label for="promo_title">
+                                Judul Promo
+                            </label>
+
+                            <input
+                                type="text"
+                                id="promo_title"
+                                name="promo_title"
+                                class="form-control"
+                                value="{{ old('promo_title') }}"
+                                placeholder="Contoh: Promosaun Espesiál ba Loron 30 Agostu"
+                            >
+
+                            <span class="help-text">
+                                Contoh:
+                                Promosaun Espesiál ba Loron 30 Agostu,
+                                Promo Natal, Promo Ano Novo, dan lain-lain.
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="promo_description">
+                                Keterangan / Alasan Promo
+                            </label>
+
+                            <textarea
+                                id="promo_description"
+                                name="promo_description"
+                                class="form-control"
+                                placeholder="Contoh: Promosaun ida-ne'e prepara especialmente ba loron 30 Agostu atu fó oportunidade ba kliente sira hetan produtu ho presu espesiál."
+                            >{{ old('promo_description') }}</textarea>
+
+                            <span class="help-text">
+                                Tuliskan alasan atau informasi
+                                promosi yang nantinya dapat
+                                ditampilkan pada website pelanggan.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- DISKON --}}
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="discount_type">
+                                Jenis Diskon
+                            </label>
+
+                            <select
+                                id="discount_type"
+                                name="discount_type"
+                                class="form-control"
+                                onchange="hitungHarga()"
+                            >
+
+                                <option value="">
+                                    -- Pilih Jenis Diskon --
+                                </option>
+
+                                <option
+                                    value="percent"
+                                    {{ old('discount_type') === 'percent'
+                                        ? 'selected'
+                                        : ''
+                                    }}
+                                >
+                                    Persen (%)
+                                </option>
+
+                                <option
+                                    value="fixed"
+                                    {{ old('discount_type') === 'fixed'
+                                        ? 'selected'
+                                        : ''
+                                    }}
+                                >
+                                    Potongan Nominal ($)
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="discount_value">
+                                Nilai Diskon
+                            </label>
+
+                            <input
+                                type="number"
+                                id="discount_value"
+                                name="discount_value"
+                                class="form-control"
+                                value="{{ old('discount_value') }}"
+                                min="0"
+                                step="0.01"
+                                placeholder="Contoh: 20"
+                                oninput="hitungHarga()"
+                            >
+
+                            <span class="help-text">
+                                Jika jenis diskon persen,
+                                isi 20 untuk diskon 20%.
+                                Jika nominal, isi 5 untuk
+                                potongan $5.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- TANGGAL PROMO --}}
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="promo_start">
+                                Tanggal Mulai Promo
+                            </label>
+
+                            <input
+                                type="date"
+                                id="promo_start"
+                                name="promo_start"
+                                class="form-control"
+                                value="{{ old('promo_start') }}"
+                            >
+
+                            <span class="help-text">
+                                Promo akan mulai aktif pada
+                                tanggal ini.
+                            </span>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="promo_end">
+                                Tanggal Selesai Promo
+                            </label>
+
+                            <input
+                                type="date"
+                                id="promo_end"
+                                name="promo_end"
+                                class="form-control"
+                                value="{{ old('promo_end') }}"
+                            >
+
+                            <span class="help-text">
+                                Setelah tanggal ini lewat,
+                                promo otomatis tidak tampil
+                                pada website.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- PREVIEW --}}
+
+                    <div class="promo-preview">
+
+                        <div class="promo-preview-title">
+                            Preview Harga Promo
+                        </div>
+
+                        <span
+                            id="normalPricePreview"
+                            class="promo-price-normal"
+                        >
+                            $0.00
+                        </span>
+
+                        <span
+                            id="promoPricePreview"
+                            class="promo-price-final"
+                        >
+                            $0.00
+                        </span>
+
+                        <span
+                            id="discountPreview"
+                            class="promo-discount-label"
+                        >
+                            PROMO
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                {{-- ========================================================
+                    DETAIL & SPESIFIKASI
+                ========================================================= --}}
 
                 <hr class="section-divider">
 
@@ -587,8 +1001,8 @@
                     </h3>
 
                     <p>
-                        Informasi ini nantinya dapat ditampilkan pada
-                        halaman detail produk untuk pelanggan.
+                        Informasi ini nantinya dapat ditampilkan
+                        pada halaman detail produk untuk pelanggan.
                     </p>
 
                 </div>
@@ -597,10 +1011,13 @@
                 <div class="form-group">
 
                     <label for="description">
+
                         Deskripsi Produk
+
                         <span class="optional-label">
                             (Opsional)
                         </span>
+
                     </label>
 
                     <textarea
@@ -611,8 +1028,8 @@
                     >{{ old('description') }}</textarea>
 
                     <span class="help-text">
-                        Jelaskan fungsi, keunggulan, atau informasi penting
-                        mengenai produk.
+                        Jelaskan fungsi, keunggulan,
+                        atau informasi penting mengenai produk.
                     </span>
 
                 </div>
@@ -623,10 +1040,13 @@
                     <div class="form-group">
 
                         <label for="brand">
+
                             Brand / Merek
+
                             <span class="optional-label">
                                 (Opsional)
                             </span>
+
                         </label>
 
                         <input
@@ -644,10 +1064,13 @@
                     <div class="form-group">
 
                         <label for="model">
+
                             Model
+
                             <span class="optional-label">
                                 (Opsional)
                             </span>
+
                         </label>
 
                         <input
@@ -669,10 +1092,13 @@
                     <div class="form-group">
 
                         <label for="connectivity">
+
                             Konektivitas
+
                             <span class="optional-label">
                                 (Opsional)
                             </span>
+
                         </label>
 
                         <input
@@ -685,7 +1111,8 @@
                         >
 
                         <span class="help-text">
-                            Bisa isi lebih dari satu koneksi dipisahkan dengan koma.
+                            Bisa isi lebih dari satu koneksi
+                            dipisahkan dengan koma.
                         </span>
 
                     </div>
@@ -694,10 +1121,13 @@
                     <div class="form-group">
 
                         <label for="warranty">
+
                             Garansi
+
                             <span class="optional-label">
                                 (Opsional)
                             </span>
+
                         </label>
 
                         <input
@@ -714,9 +1144,9 @@
                 </div>
 
 
-                {{-- =====================================================
+                {{-- ========================================================
                     FOTO PRODUK
-                ====================================================== --}}
+                ========================================================= --}}
 
                 <hr class="section-divider">
 
@@ -727,7 +1157,8 @@
                     </h3>
 
                     <p>
-                        Upload foto yang akan digunakan pada website pelanggan.
+                        Upload foto yang akan digunakan
+                        pada website pelanggan.
                     </p>
 
                 </div>
@@ -736,10 +1167,13 @@
                 <div class="form-group">
 
                     <label for="image">
+
                         Foto Produk
+
                         <span class="optional-label">
                             (Opsional)
                         </span>
+
                     </label>
 
                     <input
@@ -784,9 +1218,9 @@
                 </div>
 
 
-                {{-- =====================================================
+                {{-- ========================================================
                     ACTION
-                ====================================================== --}}
+                ========================================================= --}}
 
                 <div class="form-actions">
 
@@ -816,13 +1250,49 @@
 
 
 <script>
-    function hitungLaba() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOGGLE PROMO
+    |--------------------------------------------------------------------------
+    */
+
+    function togglePromo() {
+
+        const promoCheckbox =
+            document.getElementById('is_promo');
+
+        const promoFields =
+            document.getElementById('promoFields');
+
+        if (promoCheckbox.checked) {
+
+            promoFields.classList.add('active');
+
+        } else {
+
+            promoFields.classList.remove('active');
+        }
+
+        hitungHarga();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HITUNG HARGA / PROMO
+    |--------------------------------------------------------------------------
+    */
+
+    function hitungHarga() {
+
         const hargaBeli =
             parseFloat(
                 document.getElementById(
                     'purchase_price'
                 ).value
             ) || 0;
+
 
         const hargaJual =
             parseFloat(
@@ -831,51 +1301,192 @@
                 ).value
             ) || 0;
 
-        const laba =
+
+        /*
+        |--------------------------------------------------------------------------
+        | LABA NORMAL
+        |--------------------------------------------------------------------------
+        */
+
+        const labaNormal =
             hargaJual - hargaBeli;
+
 
         document
             .getElementById('profitValue')
             .textContent =
-                '$' + laba.toFixed(2);
+                '$'
+                + labaNormal.toFixed(2);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PROMO
+        |--------------------------------------------------------------------------
+        */
+
+        const promoCheckbox =
+            document.getElementById(
+                'is_promo'
+            );
+
+
+        const discountType =
+            document.getElementById(
+                'discount_type'
+            ).value;
+
+
+        let discountValue =
+            parseFloat(
+                document.getElementById(
+                    'discount_value'
+                ).value
+            ) || 0;
+
+
+        let promoPrice =
+            hargaJual;
+
+
+        let discountText =
+            'PROMO';
+
+
+        if (promoCheckbox.checked) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | DISKON PERSEN
+            |--------------------------------------------------------------------------
+            */
+
+            if (discountType === 'percent') {
+
+                if (discountValue > 100) {
+                    discountValue = 100;
+                }
+
+                promoPrice =
+                    hargaJual
+                    - (
+                        hargaJual
+                        * discountValue
+                        / 100
+                    );
+
+
+                discountText =
+                    'PROMO '
+                    + discountValue.toFixed(0)
+                    + '%';
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DISKON NOMINAL
+            |--------------------------------------------------------------------------
+            */
+
+            else if (
+                discountType === 'fixed'
+            ) {
+
+                promoPrice =
+                    hargaJual
+                    - discountValue;
+
+
+                discountText =
+                    'POTONG $'
+                    + discountValue.toFixed(2);
+            }
+        }
+
+
+        if (promoPrice < 0) {
+            promoPrice = 0;
+        }
+
+
+        document
+            .getElementById(
+                'normalPricePreview'
+            )
+            .textContent =
+                '$'
+                + hargaJual.toFixed(2);
+
+
+        document
+            .getElementById(
+                'promoPricePreview'
+            )
+            .textContent =
+                '$'
+                + promoPrice.toFixed(2);
+
+
+        document
+            .getElementById(
+                'discountPreview'
+            )
+            .textContent =
+                discountText;
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | IMAGE PREVIEW
+    |--------------------------------------------------------------------------
+    */
+
     function previewImage(event) {
+
         const input =
             event.target;
+
 
         const wrapper =
             document.getElementById(
                 'imagePreviewWrapper'
             );
 
+
         const preview =
             document.getElementById(
                 'imagePreview'
             );
+
 
         const info =
             document.getElementById(
                 'imageInfo'
             );
 
+
         if (
             !input.files
             || !input.files[0]
         ) {
+
             wrapper.classList.remove(
                 'active'
             );
 
             preview.src = '';
+
             info.textContent = '';
 
             return;
         }
 
+
         const file =
             input.files[0];
+
 
         const allowedTypes = [
             'image/jpeg',
@@ -883,11 +1494,13 @@
             'image/webp',
         ];
 
+
         if (
             !allowedTypes.includes(
                 file.type
             )
         ) {
+
             alert(
                 'Format foto harus JPG, JPEG, PNG atau WEBP.'
             );
@@ -898,13 +1511,20 @@
                 'active'
             );
 
+            preview.src = '';
+
+            info.textContent = '';
+
             return;
         }
+
 
         const maxSize =
             5 * 1024 * 1024;
 
+
         if (file.size > maxSize) {
+
             alert(
                 'Ukuran foto maksimal 5 MB.'
             );
@@ -915,20 +1535,29 @@
                 'active'
             );
 
+            preview.src = '';
+
+            info.textContent = '';
+
             return;
         }
+
 
         const reader =
             new FileReader();
 
+
         reader.onload =
             function (e) {
+
                 preview.src =
                     e.target.result;
+
 
                 wrapper.classList.add(
                     'active'
                 );
+
 
                 info.textContent =
                     file.name
@@ -941,13 +1570,29 @@
                     + ' MB';
             };
 
+
         reader.readAsDataURL(
             file
         );
     }
 
 
-    hitungLaba();
+    /*
+    |--------------------------------------------------------------------------
+    | INITIALIZE
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        function () {
+
+            togglePromo();
+
+            hitungHarga();
+        }
+    );
+
 </script>
 
 </body>

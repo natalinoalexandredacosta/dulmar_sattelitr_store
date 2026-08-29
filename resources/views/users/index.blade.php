@@ -8,7 +8,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Pelanggan - Dulmar Satellite Store</title>
+    <title>User Management - Dulmar Satellite Store</title>
 
     <link
         rel="icon"
@@ -42,12 +42,6 @@
             min-height: 100vh;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | SIDEBAR FIXED
-        |--------------------------------------------------------------------------
-        */
-
         .sidebar {
             position: fixed;
             top: 0;
@@ -68,22 +62,6 @@
 
             overflow-y: auto;
             overflow-x: hidden;
-
-            scrollbar-width: thin;
-            scrollbar-color: #475569 #1f2b3a;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: #1f2b3a;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 10px;
         }
 
         .sidebar h1 {
@@ -116,14 +94,14 @@
             border-radius: 6px;
 
             background-color: rgba(37, 99, 235, 0.3);
-            color: #bfdbfe;
 
+            color: #bfdbfe;
             font-weight: bold;
         }
 
         .logout-form {
             flex-shrink: 0;
-            margin: 20px 0 0;
+            margin-top: 20px;
         }
 
         .button-logout {
@@ -146,33 +124,14 @@
             background-color: #b91c1c;
         }
 
-        .sidebar-toggle,
-        .sidebar-overlay {
-            display: none;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | MAIN CONTENT
-        |--------------------------------------------------------------------------
-        */
-
         .main-content {
             width: calc(100% - 245px);
-            min-width: 0;
             min-height: 100vh;
 
             margin-left: 245px;
+
             padding: 50px 32px;
-
-            overflow-x: hidden;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | PAGE HEADER
-        |--------------------------------------------------------------------------
-        */
 
         .page-header {
             display: flex;
@@ -181,11 +140,11 @@
 
             gap: 20px;
 
-            margin-bottom: 45px;
+            margin-bottom: 35px;
         }
 
         .page-header h2 {
-            margin: 0 0 20px;
+            margin: 0 0 15px;
 
             font-size: 36px;
         }
@@ -196,33 +155,26 @@
             color: #4b5563;
 
             font-size: 18px;
-            line-height: 1.5;
         }
 
         .button-add {
             display: inline-block;
-            flex-shrink: 0;
 
             padding: 16px 22px;
 
             border-radius: 8px;
 
-            background-color: #7c3aed;
+            background-color: #2563eb;
             color: white;
 
             font-size: 18px;
+
             text-decoration: none;
         }
 
         .button-add:hover {
-            background-color: #6d28d9;
+            background-color: #1d4ed8;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | ALERT
-        |--------------------------------------------------------------------------
-        */
 
         .alert-success,
         .alert-error {
@@ -231,34 +183,17 @@
             padding: 15px 20px;
 
             border-radius: 6px;
-
-            font-size: 16px;
         }
 
         .alert-success {
-            border: 1px solid #86efac;
-
             background-color: #dcfce7;
             color: #166534;
         }
 
         .alert-error {
-            border: 1px solid #fca5a5;
-
             background-color: #fee2e2;
             color: #991b1b;
         }
-
-        .alert-error ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | TABLE
-        |--------------------------------------------------------------------------
-        */
 
         .table-card {
             width: 100%;
@@ -278,11 +213,9 @@
 
         table {
             width: 100%;
-            min-width: 1000px;
+            min-width: 850px;
 
             border-collapse: collapse;
-
-            background-color: white;
         }
 
         thead {
@@ -295,39 +228,45 @@
 
             border-bottom: 1px solid #d1d5db;
 
-            font-size: 16px;
-
             text-align: left;
-            vertical-align: middle;
 
-            white-space: nowrap;
-        }
-
-        th {
-            font-weight: bold;
+            font-size: 16px;
         }
 
         tbody tr:hover {
             background-color: #f8fafc;
         }
 
-        .empty-data {
-            padding: 35px;
+        .role-badge {
+            display: inline-block;
 
-            color: #6b7280;
+            padding: 7px 12px;
 
-            text-align: center;
+            border-radius: 20px;
+
+            background-color: #dbeafe;
+            color: #1d4ed8;
+
+            font-size: 13px;
+            font-weight: bold;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | ACTION
-        |--------------------------------------------------------------------------
-        */
+        .user-badge {
+            display: inline-block;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background-color: #f3f4f6;
+            color: #4b5563;
+
+            font-size: 13px;
+            font-weight: bold;
+        }
 
         .action-buttons {
             display: flex;
-            align-items: center;
             flex-wrap: wrap;
 
             gap: 8px;
@@ -343,16 +282,11 @@
             background-color: #f59e0b;
             color: white;
 
-            font-size: 14px;
             text-decoration: none;
         }
 
         .button-edit:hover {
             background-color: #d97706;
-        }
-
-        .delete-form {
-            margin: 0;
         }
 
         .button-delete {
@@ -364,8 +298,6 @@
             background-color: #dc2626;
             color: white;
 
-            font-size: 14px;
-
             cursor: pointer;
         }
 
@@ -375,31 +307,16 @@
 
         .no-action {
             color: #9ca3af;
+
             font-size: 14px;
         }
 
-        .email-link {
-            color: #2563eb;
-
-            text-decoration: none;
+        .sidebar-toggle,
+        .sidebar-overlay {
+            display: none;
         }
-
-        .email-link:hover {
-            text-decoration: underline;
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | MOBILE
-        |--------------------------------------------------------------------------
-        */
 
         @media (max-width: 700px) {
-
-            .container {
-                display: block;
-                width: 100%;
-            }
 
             .sidebar-toggle {
                 position: fixed;
@@ -415,8 +332,6 @@
                 align-items: center;
                 justify-content: center;
 
-                padding: 0;
-
                 border: none;
                 border-radius: 8px;
 
@@ -426,10 +341,6 @@
                 font-size: 25px;
 
                 cursor: pointer;
-
-                box-shadow:
-                    0 3px 10px
-                    rgba(0, 0, 0, 0.25);
             }
 
             .sidebar-overlay {
@@ -438,17 +349,12 @@
                 z-index: 1000;
 
                 display: block;
-
                 visibility: hidden;
 
                 background-color:
                     rgba(0, 0, 0, 0.5);
 
                 opacity: 0;
-
-                transition:
-                    opacity 0.25s,
-                    visibility 0.25s;
             }
 
             .sidebar-overlay.overlay-open {
@@ -457,54 +363,25 @@
             }
 
             .sidebar {
-                position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
                 z-index: 1100;
 
                 width: min(82vw, 285px);
-                height: 100vh;
 
-                padding: 82px 25px 30px;
+                padding:
+                    82px
+                    25px
+                    30px;
 
-                overflow-y: auto;
-
-                transform: translateX(-105%);
+                transform:
+                    translateX(-105%);
 
                 transition:
                     transform 0.25s ease;
-
-                box-shadow:
-                    4px 0 15px
-                    rgba(0, 0, 0, 0.25);
             }
 
             .sidebar.sidebar-open {
-                transform: translateX(0);
-            }
-
-            .sidebar h1 {
-                margin-bottom: 40px;
-
-                font-size: 25px;
-            }
-
-            .sidebar-menu {
-                margin-bottom: 25px;
-            }
-
-            .sidebar-menu a {
-                margin-bottom: 10px;
-
-                padding: 12px 10px;
-
-                border-radius: 6px;
-
-                background-color:
-                    rgba(255, 255, 255, 0.06);
-
-                font-size: 16px;
+                transform:
+                    translateX(0);
             }
 
             .main-content {
@@ -516,23 +393,14 @@
                     85px
                     15px
                     30px;
-
-                overflow-x: hidden;
             }
 
             .page-header {
                 flex-direction: column;
-
-                margin-bottom: 30px;
             }
 
             .page-header h2 {
-                font-size: 30px;
-            }
-
-            .page-header p {
-                font-size: 16px;
-                line-height: 1.5;
+                font-size: 29px;
             }
 
             .button-add {
@@ -540,24 +408,8 @@
 
                 text-align: center;
             }
-
-            .table-card {
-                border-radius: 7px;
-            }
-
-            th,
-            td {
-                padding: 14px;
-
-                font-size: 14px;
-            }
         }
     </style>
-
-    <link
-        rel="stylesheet"
-        href="{{ asset('css/fixed-layout.css') }}"
-    >
 </head>
 
 <body>
@@ -567,10 +419,10 @@
     id="sidebarToggle"
     class="sidebar-toggle"
     aria-label="Buka menu"
-    aria-expanded="false"
 >
     ☰
 </button>
+
 
 <div
     id="sidebarOverlay"
@@ -596,7 +448,6 @@
 
                 <a
                     href="{{ route('dashboard') }}"
-                    class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"
                 >
                     Dashboard
                 </a>
@@ -608,7 +459,6 @@
 
                 <a
                     href="{{ route('products.index') }}"
-                    class="{{ request()->routeIs('products.*') ? 'active' : '' }}"
                 >
                     Daftar Barang
                 </a>
@@ -620,7 +470,6 @@
 
                 <a
                     href="{{ route('promo-campaigns.index') }}"
-                    class="{{ request()->routeIs('promo-campaigns.*') ? 'active' : '' }}"
                 >
                     Promo Campaign
                 </a>
@@ -632,7 +481,6 @@
 
                 <a
                     href="{{ route('stock-ins.index') }}"
-                    class="{{ request()->routeIs('stock-ins.*') ? 'active' : '' }}"
                 >
                     Stok Masuk
                 </a>
@@ -644,7 +492,6 @@
 
                 <a
                     href="{{ route('stock-outs.index') }}"
-                    class="{{ request()->routeIs('stock-outs.*') ? 'active' : '' }}"
                 >
                     Stok Keluar
                 </a>
@@ -656,7 +503,6 @@
 
                 <a
                     href="{{ route('tv-vouchers.index') }}"
-                    class="{{ request()->routeIs('tv-vouchers.*') ? 'active' : '' }}"
                 >
                     TV Voucher
                 </a>
@@ -668,7 +514,6 @@
 
                 <a
                     href="{{ route('suppliers.index') }}"
-                    class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}"
                 >
                     Supplier Barang
                 </a>
@@ -680,7 +525,6 @@
 
                 <a
                     href="{{ route('customers.index') }}"
-                    class="{{ request()->routeIs('customers.*') ? 'active' : '' }}"
                 >
                     Pelanggan
                 </a>
@@ -692,7 +536,6 @@
 
                 <a
                     href="{{ route('reports.index') }}"
-                    class="{{ request()->routeIs('reports.*') ? 'active' : '' }}"
                 >
                     Laporan
                 </a>
@@ -704,7 +547,7 @@
 
                 <a
                     href="{{ route('users.index') }}"
-                    class="{{ request()->routeIs('users.*') ? 'active' : '' }}"
+                    class="active"
                 >
                     User Management
                 </a>
@@ -718,7 +561,11 @@
             action="{{ route('logout') }}"
             method="POST"
             class="logout-form"
-            onsubmit="return confirm('Apakah Anda yakin ingin keluar?')"
+            onsubmit="
+                return confirm(
+                    'Apakah Anda yakin ingin keluar?'
+                )
+            "
         >
             @csrf
 
@@ -741,23 +588,23 @@
             <div>
 
                 <h2>
-                    Pelanggan
+                    User Management
                 </h2>
 
                 <p>
-                    Kelola data pelanggan yang membeli barang.
+                    Kelola akun dan hak akses pengguna sistem.
                 </p>
 
             </div>
 
 
-            @can('customers.create')
+            @can('users.create')
 
                 <a
-                    href="{{ route('customers.create') }}"
+                    href="{{ route('users.create') }}"
                     class="button-add"
                 >
-                    + Tambah Pelanggan
+                    + Buat Akun
                 </a>
 
             @endcan
@@ -783,27 +630,6 @@
         @endif
 
 
-        @if ($errors->any())
-
-            <div class="alert-error">
-
-                <ul>
-
-                    @foreach ($errors->all() as $error)
-
-                        <li>
-                            {{ $error }}
-                        </li>
-
-                    @endforeach
-
-                </ul>
-
-            </div>
-
-        @endif
-
-
         <div class="table-card">
 
             <table>
@@ -812,10 +638,9 @@
 
                     <tr>
                         <th>No</th>
-                        <th>Nama Pelanggan</th>
-                        <th>Nomor Telepon</th>
+                        <th>Nama</th>
                         <th>Email</th>
-                        <th>Alamat</th>
+                        <th>Role</th>
                         <th>Aksi</th>
                     </tr>
 
@@ -824,7 +649,7 @@
 
                 <tbody>
 
-                    @forelse ($customers as $customer)
+                    @forelse ($users as $user)
 
                         <tr>
 
@@ -834,29 +659,32 @@
 
 
                             <td>
-                                {{ $customer->customer_name }}
+                                {{ $user->name }}
                             </td>
 
 
                             <td>
-                                {{ $customer->phone ?: '-' }}
+                                {{ $user->email }}
                             </td>
 
 
                             <td>
 
-                                @if ($customer->email)
+                                @if (
+                                    $user->hasRole(
+                                        'Administrator'
+                                    )
+                                )
 
-                                    <a
-                                        href="mailto:{{ $customer->email }}"
-                                        class="email-link"
-                                    >
-                                        {{ $customer->email }}
-                                    </a>
+                                    <span class="role-badge">
+                                        Administrator
+                                    </span>
 
                                 @else
 
-                                    -
+                                    <span class="user-badge">
+                                        User
+                                    </span>
 
                                 @endif
 
@@ -864,20 +692,15 @@
 
 
                             <td>
-                                {{ $customer->address ?: '-' }}
-                            </td>
-
-
-                            <td>
 
                                 <div class="action-buttons">
 
-                                    @can('customers.edit')
+                                    @can('users.edit')
 
                                         <a
                                             href="{{ route(
-                                                'customers.edit',
-                                                $customer
+                                                'users.edit',
+                                                $user
                                             ) }}"
                                             class="button-edit"
                                         >
@@ -887,35 +710,49 @@
                                     @endcan
 
 
-                                    @can('customers.delete')
+                                    @can('users.delete')
 
-                                        <form
-                                            action="{{ route(
-                                                'customers.destroy',
-                                                $customer
-                                            ) }}"
-                                            method="POST"
-                                            class="delete-form"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus pelanggan ini?')"
-                                        >
-                                            @csrf
-                                            @method('DELETE')
+                                        @if (
+                                            auth()->id() !== $user->id
+                                            &&
+                                            !$user->hasRole(
+                                                'Administrator'
+                                            )
+                                        )
 
-                                            <button
-                                                type="submit"
-                                                class="button-delete"
+                                            <form
+                                                action="{{ route(
+                                                    'users.destroy',
+                                                    $user
+                                                ) }}"
+                                                method="POST"
+                                                onsubmit="
+                                                    return confirm(
+                                                        'Apakah Anda yakin ingin menghapus akun ini?'
+                                                    )
+                                                "
                                             >
-                                                Hapus
-                                            </button>
 
-                                        </form>
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                    type="submit"
+                                                    class="button-delete"
+                                                >
+                                                    Hapus
+                                                </button>
+
+                                            </form>
+
+                                        @endif
 
                                     @endcan
 
 
-                                    @cannot('customers.edit')
+                                    @cannot('users.edit')
 
-                                        @cannot('customers.delete')
+                                        @cannot('users.delete')
 
                                             <span class="no-action">
                                                 Tidak ada akses
@@ -935,11 +772,8 @@
 
                         <tr>
 
-                            <td
-                                colspan="6"
-                                class="empty-data"
-                            >
-                                Belum ada data pelanggan.
+                            <td colspan="5">
+                                Belum ada user.
                             </td>
 
                         </tr>
@@ -957,6 +791,12 @@
 </div>
 
 
+<!--
+|--------------------------------------------------------------------------
+| LOGOUT OTOMATIS SETELAH IDLE 10 MENIT
+|--------------------------------------------------------------------------
+-->
+
 <form
     id="idleLogoutForm"
     action="{{ route('logout') }}"
@@ -967,7 +807,9 @@
 </form>
 
 
-<script src="{{ asset('js/idle-timeout.js') }}"></script>
+<script
+    src="{{ asset('js/idle-timeout.js') }}"
+></script>
 
 
 <script>
@@ -1000,11 +842,6 @@
         sidebarToggle.textContent =
             '☰';
 
-        sidebarToggle.setAttribute(
-            'aria-expanded',
-            'false'
-        );
-
         document.body.classList.remove(
             'menu-open'
         );
@@ -1030,13 +867,6 @@
                     ? '✕'
                     : '☰';
 
-            sidebarToggle.setAttribute(
-                'aria-expanded',
-                isOpen
-                    ? 'true'
-                    : 'false'
-            );
-
             document.body.classList.toggle(
                 'menu-open',
                 isOpen
@@ -1055,14 +885,16 @@
         .querySelectorAll(
             '.sidebar a'
         )
-        .forEach(function (link) {
+        .forEach(
+            function (link) {
 
-            link.addEventListener(
-                'click',
-                closeSidebar
-            );
+                link.addEventListener(
+                    'click',
+                    closeSidebar
+                );
 
-        });
+            }
+        );
 
 
     window.addEventListener(

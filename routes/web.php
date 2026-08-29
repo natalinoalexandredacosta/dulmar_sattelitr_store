@@ -1,50 +1,32 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CashAccountController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PromoCampaignController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockInController;
 use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TvVoucherTransactionController;
+use App\Http\Controllers\UserManagementController;
+
 use App\Models\Product;
+use App\Models\PromoCampaign;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
 | WEBSITE PELANGGAN - PUBLIC
 |--------------------------------------------------------------------------
-|
-| Halaman ini dapat dibuka tanpa login.
-|
-| Customer dapat:
-| - Melihat produk
-| - Mencari produk
-| - Filter berdasarkan kategori
-| - Melihat harga jual
-| - Melihat foto
-| - Melihat status stok
-| - Melihat detail / spesifikasi produk
-| - Order melalui WhatsApp
-|
-*/
-
-/*
-|--------------------------------------------------------------------------
-| Halaman Utama Website Pelanggan
-|--------------------------------------------------------------------------
 */
 
 Route::get('/', function (Request $request) {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Ambil parameter pencarian dan kategori
-    |--------------------------------------------------------------------------
-    */
 
     $search = trim(
         (string) $request->query(
@@ -60,12 +42,6 @@ Route::get('/', function (Request $request) {
         )
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Ambil daftar kategori untuk dropdown
-    |--------------------------------------------------------------------------
-    */
-
     $categories = Product::query()
         ->whereNotNull('category')
         ->where('category', '!=', '')
@@ -74,19 +50,7 @@ Route::get('/', function (Request $request) {
         ->orderBy('category')
         ->pluck('category');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Query produk publik
-    |--------------------------------------------------------------------------
-    */
-
     $productQuery = Product::query();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pencarian nama produk
-    |--------------------------------------------------------------------------
-    */
 
     if ($search !== '') {
         $productQuery->where(
@@ -96,12 +60,6 @@ Route::get('/', function (Request $request) {
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Filter kategori
-    |--------------------------------------------------------------------------
-    */
-
     if ($category !== '') {
         $productQuery->where(
             'category',
@@ -109,21 +67,39 @@ Route::get('/', function (Request $request) {
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Ambil produk
-    |--------------------------------------------------------------------------
-    */
-
     $products = $productQuery
         ->orderBy('product_name')
         ->get();
 
-    /*
-    |--------------------------------------------------------------------------
-    | Kirim data ke halaman website pelanggan
-    |--------------------------------------------------------------------------
-    */
+    $activePromoCampaign = PromoCampaign::query()
+        ->with([
+            'products' => function ($query) {
+                $query->orderBy('product_name');
+            },
+        ])
+        ->where('is_active', true)
+        ->whereDate(
+            'start_date',
+            '<=',
+            now()->toDateString()
+        )
+        ->whereDate(
+            'end_date',
+            '>=',
+            now()->toDateString()
+        )
+        ->orderByDesc('start_date')
+        ->orderByDesc('id')
+        ->first();
+
+    $campaignPromoProducts = collect();
+
+    if ($activePromoCampaign) {
+        $campaignPromoProducts =
+            $activePromoCampaign
+                ->products
+                ->keyBy('id');
+    }
 
     return view(
         'store.index',
@@ -131,7 +107,9 @@ Route::get('/', function (Request $request) {
             'products',
             'categories',
             'search',
-            'category'
+            'category',
+            'activePromoCampaign',
+            'campaignPromoProducts'
         )
     );
 
@@ -140,35 +118,63 @@ Route::get('/', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Detail / Spesifikasi Produk Publik
+| DETAIL PRODUK PUBLIK
 |--------------------------------------------------------------------------
-|
-| Contoh:
-|
-| /produtu/53
-|
-| Customer dapat melihat:
-| - Foto produk
-| - Nama produk
-| - Kategori
-| - Harga
-| - Status stok
-| - Deskripsi
-| - Brand / Merek
-| - Model
-| - Konektivitas
-| - Garansi
-| - Tombol order WhatsApp
-|
 */
 
 Route::get(
     '/produtu/{product}',
     function (Product $product) {
 
+        $activePromoCampaign = PromoCampaign::query()
+            ->where('is_active', true)
+            ->whereDate(
+                'start_date',
+                '<=',
+                now()->toDateString()
+            )
+            ->whereDate(
+                'end_date',
+                '>=',
+                now()->toDateString()
+            )
+            ->whereHas(
+                'products',
+                function ($query) use ($product) {
+                    $query->where(
+                        'products.id',
+                        $product->id
+                    );
+                }
+            )
+            ->with([
+                'products' => function ($query) use ($product) {
+                    $query->where(
+                        'products.id',
+                        $product->id
+                    );
+                },
+            ])
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
+            ->first();
+
+        $campaignPromoProduct = null;
+
+        if ($activePromoCampaign) {
+            $campaignPromoProduct =
+                $activePromoCampaign
+                    ->products
+                    ->first();
+        }
+
         return view(
             'store.show',
-            compact('product')
+            compact(
+                'product',
+                'activePromoCampaign',
+                'campaignPromoProduct'
+            )
         );
 
     }
@@ -177,23 +183,16 @@ Route::get(
 
 /*
 |--------------------------------------------------------------------------
-| LOGIN DAN VERIFIKASI OTP
+| LOGIN, OTP, DAN LUPA PASSWORD
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('guest')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Login
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/login', [
         AuthController::class,
         'showLogin',
     ])->name('login');
-
 
     Route::post('/login', [
         AuthController::class,
@@ -201,48 +200,63 @@ Route::middleware('guest')->group(function () {
     ])->name('login.process');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Verifikasi OTP
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/verify-otp', [
         AuthController::class,
         'showOtpForm',
     ])->name('otp.form');
 
-
     Route::post('/verify-otp', [
         AuthController::class,
         'verifyOtp',
     ])->name('otp.verify');
+
+
+    Route::get('/forgot-password', [
+        AuthController::class,
+        'showForgotPassword',
+    ])->name('password.request');
+
+    Route::post('/forgot-password', [
+        AuthController::class,
+        'sendResetOtp',
+    ])->name('password.email');
+
+    Route::get('/forgot-password/verify-otp', [
+        AuthController::class,
+        'showResetOtpForm',
+    ])->name('password.otp.form');
+
+    Route::post('/forgot-password/verify-otp', [
+        AuthController::class,
+        'verifyResetOtp',
+    ])->name('password.otp.verify');
+
+    Route::get('/reset-password', [
+        AuthController::class,
+        'showResetPasswordForm',
+    ])->name('password.reset.form');
+
+    Route::post('/reset-password', [
+        AuthController::class,
+        'resetPassword',
+    ])->name('password.update');
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| HALAMAN YANG HANYA DAPAT DIAKSES SETELAH LOGIN
+| AREA LOGIN
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware([
+    'auth',
+    'idle.timeout',
+])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Dashboard Admin
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/dashboard', [
-        DashboardController::class,
-        'index',
-    ])->name('dashboard');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logout
+    | LOGOUT
     |--------------------------------------------------------------------------
     */
 
@@ -254,62 +268,259 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | DASHBOARD
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/dashboard', [
+        DashboardController::class,
+        'index',
+    ])
+        ->middleware('permission:dashboard.view')
+        ->name('dashboard');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KAS ADMIN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/cash-accounts', [
+        CashAccountController::class,
+        'index',
+    ])
+        ->name('cash-accounts.index');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMBAH UANG DI ADMIN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/cash-accounts/admin/add', [
+        CashAccountController::class,
+        'addAdmin',
+    ])
+        ->name('cash-accounts.admin.add');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMBAH UANG LANGSUNG KE BANK
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/cash-accounts/bank/add', [
+        CashAccountController::class,
+        'addBank',
+    ])
+        ->name('cash-accounts.bank.add');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SETOR UANG ADMIN KE BANK
+    |--------------------------------------------------------------------------
+    |
+    | Contoh:
+    |
+    | Uang Admin = $100
+    | Uang Bank  = $100
+    |
+    | Setor $40
+    |
+    | Uang Admin = $60
+    | Uang Bank  = $140
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/cash-accounts/transfer-to-bank', [
+        CashAccountController::class,
+        'transferToBank',
+    ])
+        ->name('cash-accounts.transfer-to-bank');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT SALDO UANG DI ADMIN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch('/cash-accounts/admin', [
+        CashAccountController::class,
+        'updateAdmin',
+    ])
+        ->name('cash-accounts.admin.update');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT SALDO UANG DI BANK
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch('/cash-accounts/bank', [
+        CashAccountController::class,
+        'updateBank',
+    ])
+        ->name('cash-accounts.bank.update');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER MANAGEMENT
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/users', [
+        UserManagementController::class,
+        'index',
+    ])
+        ->middleware('permission:users.view')
+        ->name('users.index');
+
+    Route::get('/users/create', [
+        UserManagementController::class,
+        'create',
+    ])
+        ->middleware('permission:users.create')
+        ->name('users.create');
+
+    Route::post('/users', [
+        UserManagementController::class,
+        'store',
+    ])
+        ->middleware('permission:users.create')
+        ->name('users.store');
+
+    Route::get('/users/{user}/edit', [
+        UserManagementController::class,
+        'edit',
+    ])
+        ->middleware('permission:users.edit')
+        ->name('users.edit');
+
+    Route::put('/users/{user}', [
+        UserManagementController::class,
+        'update',
+    ])
+        ->middleware('permission:users.edit')
+        ->name('users.update');
+
+    Route::patch('/users/{user}', [
+        UserManagementController::class,
+        'update',
+    ])
+        ->middleware('permission:users.edit');
+
+    Route::delete('/users/{user}', [
+        UserManagementController::class,
+        'destroy',
+    ])
+        ->middleware('permission:users.delete')
+        ->name('users.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
     | DAFTAR BARANG
     |--------------------------------------------------------------------------
     */
 
-    /*
-     * Daftar produk.
-     */
     Route::get('/products', [
         ProductController::class,
         'index',
-    ])->name('products.index');
+    ])
+        ->middleware('permission:products.view')
+        ->name('products.index');
 
-
-    /*
-     * Form tambah produk.
-     */
     Route::get('/products/create', [
         ProductController::class,
         'create',
-    ])->name('products.create');
+    ])
+        ->middleware('permission:products.create')
+        ->name('products.create');
 
-
-    /*
-     * Simpan produk baru.
-     */
     Route::post('/products', [
         ProductController::class,
         'store',
-    ])->name('products.store');
+    ])
+        ->middleware('permission:products.create')
+        ->name('products.store');
 
-
-    /*
-     * Form edit produk.
-     */
     Route::get('/products/{product}/edit', [
         ProductController::class,
         'edit',
-    ])->name('products.edit');
+    ])
+        ->middleware('permission:products.edit')
+        ->name('products.edit');
 
-
-    /*
-     * Update produk.
-     */
     Route::put('/products/{product}', [
         ProductController::class,
         'update',
-    ])->name('products.update');
+    ])
+        ->middleware('permission:products.edit')
+        ->name('products.update');
 
-
-    /*
-     * Hapus produk.
-     */
     Route::delete('/products/{product}', [
         ProductController::class,
         'destroy',
-    ])->name('products.destroy');
+    ])
+        ->middleware('permission:products.delete')
+        ->name('products.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROMO CAMPAIGN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/promo-campaigns', [
+        PromoCampaignController::class,
+        'index',
+    ])
+        ->middleware('permission:promo-campaigns.view')
+        ->name('promo-campaigns.index');
+
+    Route::get('/promo-campaigns/create', [
+        PromoCampaignController::class,
+        'create',
+    ])
+        ->middleware('permission:promo-campaigns.create')
+        ->name('promo-campaigns.create');
+
+    Route::post('/promo-campaigns', [
+        PromoCampaignController::class,
+        'store',
+    ])
+        ->middleware('permission:promo-campaigns.create')
+        ->name('promo-campaigns.store');
+
+    Route::get('/promo-campaigns/{promoCampaign}/edit', [
+        PromoCampaignController::class,
+        'edit',
+    ])
+        ->middleware('permission:promo-campaigns.edit')
+        ->name('promo-campaigns.edit');
+
+    Route::put('/promo-campaigns/{promoCampaign}', [
+        PromoCampaignController::class,
+        'update',
+    ])
+        ->middleware('permission:promo-campaigns.edit')
+        ->name('promo-campaigns.update');
+
+    Route::delete('/promo-campaigns/{promoCampaign}', [
+        PromoCampaignController::class,
+        'destroy',
+    ])
+        ->middleware('permission:promo-campaigns.delete')
+        ->name('promo-campaigns.destroy');
 
 
     /*
@@ -321,37 +532,44 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock-ins', [
         StockInController::class,
         'index',
-    ])->name('stock-ins.index');
-
+    ])
+        ->middleware('permission:stock-ins.view')
+        ->name('stock-ins.index');
 
     Route::get('/stock-ins/create', [
         StockInController::class,
         'create',
-    ])->name('stock-ins.create');
-
+    ])
+        ->middleware('permission:stock-ins.create')
+        ->name('stock-ins.create');
 
     Route::post('/stock-ins', [
         StockInController::class,
         'store',
-    ])->name('stock-ins.store');
-
+    ])
+        ->middleware('permission:stock-ins.create')
+        ->name('stock-ins.store');
 
     Route::get('/stock-ins/{stockIn}/edit', [
         StockInController::class,
         'edit',
-    ])->name('stock-ins.edit');
-
+    ])
+        ->middleware('permission:stock-ins.edit')
+        ->name('stock-ins.edit');
 
     Route::put('/stock-ins/{stockIn}', [
         StockInController::class,
         'update',
-    ])->name('stock-ins.update');
-
+    ])
+        ->middleware('permission:stock-ins.edit')
+        ->name('stock-ins.update');
 
     Route::delete('/stock-ins/{stockIn}', [
         StockInController::class,
         'destroy',
-    ])->name('stock-ins.destroy');
+    ])
+        ->middleware('permission:stock-ins.delete')
+        ->name('stock-ins.destroy');
 
 
     /*
@@ -363,51 +581,121 @@ Route::middleware('auth')->group(function () {
     Route::get('/stock-outs', [
         StockOutController::class,
         'index',
-    ])->name('stock-outs.index');
-
+    ])
+        ->middleware('permission:stock-outs.view')
+        ->name('stock-outs.index');
 
     Route::get('/stock-outs/create', [
         StockOutController::class,
         'create',
-    ])->name('stock-outs.create');
-
+    ])
+        ->middleware('permission:stock-outs.create')
+        ->name('stock-outs.create');
 
     Route::post('/stock-outs', [
         StockOutController::class,
         'store',
-    ])->name('stock-outs.store');
-
+    ])
+        ->middleware('permission:stock-outs.create')
+        ->name('stock-outs.store');
 
     Route::get('/stock-outs/{stockOut}/edit', [
         StockOutController::class,
         'edit',
-    ])->name('stock-outs.edit');
-
+    ])
+        ->middleware('permission:stock-outs.edit')
+        ->name('stock-outs.edit');
 
     Route::put('/stock-outs/{stockOut}', [
         StockOutController::class,
         'update',
-    ])->name('stock-outs.update');
+    ])
+        ->middleware('permission:stock-outs.edit')
+        ->name('stock-outs.update');
 
+    Route::patch(
+        '/stock-outs/{stockOut}/verify-payment',
+        [
+            StockOutController::class,
+            'verifyCustomerPayment',
+        ]
+    )
+        ->middleware(
+            'permission:stock-outs.verify-payment'
+        )
+        ->name(
+            'stock-outs.verify-payment'
+        );
+
+    Route::patch(
+        '/stock-outs/{stockOut}/confirm-deposit',
+        [
+            StockOutController::class,
+            'confirmDeposit',
+        ]
+    )
+        ->middleware(
+            'permission:stock-outs.confirm-deposit'
+        )
+        ->name(
+            'stock-outs.confirm-deposit'
+        );
 
     Route::delete('/stock-outs/{stockOut}', [
         StockOutController::class,
         'destroy',
-    ])->name('stock-outs.destroy');
+    ])
+        ->middleware('permission:stock-outs.delete')
+        ->name('stock-outs.destroy');
 
 
     /*
     |--------------------------------------------------------------------------
-    | SUPPLIER BARANG
+    | SUPPLIER
     |--------------------------------------------------------------------------
     */
 
-    Route::resource(
-        'suppliers',
-        SupplierController::class
-    )->except([
-        'show',
-    ]);
+    Route::get('/suppliers', [
+        SupplierController::class,
+        'index',
+    ])
+        ->middleware('permission:suppliers.view')
+        ->name('suppliers.index');
+
+    Route::get('/suppliers/create', [
+        SupplierController::class,
+        'create',
+    ])
+        ->middleware('permission:suppliers.create')
+        ->name('suppliers.create');
+
+    Route::post('/suppliers', [
+        SupplierController::class,
+        'store',
+    ])
+        ->middleware('permission:suppliers.create')
+        ->name('suppliers.store');
+
+    Route::get('/suppliers/{supplier}/edit', [
+        SupplierController::class,
+        'edit',
+    ])
+        ->middleware('permission:suppliers.edit')
+        ->name('suppliers.edit');
+
+    Route::put('/suppliers/{supplier}', [
+        SupplierController::class,
+        'update',
+    ])
+        ->middleware('permission:suppliers.edit')
+        ->name('suppliers.update');
+
+    Route::delete('/suppliers/{supplier}', [
+        SupplierController::class,
+        'destroy',
+    ])
+        ->middleware('permission:suppliers.delete')
+        ->name('suppliers.destroy');
 
 
     /*
@@ -416,12 +704,47 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::resource(
-        'customers',
-        CustomerController::class
-    )->except([
-        'show',
-    ]);
+    Route::get('/customers', [
+        CustomerController::class,
+        'index',
+    ])
+        ->middleware('permission:customers.view')
+        ->name('customers.index');
+
+    Route::get('/customers/create', [
+        CustomerController::class,
+        'create',
+    ])
+        ->middleware('permission:customers.create')
+        ->name('customers.create');
+
+    Route::post('/customers', [
+        CustomerController::class,
+        'store',
+    ])
+        ->middleware('permission:customers.create')
+        ->name('customers.store');
+
+    Route::get('/customers/{customer}/edit', [
+        CustomerController::class,
+        'edit',
+    ])
+        ->middleware('permission:customers.edit')
+        ->name('customers.edit');
+
+    Route::put('/customers/{customer}', [
+        CustomerController::class,
+        'update',
+    ])
+        ->middleware('permission:customers.edit')
+        ->name('customers.update');
+
+    Route::delete('/customers/{customer}', [
+        CustomerController::class,
+        'destroy',
+    ])
+        ->middleware('permission:customers.delete')
+        ->name('customers.destroy');
 
 
     /*
@@ -430,67 +753,170 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    /*
-     * Route laporan harus berada sebelum resource.
-     */
-    Route::get(
-        '/tv-vouchers/report',
-        [
-            TvVoucherTransactionController::class,
-            'report',
-        ]
-    )->name('tv-vouchers.report');
+    Route::get('/tv-vouchers', [
+        TvVoucherTransactionController::class,
+        'index',
+    ])
+        ->middleware('permission:tv-vouchers.view')
+        ->name('tv-vouchers.index');
 
 
     /*
-     * Verifikasi pembayaran customer.
-     */
+    |--------------------------------------------------------------------------
+    | LAPORAN TV VOUCHER
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/tv-vouchers/report', [
+        TvVoucherTransactionController::class,
+        'report',
+    ])
+        ->middleware('permission:tv-vouchers.view')
+        ->name('tv-vouchers.report');
+
+
+    Route::get('/tv-vouchers/create', [
+        TvVoucherTransactionController::class,
+        'create',
+    ])
+        ->middleware('permission:tv-vouchers.create')
+        ->name('tv-vouchers.create');
+
+
+    Route::post('/tv-vouchers', [
+        TvVoucherTransactionController::class,
+        'store',
+    ])
+        ->middleware('permission:tv-vouchers.create')
+        ->name('tv-vouchers.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VERIFIKASI PEMBAYARAN CUSTOMER - TV VOUCHER
+    |--------------------------------------------------------------------------
+    */
+
     Route::patch(
         '/tv-vouchers/{tvVoucher}/verify-payment',
         [
             TvVoucherTransactionController::class,
             'verifyCustomerPayment',
         ]
-    )->name('tv-vouchers.verify-payment');
+    )
+        ->middleware(
+            'permission:tv-vouchers.verify-payment'
+        )
+        ->name(
+            'tv-vouchers.verify-payment'
+        );
 
 
     /*
-     * Konfirmasi setoran petugas.
-     */
+    |--------------------------------------------------------------------------
+    | ATUR METODE CASH / BANK - TRANSAKSI LAMA
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch(
+        '/tv-vouchers/{tvVoucher}/payment-method',
+        [
+            TvVoucherTransactionController::class,
+            'setPaymentMethod',
+        ]
+    )
+        ->middleware(
+            'permission:tv-vouchers.confirm-deposit'
+        )
+        ->name(
+            'tv-vouchers.payment-method'
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KONFIRMASI SETORAN CASH - TV VOUCHER
+    |--------------------------------------------------------------------------
+    */
+
     Route::patch(
         '/tv-vouchers/{tvVoucher}/confirm-deposit',
         [
             TvVoucherTransactionController::class,
             'confirmDeposit',
         ]
-    )->name('tv-vouchers.confirm-deposit');
-
-
-    /*
-     * CRUD TV Voucher.
-     */
-    Route::resource(
-        'tv-vouchers',
-        TvVoucherTransactionController::class
-    )->parameters([
-        'tv-vouchers' => 'tvVoucher',
-    ]);
+    )
+        ->middleware(
+            'permission:tv-vouchers.confirm-deposit'
+        )
+        ->name(
+            'tv-vouchers.confirm-deposit'
+        );
 
 
     /*
     |--------------------------------------------------------------------------
-    | LAPORAN INVENTARIS
+    | ROUTE DINAMIS TV VOUCHER
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/tv-vouchers/{tvVoucher}', [
+        TvVoucherTransactionController::class,
+        'show',
+    ])
+        ->middleware('permission:tv-vouchers.view')
+        ->name('tv-vouchers.show');
+
+
+    Route::get('/tv-vouchers/{tvVoucher}/edit', [
+        TvVoucherTransactionController::class,
+        'edit',
+    ])
+        ->middleware('permission:tv-vouchers.edit')
+        ->name('tv-vouchers.edit');
+
+
+    Route::put('/tv-vouchers/{tvVoucher}', [
+        TvVoucherTransactionController::class,
+        'update',
+    ])
+        ->middleware('permission:tv-vouchers.edit')
+        ->name('tv-vouchers.update');
+
+
+    Route::patch('/tv-vouchers/{tvVoucher}', [
+        TvVoucherTransactionController::class,
+        'update',
+    ])
+        ->middleware('permission:tv-vouchers.edit');
+
+
+    Route::delete('/tv-vouchers/{tvVoucher}', [
+        TvVoucherTransactionController::class,
+        'destroy',
+    ])
+        ->middleware('permission:tv-vouchers.delete')
+        ->name('tv-vouchers.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LAPORAN
     |--------------------------------------------------------------------------
     */
 
     Route::get('/reports', [
         ReportController::class,
         'index',
-    ])->name('reports.index');
+    ])
+        ->middleware('permission:reports.view')
+        ->name('reports.index');
 
 
     Route::get('/reports/export-excel', [
         ReportController::class,
         'exportExcel',
-    ])->name('reports.export-excel');
+    ])
+        ->middleware('permission:reports.view')
+        ->name('reports.export-excel');
 });

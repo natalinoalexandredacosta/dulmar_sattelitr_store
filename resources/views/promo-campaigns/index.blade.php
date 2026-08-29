@@ -8,7 +8,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Supplier Barang - Dulmar Satellite Store</title>
+    <title>Promo Campaign - Dulmar Satellite Store</title>
 
     <link
         rel="icon"
@@ -121,11 +121,6 @@
             font-weight: bold;
         }
 
-        .logout-form {
-            flex-shrink: 0;
-            margin: 20px 0 0;
-        }
-
         .button-logout {
             width: 100%;
 
@@ -163,6 +158,7 @@
             min-height: 100vh;
 
             margin-left: 245px;
+
             padding: 50px 32px;
 
             overflow-x: hidden;
@@ -181,11 +177,11 @@
 
             gap: 20px;
 
-            margin-bottom: 45px;
+            margin-bottom: 35px;
         }
 
         .page-header h2 {
-            margin: 0 0 20px;
+            margin: 0 0 15px;
 
             font-size: 36px;
         }
@@ -196,7 +192,7 @@
             color: #4b5563;
 
             font-size: 18px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .button-add {
@@ -207,7 +203,7 @@
 
             border-radius: 8px;
 
-            background-color: #0891b2;
+            background-color: #2563eb;
             color: white;
 
             font-size: 18px;
@@ -215,7 +211,7 @@
         }
 
         .button-add:hover {
-            background-color: #0e7490;
+            background-color: #1d4ed8;
         }
 
         /*
@@ -252,6 +248,65 @@
         .alert-error ul {
             margin: 0;
             padding-left: 20px;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUMMARY
+        |--------------------------------------------------------------------------
+        */
+
+        .summary-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(170px, 1fr));
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            padding: 20px;
+
+            border-radius: 10px;
+
+            background-color: white;
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.06);
+        }
+
+        .summary-card h3 {
+            margin: 0 0 12px;
+
+            color: #6b7280;
+
+            font-size: 14px;
+        }
+
+        .summary-card strong {
+            display: block;
+
+            font-size: 26px;
+        }
+
+        .summary-total {
+            border-left: 5px solid #2563eb;
+        }
+
+        .summary-active {
+            border-left: 5px solid #16a34a;
+        }
+
+        .summary-upcoming {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .summary-products {
+            border-left: 5px solid #7c3aed;
         }
 
         /*
@@ -299,24 +354,88 @@
 
             text-align: left;
             vertical-align: middle;
-
-            white-space: nowrap;
         }
 
         th {
-            font-weight: bold;
+            white-space: nowrap;
         }
 
         tbody tr:hover {
             background-color: #f8fafc;
         }
 
-        .empty-data {
-            padding: 35px;
+        .campaign-title {
+            font-weight: bold;
+        }
+
+        .campaign-description {
+            max-width: 320px;
+
+            margin-top: 5px;
 
             color: #6b7280;
 
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        .status-badge {
+            display: inline-block;
+
+            min-width: 100px;
+
+            padding: 7px 10px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+            font-weight: bold;
+
             text-align: center;
+
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+
+        .status-upcoming {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-ended {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .product-badge {
+            display: inline-block;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background-color: #ede9fe;
+            color: #5b21b6;
+
+            font-size: 13px;
+            font-weight: bold;
+
+            white-space: nowrap;
         }
 
         /*
@@ -330,37 +449,21 @@
             align-items: center;
 
             gap: 8px;
+
+            white-space: nowrap;
         }
 
-        .button-edit {
-            display: inline-block;
-
-            padding: 9px 15px;
-
-            border-radius: 6px;
-
-            background-color: #f59e0b;
-            color: white;
-
-            font-size: 14px;
-            text-decoration: none;
-        }
-
-        .button-edit:hover {
-            background-color: #d97706;
-        }
-
-        .delete-form {
+        .action-buttons form {
             margin: 0;
         }
 
+        .button-edit,
         .button-delete {
             padding: 9px 15px;
 
             border: none;
             border-radius: 6px;
 
-            background-color: #dc2626;
             color: white;
 
             font-size: 14px;
@@ -368,18 +471,45 @@
             cursor: pointer;
         }
 
-        .button-delete:hover {
-            background-color: #b91c1c;
-        }
+        .button-edit {
+            display: inline-block;
 
-        .email-link {
-            color: #2563eb;
+            background-color: #f59e0b;
 
             text-decoration: none;
         }
 
-        .email-link:hover {
-            text-decoration: underline;
+        .button-edit:hover {
+            background-color: #d97706;
+        }
+
+        .button-delete {
+            background-color: #dc2626;
+        }
+
+        .button-delete:hover {
+            background-color: #b91c1c;
+        }
+
+        .empty-data {
+            padding: 40px;
+
+            color: #6b7280;
+
+            text-align: center;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TABLET
+        |--------------------------------------------------------------------------
+        */
+
+        @media (max-width: 1100px) {
+            .summary-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
         }
 
         /*
@@ -394,6 +524,12 @@
                 display: block;
                 width: 100%;
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | MENU BUTTON
+            |--------------------------------------------------------------------------
+            */
 
             .sidebar-toggle {
                 position: fixed;
@@ -426,6 +562,12 @@
                     rgba(0, 0, 0, 0.25);
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | OVERLAY
+            |--------------------------------------------------------------------------
+            */
+
             .sidebar-overlay {
                 position: fixed;
                 inset: 0;
@@ -449,6 +591,12 @@
                 visibility: visible;
                 opacity: 1;
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | MOBILE SIDEBAR
+            |--------------------------------------------------------------------------
+            */
 
             .sidebar {
                 position: fixed;
@@ -501,6 +649,12 @@
                 font-size: 16px;
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | MOBILE CONTENT
+            |--------------------------------------------------------------------------
+            */
+
             .main-content {
                 width: 100%;
 
@@ -526,13 +680,16 @@
 
             .page-header p {
                 font-size: 16px;
-                line-height: 1.5;
             }
 
             .button-add {
                 width: 100%;
 
                 text-align: center;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
             }
 
             .table-card {
@@ -652,7 +809,6 @@
             <form
                 action="{{ route('logout') }}"
                 method="POST"
-                class="logout-form"
                 onsubmit="return confirm('Apakah Anda yakin ingin keluar?')"
             >
                 @csrf
@@ -675,20 +831,21 @@
                 <div>
 
                     <h2>
-                        Supplier Barang
+                        Promo Campaign
                     </h2>
 
                     <p>
-                        Kelola data pihak atau perusahaan yang memasok barang.
+                        Kelola satu promosi untuk beberapa produk
+                        dengan diskon berbeda.
                     </p>
 
                 </div>
 
                 <a
-                    href="{{ route('suppliers.create') }}"
+                    href="{{ route('promo-campaigns.create') }}"
                     class="button-add"
                 >
-                    + Tambah Supplier
+                    + Tambah Promo Campaign
                 </a>
 
             </div>
@@ -729,6 +886,97 @@
 
             @endif
 
+            @php
+                $totalCampaigns =
+                    $campaigns->count();
+
+                $activeCampaigns =
+                    $campaigns
+                        ->filter(function ($campaign) {
+                            return $campaign->currently_active;
+                        })
+                        ->count();
+
+                $upcomingCampaigns =
+                    $campaigns
+                        ->filter(function ($campaign) {
+                            return $campaign->is_active
+                                && $campaign->start_date
+                                && now()
+                                    ->startOfDay()
+                                    ->lt($campaign->start_date);
+                        })
+                        ->count();
+
+                $totalPromoProducts =
+                    $campaigns->sum(
+                        'products_count'
+                    );
+            @endphp
+
+            <section
+                class="summary-grid"
+                aria-label="Ringkasan Promo Campaign"
+            >
+
+                <article
+                    class="summary-card summary-total"
+                >
+
+                    <h3>
+                        Total Campaign
+                    </h3>
+
+                    <strong>
+                        {{ $totalCampaigns }}
+                    </strong>
+
+                </article>
+
+                <article
+                    class="summary-card summary-active"
+                >
+
+                    <h3>
+                        Campaign Aktif
+                    </h3>
+
+                    <strong>
+                        {{ $activeCampaigns }}
+                    </strong>
+
+                </article>
+
+                <article
+                    class="summary-card summary-upcoming"
+                >
+
+                    <h3>
+                        Belum Mulai
+                    </h3>
+
+                    <strong>
+                        {{ $upcomingCampaigns }}
+                    </strong>
+
+                </article>
+
+                <article
+                    class="summary-card summary-products"
+                >
+
+                    <h3>
+                        Produk Promo
+                    </h3>
+
+                    <strong>
+                        {{ $totalPromoProducts }}
+                    </strong>
+
+                </article>
+
+            </section>
+
             <div class="table-card">
 
                 <table>
@@ -737,11 +985,10 @@
 
                         <tr>
                             <th>No</th>
-                            <th>Nama Supplier</th>
-                            <th>Nama Kontak</th>
-                            <th>Nomor Telepon</th>
-                            <th>Email</th>
-                            <th>Alamat</th>
+                            <th>Campaign</th>
+                            <th>Periode</th>
+                            <th>Produk</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
 
@@ -749,7 +996,7 @@
 
                     <tbody>
 
-                        @forelse ($suppliers as $supplier)
+                        @forelse ($campaigns as $campaign)
 
                             <tr>
 
@@ -758,38 +1005,103 @@
                                 </td>
 
                                 <td>
-                                    {{ $supplier->supplier_name }}
-                                </td>
 
-                                <td>
-                                    {{ $supplier->contact_person ?: '-' }}
-                                </td>
+                                    <div class="campaign-title">
+                                        {{ $campaign->title }}
+                                    </div>
 
-                                <td>
-                                    {{ $supplier->phone ?: '-' }}
-                                </td>
+                                    @if ($campaign->description)
 
-                                <td>
+                                        <div class="campaign-description">
 
-                                    @if ($supplier->email)
+                                            {{
+                                                \Illuminate\Support\Str::limit(
+                                                    $campaign->description,
+                                                    100
+                                                )
+                                            }}
 
-                                        <a
-                                            href="mailto:{{ $supplier->email }}"
-                                            class="email-link"
-                                        >
-                                            {{ $supplier->email }}
-                                        </a>
-
-                                    @else
-
-                                        -
+                                        </div>
 
                                     @endif
 
                                 </td>
 
                                 <td>
-                                    {{ $supplier->address ?: '-' }}
+
+                                    {{
+                                        $campaign->start_date
+                                            ? $campaign->start_date->format('d/m/Y')
+                                            : '-'
+                                    }}
+
+                                    <br>
+
+                                    sampai
+
+                                    <br>
+
+                                    {{
+                                        $campaign->end_date
+                                            ? $campaign->end_date->format('d/m/Y')
+                                            : '-'
+                                    }}
+
+                                </td>
+
+                                <td>
+
+                                    <span class="product-badge">
+
+                                        {{ $campaign->products_count }}
+                                        Produk
+
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    @if ($campaign->currently_active)
+
+                                        <span
+                                            class="status-badge status-active"
+                                        >
+                                            Aktif
+                                        </span>
+
+                                    @elseif (!$campaign->is_active)
+
+                                        <span
+                                            class="status-badge status-inactive"
+                                        >
+                                            Nonaktif
+                                        </span>
+
+                                    @elseif (
+                                        $campaign->start_date
+                                        &&
+                                        now()
+                                            ->startOfDay()
+                                            ->lt($campaign->start_date)
+                                    )
+
+                                        <span
+                                            class="status-badge status-upcoming"
+                                        >
+                                            Belum Mulai
+                                        </span>
+
+                                    @else
+
+                                        <span
+                                            class="status-badge status-ended"
+                                        >
+                                            Berakhir
+                                        </span>
+
+                                    @endif
+
                                 </td>
 
                                 <td>
@@ -798,8 +1110,8 @@
 
                                         <a
                                             href="{{ route(
-                                                'suppliers.edit',
-                                                $supplier
+                                                'promo-campaigns.edit',
+                                                $campaign
                                             ) }}"
                                             class="button-edit"
                                         >
@@ -808,12 +1120,11 @@
 
                                         <form
                                             action="{{ route(
-                                                'suppliers.destroy',
-                                                $supplier
+                                                'promo-campaigns.destroy',
+                                                $campaign
                                             ) }}"
                                             method="POST"
-                                            class="delete-form"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus supplier ini?')"
+                                            onsubmit="return confirm('Yakin ingin menghapus Promo Campaign ini?')"
                                         >
                                             @csrf
                                             @method('DELETE')
@@ -838,10 +1149,10 @@
                             <tr>
 
                                 <td
-                                    colspan="7"
+                                    colspan="6"
                                     class="empty-data"
                                 >
-                                    Belum ada data supplier barang.
+                                    Belum ada Promo Campaign.
                                 </td>
 
                             </tr>
@@ -939,14 +1250,16 @@
             .querySelectorAll(
                 '.sidebar a'
             )
-            .forEach(function (link) {
+            .forEach(
+                function (link) {
 
-                link.addEventListener(
-                    'click',
-                    closeSidebar
-                );
+                    link.addEventListener(
+                        'click',
+                        closeSidebar
+                    );
 
-            });
+                }
+            );
 
         window.addEventListener(
             'resize',

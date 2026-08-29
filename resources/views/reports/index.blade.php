@@ -2,12 +2,24 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>Laporan Inventaris - Dulmar Satellite Store</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo-dulmar.jpg') }}">
+
+    <link
+        rel="icon"
+        type="image/jpeg"
+        href="{{ asset('images/logo-dulmar.jpg') }}"
+    >
 
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -60,7 +72,7 @@
             padding: 12px 14px;
             border-left: 4px solid #60a5fa;
             border-radius: 6px;
-            background: rgba(37, 99, 235, .3);
+            background: rgba(37, 99, 235, 0.3);
             color: #bfdbfe;
             font-weight: bold;
         }
@@ -74,6 +86,10 @@
             color: white;
             font-size: 17px;
             cursor: pointer;
+        }
+
+        .button-logout:hover {
+            background: #b91c1c;
         }
 
         .sidebar-toggle,
@@ -131,8 +147,16 @@
             background: #374151;
         }
 
+        .button-print:hover {
+            background: #1f2937;
+        }
+
         .button-export {
             background: #16a34a;
+        }
+
+        .button-export:hover {
+            background: #15803d;
         }
 
         .alert-error {
@@ -155,7 +179,7 @@
             padding: 25px;
             border-radius: 10px;
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .filter-card h3,
@@ -190,6 +214,12 @@
             font-size: 15px;
         }
 
+        .form-control:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
         .button-filter,
         .button-reset {
             height: 44px;
@@ -209,8 +239,16 @@
             background: #2563eb;
         }
 
+        .button-filter:hover {
+            background: #1d4ed8;
+        }
+
         .button-reset {
             background: #6b7280;
+        }
+
+        .button-reset:hover {
+            background: #4b5563;
         }
 
         .period-info {
@@ -237,7 +275,7 @@
             padding: 22px;
             border-radius: 9px;
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .07);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
         }
 
         .summary-card h3 {
@@ -370,7 +408,7 @@
             padding: 14px 16px;
             border-radius: 8px;
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         .pagination a,
@@ -439,9 +477,9 @@
                 z-index: 1000;
                 display: block;
                 visibility: hidden;
-                background: rgba(0, 0, 0, .5);
+                background: rgba(0, 0, 0, 0.5);
                 opacity: 0;
-                transition: .25s;
+                transition: 0.25s;
             }
 
             .sidebar-overlay.overlay-open {
@@ -457,7 +495,7 @@
                 padding: 82px 25px 30px;
                 overflow-y: auto;
                 transform: translateX(-105%);
-                transition: transform .25s ease;
+                transition: transform 0.25s ease;
             }
 
             .sidebar.sidebar-open {
@@ -473,7 +511,7 @@
                 margin-bottom: 10px;
                 padding: 12px 10px;
                 border-radius: 6px;
-                background: rgba(255, 255, 255, .06);
+                background: rgba(255, 255, 255, 0.06);
                 font-size: 16px;
             }
 
@@ -646,6 +684,7 @@
 </head>
 
 <body>
+
     <button
         type="button"
         id="sidebarToggle"
@@ -662,13 +701,17 @@
     ></div>
 
     <div class="container">
+
         <aside
             class="sidebar"
             id="sidebar"
         >
-            <h1>Dulmar Satellite Store</h1>
+            <h1>
+                Dulmar Satellite Store
+            </h1>
 
             <nav class="sidebar-menu">
+
                 <a
                     href="{{ route('dashboard') }}"
                     class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"
@@ -681,6 +724,13 @@
                     class="{{ request()->routeIs('products.*') ? 'active' : '' }}"
                 >
                     Daftar Barang
+                </a>
+
+                <a
+                    href="{{ route('promo-campaigns.index') }}"
+                    class="{{ request()->routeIs('promo-campaigns.*') ? 'active' : '' }}"
+                >
+                    Promo Campaign
                 </a>
 
                 <a
@@ -724,6 +774,7 @@
                 >
                     Laporan
                 </a>
+
             </nav>
 
             <form
@@ -740,19 +791,27 @@
                     Keluar
                 </button>
             </form>
+
         </aside>
 
         <main class="main-content">
+
             <div class="page-header">
+
                 <div>
-                    <h2>Laporan Inventaris</h2>
+
+                    <h2>
+                        Laporan Inventaris
+                    </h2>
 
                     <p>
                         Ringkasan pergerakan stok, penjualan, dan keuntungan.
                     </p>
+
                 </div>
 
                 <div class="page-actions">
+
                     <a
                         href="{{ route('reports.export-excel', [
                             'start_date' => $startDate,
@@ -770,11 +829,15 @@
                     >
                         Cetak Laporan
                     </button>
+
                 </div>
+
             </div>
 
             @if ($errors->any())
+
                 <div class="alert-error">
+
                     <ul>
                         @foreach ($errors->all() as $error)
                             <li>
@@ -782,18 +845,25 @@
                             </li>
                         @endforeach
                     </ul>
+
                 </div>
+
             @endif
 
             <section class="filter-card">
-                <h3>Filter Periode Laporan</h3>
+
+                <h3>
+                    Filter Periode Laporan
+                </h3>
 
                 <form
                     action="{{ route('reports.index') }}"
                     method="GET"
                     class="filter-form"
                 >
+
                     <div class="form-group">
+
                         <label for="start_date">
                             Tanggal Mulai
                         </label>
@@ -805,9 +875,11 @@
                             class="form-control"
                             value="{{ $startDate }}"
                         >
+
                     </div>
 
                     <div class="form-group">
+
                         <label for="end_date">
                             Tanggal Selesai
                         </label>
@@ -819,6 +891,7 @@
                             class="form-control"
                             value="{{ $endDate }}"
                         >
+
                     </div>
 
                     <button
@@ -834,31 +907,40 @@
                     >
                         Reset
                     </a>
+
                 </form>
 
                 <p class="period-info">
+
                     Periode:
+
                     <strong>
-                        {{ $startDate
-                            ? \Carbon\Carbon::parse($startDate)->format('d-m-Y')
-                            : 'Semua tanggal'
+                        {{
+                            $startDate
+                                ? \Carbon\Carbon::parse($startDate)->format('d-m-Y')
+                                : 'Semua tanggal'
                         }}
                     </strong>
 
                     sampai
 
                     <strong>
-                        {{ $endDate
-                            ? \Carbon\Carbon::parse($endDate)->format('d-m-Y')
-                            : 'Hari ini'
+                        {{
+                            $endDate
+                                ? \Carbon\Carbon::parse($endDate)->format('d-m-Y')
+                                : 'Hari ini'
                         }}
                     </strong>
+
                 </p>
+
             </section>
 
             <section class="summary-grid">
+
                 <article class="summary-card blue">
                     <h3>Total Produk</h3>
+
                     <p class="summary-value">
                         {{ $totalProducts }}
                     </p>
@@ -866,6 +948,7 @@
 
                 <article class="summary-card purple">
                     <h3>Stok Saat Ini</h3>
+
                     <p class="summary-value">
                         {{ $totalCurrentStock }} unit
                     </p>
@@ -873,6 +956,7 @@
 
                 <article class="summary-card orange">
                     <h3>Stok Rendah</h3>
+
                     <p class="summary-value">
                         {{ $lowStockProducts }}
                     </p>
@@ -880,6 +964,7 @@
 
                 <article class="summary-card red">
                     <h3>Stok Habis</h3>
+
                     <p class="summary-value">
                         {{ $outOfStockProducts }}
                     </p>
@@ -887,6 +972,7 @@
 
                 <article class="summary-card green">
                     <h3>Total Stok Masuk</h3>
+
                     <p class="summary-value">
                         {{ $totalStockIn }} unit
                     </p>
@@ -894,6 +980,7 @@
 
                 <article class="summary-card red">
                     <h3>Total Stok Keluar</h3>
+
                     <p class="summary-value">
                         {{ $totalStockOut }} unit
                     </p>
@@ -901,6 +988,7 @@
 
                 <article class="summary-card blue">
                     <h3>Transaksi Masuk</h3>
+
                     <p class="summary-value">
                         {{ $totalStockInTransactions }}
                     </p>
@@ -908,15 +996,19 @@
 
                 <article class="summary-card purple">
                     <h3>Transaksi Keluar</h3>
+
                     <p class="summary-value">
                         {{ $totalStockOutTransactions }}
                     </p>
                 </article>
+
             </section>
 
             <section class="financial-grid">
+
                 <article class="summary-card blue">
                     <h3>Total Penjualan</h3>
+
                     <p class="summary-value">
                         ${{ number_format($totalSales, 2) }}
                     </p>
@@ -924,6 +1016,7 @@
 
                 <article class="summary-card orange">
                     <h3>Total Modal Terjual</h3>
+
                     <p class="summary-value">
                         ${{ number_format($totalCapital, 2) }}
                     </p>
@@ -931,6 +1024,7 @@
 
                 <article class="summary-card green">
                     <h3>Total Keuntungan</h3>
+
                     <p class="summary-value">
                         ${{ number_format($totalProfit, 2) }}
                     </p>
@@ -938,6 +1032,7 @@
 
                 <article class="summary-card purple">
                     <h3>Margin Keuntungan</h3>
+
                     <p class="summary-value">
                         {{ number_format($profitMargin, 1) }}%
                     </p>
@@ -945,31 +1040,50 @@
 
                 <article class="summary-card orange">
                     <h3>Nilai Stok Saat Ini</h3>
+
                     <p class="summary-value">
                         ${{ number_format($currentInventoryValue, 2) }}
                     </p>
                 </article>
+
             </section>
 
             <section class="report-card">
-                <h3>Grafik Penjualan dan Keuntungan</h3>
+
+                <h3>
+                    Grafik Penjualan dan Keuntungan
+                </h3>
 
                 @if ($chartSalesValues->sum() > 0)
+
                     <div class="chart-container">
-                        <canvas id="salesChart"></canvas>
+
+                        <canvas
+                            id="salesChart"
+                        ></canvas>
+
                     </div>
+
                 @else
+
                     <div class="chart-empty">
                         Belum ada data penjualan pada periode yang dipilih.
                     </div>
+
                 @endif
+
             </section>
 
             <section class="report-card">
-                <h3>Transaksi Penjualan</h3>
+
+                <h3>
+                    Transaksi Penjualan
+                </h3>
 
                 <div class="table-wrapper">
+
                     <table>
+
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -987,7 +1101,9 @@
                         </thead>
 
                         <tbody>
+
                             @forelse ($sales as $sale)
+
                                 @php
                                     $saleCapital =
                                         (float) $sale->unit_purchase_price
@@ -995,20 +1111,38 @@
                                 @endphp
 
                                 <tr>
+
                                     <td>
-                                        {{ $sales->firstItem() + $loop->index }}
+                                        {{
+                                            $sales->firstItem()
+                                            + $loop->index
+                                        }}
                                     </td>
 
                                     <td>
-                                        {{ $sale->transaction_date->format('d-m-Y') }}
+                                        {{
+                                            $sale
+                                                ->transaction_date
+                                                ->format('d-m-Y')
+                                        }}
                                     </td>
 
                                     <td>
-                                        {{ $sale->product?->product_name ?? 'Produk telah dihapus' }}
+                                        {{
+                                            $sale
+                                                ->product
+                                                ?->product_name
+                                            ?? 'Produk telah dihapus'
+                                        }}
                                     </td>
 
                                     <td>
-                                        {{ $sale->customer?->customer_name ?? '-' }}
+                                        {{
+                                            $sale
+                                                ->customer
+                                                ?->customer_name
+                                            ?? '-'
+                                        }}
                                     </td>
 
                                     <td class="stock-out">
@@ -1016,79 +1150,135 @@
                                     </td>
 
                                     <td class="purchase-price">
-                                        ${{ number_format($sale->unit_purchase_price, 2) }}
+                                        ${{
+                                            number_format(
+                                                $sale->unit_purchase_price,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td class="selling-price">
-                                        ${{ number_format($sale->unit_selling_price, 2) }}
+                                        ${{
+                                            number_format(
+                                                $sale->unit_selling_price,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td class="total-sale">
-                                        ${{ number_format($sale->subtotal, 2) }}
+                                        ${{
+                                            number_format(
+                                                $sale->subtotal,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td>
-                                        ${{ number_format($saleCapital, 2) }}
+                                        ${{
+                                            number_format(
+                                                $saleCapital,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td class="profit">
-                                        ${{ number_format($sale->total_profit, 2) }}
+                                        ${{
+                                            number_format(
+                                                $sale->total_profit,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td>
                                         {{ $sale->notes ?: '-' }}
                                     </td>
+
                                 </tr>
+
                             @empty
+
                                 <tr>
+
                                     <td
                                         colspan="11"
                                         class="empty-data"
                                     >
                                         Tidak ada transaksi penjualan pada periode ini.
                                     </td>
+
                                 </tr>
+
                             @endforelse
+
                         </tbody>
+
                     </table>
+
                 </div>
 
                 @if ($sales->hasPages())
+
                     <nav class="pagination">
+
                         @if ($sales->onFirstPage())
+
                             <span class="disabled">
                                 Sebelumnya
                             </span>
+
                         @else
+
                             <a href="{{ $sales->previousPageUrl() }}">
                                 Sebelumnya
                             </a>
+
                         @endif
 
                         <span class="pagination-info">
-                            Halaman {{ $sales->currentPage() }}
-                            dari {{ $sales->lastPage() }}
-                            - Total {{ $sales->total() }} transaksi
+                            Halaman
+                            {{ $sales->currentPage() }}
+                            dari
+                            {{ $sales->lastPage() }}
+                            - Total
+                            {{ $sales->total() }}
+                            transaksi
                         </span>
 
                         @if ($sales->hasMorePages())
+
                             <a href="{{ $sales->nextPageUrl() }}">
                                 Berikutnya
                             </a>
+
                         @else
+
                             <span class="disabled">
                                 Berikutnya
                             </span>
+
                         @endif
+
                     </nav>
+
                 @endif
+
             </section>
 
             <section class="report-card">
-                <h3>Ringkasan Inventaris Produk</h3>
+
+                <h3>
+                    Ringkasan Inventaris Produk
+                </h3>
 
                 <div class="table-wrapper">
+
                     <table class="inventory-table">
+
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -1104,8 +1294,11 @@
                         </thead>
 
                         <tbody>
+
                             @forelse ($products as $product)
+
                                 <tr>
+
                                     <td>
                                         {{ $loop->iteration }}
                                     </td>
@@ -1119,19 +1312,35 @@
                                     </td>
 
                                     <td class="purchase-price">
-                                        ${{ number_format($product->purchase_price, 2) }}
+                                        ${{
+                                            number_format(
+                                                $product->purchase_price,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td class="selling-price">
-                                        ${{ number_format($product->selling_price, 2) }}
+                                        ${{
+                                            number_format(
+                                                $product->selling_price,
+                                                2
+                                            )
+                                        }}
                                     </td>
 
                                     <td class="stock-in">
-                                        +{{ $product->total_stock_in ?? 0 }}
+                                        +{{
+                                            $product->total_stock_in
+                                            ?? 0
+                                        }}
                                     </td>
 
                                     <td class="stock-out">
-                                        -{{ $product->total_stock_out ?? 0 }}
+                                        -{{
+                                            $product->total_stock_out
+                                            ?? 0
+                                        }}
                                     </td>
 
                                     <td class="current-stock">
@@ -1139,59 +1348,91 @@
                                     </td>
 
                                     <td>
-                                        ${{ number_format(
-                                            $product->stock * $product->purchase_price,
-                                            2
-                                        ) }}
+                                        ${{
+                                            number_format(
+                                                $product->stock
+                                                * $product->purchase_price,
+                                                2
+                                            )
+                                        }}
                                     </td>
+
                                 </tr>
+
                             @empty
+
                                 <tr>
+
                                     <td
                                         colspan="9"
                                         class="empty-data"
                                     >
                                         Belum ada data produk.
                                     </td>
+
                                 </tr>
+
                             @endforelse
+
                         </tbody>
+
                     </table>
+
                 </div>
+
             </section>
+
         </main>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         const sidebar =
-            document.getElementById('sidebar');
+            document.getElementById(
+                'sidebar'
+            );
 
         const sidebarToggle =
-            document.getElementById('sidebarToggle');
+            document.getElementById(
+                'sidebarToggle'
+            );
 
         const sidebarOverlay =
-            document.getElementById('sidebarOverlay');
+            document.getElementById(
+                'sidebarOverlay'
+            );
 
         function closeSidebar() {
-            sidebar.classList.remove('sidebar-open');
-            sidebarOverlay.classList.remove('overlay-open');
-            sidebarToggle.textContent = '☰';
+            sidebar.classList.remove(
+                'sidebar-open'
+            );
+
+            sidebarOverlay.classList.remove(
+                'overlay-open'
+            );
+
+            sidebarToggle.textContent =
+                '☰';
 
             sidebarToggle.setAttribute(
                 'aria-expanded',
                 'false'
             );
 
-            document.body.classList.remove('menu-open');
+            document.body.classList.remove(
+                'menu-open'
+            );
         }
 
         sidebarToggle.addEventListener(
             'click',
             function () {
                 const isOpen =
-                    sidebar.classList.toggle('sidebar-open');
+                    sidebar.classList.toggle(
+                        'sidebar-open'
+                    );
 
                 sidebarOverlay.classList.toggle(
                     'overlay-open',
@@ -1199,11 +1440,15 @@
                 );
 
                 sidebarToggle.textContent =
-                    isOpen ? '✕' : '☰';
+                    isOpen
+                        ? '✕'
+                        : '☰';
 
                 sidebarToggle.setAttribute(
                     'aria-expanded',
-                    isOpen ? 'true' : 'false'
+                    isOpen
+                        ? 'true'
+                        : 'false'
                 );
 
                 document.body.classList.toggle(
@@ -1219,7 +1464,9 @@
         );
 
         document
-            .querySelectorAll('.sidebar a')
+            .querySelectorAll(
+                '.sidebar a'
+            )
             .forEach(function (link) {
                 link.addEventListener(
                     'click',
@@ -1228,6 +1475,7 @@
             });
 
         @if ($chartSalesValues->sum() > 0)
+
             const chartLabels =
                 {{ Illuminate\Support\Js::from($chartLabels) }};
 
@@ -1238,7 +1486,9 @@
                 {{ Illuminate\Support\Js::from($chartProfitValues) }};
 
             new Chart(
-                document.getElementById('salesChart'),
+                document.getElementById(
+                    'salesChart'
+                ),
                 {
                     type: 'line',
 
@@ -1250,16 +1500,18 @@
                                 label: 'Penjualan',
                                 data: chartSales,
                                 borderColor: '#2563eb',
-                                backgroundColor: 'rgba(37,99,235,.12)',
-                                tension: .3,
+                                backgroundColor:
+                                    'rgba(37, 99, 235, 0.12)',
+                                tension: 0.3,
                                 fill: true
                             },
                             {
                                 label: 'Keuntungan',
                                 data: chartProfit,
                                 borderColor: '#16a34a',
-                                backgroundColor: 'rgba(22,163,74,.08)',
-                                tension: .3,
+                                backgroundColor:
+                                    'rgba(22, 163, 74, 0.08)',
+                                tension: 0.3,
                                 fill: true
                             }
                         ]
@@ -1282,7 +1534,8 @@
                                 ticks: {
                                     callback: function (value) {
                                         return '$'
-                                            + Number(value).toFixed(2);
+                                            + Number(value)
+                                                .toFixed(2);
                                     }
                                 }
                             }
@@ -1290,7 +1543,9 @@
                     }
                 }
             );
+
         @endif
     </script>
+
 </body>
 </html>

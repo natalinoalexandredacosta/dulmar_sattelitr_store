@@ -20,6 +20,7 @@ class TvVoucherTransaction extends Model
     public const RECHARGE_SUCCESS = 'success';
     public const RECHARGE_FAILED = 'failed';
 
+
     /*
     |--------------------------------------------------------------------------
     | Status Setoran Lama
@@ -28,6 +29,7 @@ class TvVoucherTransaction extends Model
 
     public const PAYMENT_UNPAID = 'unpaid';
     public const PAYMENT_PAID = 'paid';
+
 
     /*
     |--------------------------------------------------------------------------
@@ -39,6 +41,7 @@ class TvVoucherTransaction extends Model
     public const CUSTOMER_PAYMENT_PARTIAL = 'partial';
     public const CUSTOMER_PAYMENT_PAID = 'paid';
 
+
     /*
     |--------------------------------------------------------------------------
     | Status Setoran Petugas
@@ -49,35 +52,54 @@ class TvVoucherTransaction extends Model
     public const STAFF_DEPOSIT_PARTIAL = 'partial';
     public const STAFF_DEPOSIT_PAID = 'paid';
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Metode Pembayaran
+    |--------------------------------------------------------------------------
+    */
+
+    public const PAYMENT_METHOD_CASH = 'cash';
+    public const PAYMENT_METHOD_BANK = 'bank';
+
+
     protected $fillable = [
+
         /*
-         * Data Customer.
-         *
-         * customer_id tetap dipertahankan untuk kompatibilitas
-         * dengan data lama. customer_name digunakan untuk input
-         * nama pelanggan secara manual.
-         */
+        |--------------------------------------------------------------------------
+        | CUSTOMER
+        |--------------------------------------------------------------------------
+        */
+
         'customer_id',
         'customer_name',
 
         /*
-         * Nama orang / petugas yang mengisi voucher.
-         */
+        |--------------------------------------------------------------------------
+        | PETUGAS
+        |--------------------------------------------------------------------------
+        */
+
         'filled_by',
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA TV VOUCHER
+        |--------------------------------------------------------------------------
+        */
 
         'provider',
         'receiver_number',
         'package_name',
         'subscription_months',
-
-        /*
-         * Kolom lama tetap dipertahankan.
-         */
         'reference_number',
 
         /*
-         * Nilai transaksi.
-         */
+        |--------------------------------------------------------------------------
+        | NILAI TRANSAKSI
+        |--------------------------------------------------------------------------
+        */
+
         'unit_amount',
         'quantity',
         'subtotal',
@@ -86,20 +108,28 @@ class TvVoucherTransaction extends Model
         'total_amount',
 
         /*
-         * Status proses isi ulang.
-         */
+        |--------------------------------------------------------------------------
+        | STATUS ISI ULANG
+        |--------------------------------------------------------------------------
+        */
+
         'recharge_status',
 
         /*
-         * Status setoran lama.
-         * Tetap dipertahankan agar fitur lama tidak rusak.
-         */
+        |--------------------------------------------------------------------------
+        | STATUS SETORAN LAMA
+        |--------------------------------------------------------------------------
+        */
+
         'payment_status',
         'paid_at',
 
         /*
-         * Pembayaran Customer.
-         */
+        |--------------------------------------------------------------------------
+        | PEMBAYARAN CUSTOMER
+        |--------------------------------------------------------------------------
+        */
+
         'customer_payment_status',
         'customer_paid_amount',
         'customer_balance',
@@ -108,8 +138,20 @@ class TvVoucherTransaction extends Model
         'customer_paid_at',
 
         /*
-         * Setoran Petugas.
-         */
+        |--------------------------------------------------------------------------
+        | METODE PEMBAYARAN
+        |--------------------------------------------------------------------------
+        */
+
+        'payment_method',
+        'bank_name',
+
+        /*
+        |--------------------------------------------------------------------------
+        | SETORAN PETUGAS
+        |--------------------------------------------------------------------------
+        */
+
         'staff_received_amount',
         'staff_deposited_amount',
         'staff_balance',
@@ -117,113 +159,184 @@ class TvVoucherTransaction extends Model
         'staff_deposited_at',
 
         /*
-         * Informasi transaksi lainnya.
-         */
+        |--------------------------------------------------------------------------
+        | INFORMASI LAIN
+        |--------------------------------------------------------------------------
+        */
+
         'payment_proof',
         'transaction_date',
         'notes',
     ];
 
+
     protected $casts = [
-        'unit_amount' => 'decimal:2',
-        'quantity' => 'integer',
-        'subscription_months' => 'integer',
-
-        'subtotal' => 'decimal:2',
-        'additional_fee' => 'decimal:2',
-        'discount' => 'decimal:2',
-        'total_amount' => 'decimal:2',
 
         /*
-         * Pembayaran Customer.
-         */
-        'customer_paid_amount' => 'decimal:2',
-        'customer_balance' => 'decimal:2',
-        'customer_paid_at' => 'datetime',
+        |--------------------------------------------------------------------------
+        | NILAI TRANSAKSI
+        |--------------------------------------------------------------------------
+        */
+
+        'unit_amount' =>
+            'decimal:2',
+
+        'quantity' =>
+            'integer',
+
+        'subscription_months' =>
+            'integer',
+
+        'subtotal' =>
+            'decimal:2',
+
+        'additional_fee' =>
+            'decimal:2',
+
+        'discount' =>
+            'decimal:2',
+
+        'total_amount' =>
+            'decimal:2',
 
         /*
-         * Setoran Petugas.
-         */
-        'staff_received_amount' => 'decimal:2',
-        'staff_deposited_amount' => 'decimal:2',
-        'staff_balance' => 'decimal:2',
-        'staff_deposited_at' => 'datetime',
+        |--------------------------------------------------------------------------
+        | PEMBAYARAN CUSTOMER
+        |--------------------------------------------------------------------------
+        */
+
+        'customer_paid_amount' =>
+            'decimal:2',
+
+        'customer_balance' =>
+            'decimal:2',
+
+        'customer_paid_at' =>
+            'datetime',
 
         /*
-         * Tanggal.
-         */
-        'transaction_date' => 'date',
-        'paid_at' => 'datetime',
+        |--------------------------------------------------------------------------
+        | SETORAN PETUGAS
+        |--------------------------------------------------------------------------
+        */
+
+        'staff_received_amount' =>
+            'decimal:2',
+
+        'staff_deposited_amount' =>
+            'decimal:2',
+
+        'staff_balance' =>
+            'decimal:2',
+
+        'staff_deposited_at' =>
+            'datetime',
+
+        /*
+        |--------------------------------------------------------------------------
+        | TANGGAL
+        |--------------------------------------------------------------------------
+        */
+
+        'transaction_date' =>
+            'date',
+
+        'paid_at' =>
+            'datetime',
     ];
 
-    /**
-     * Pelanggan pemilik receiver.
-     *
-     * Relasi ini tetap dipertahankan untuk data lama yang
-     * masih menggunakan customer_id.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION CUSTOMER
+    |--------------------------------------------------------------------------
+    */
+
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(
+            Customer::class
+        );
     }
 
-    /**
-     * Nama customer yang akan ditampilkan.
-     *
-     * Prioritas:
-     * 1. customer_name manual
-     * 2. nama dari relasi customer lama
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISPLAY CUSTOMER NAME
+    |--------------------------------------------------------------------------
+    */
+
     public function getDisplayCustomerNameAttribute(): string
     {
-        if (!empty($this->customer_name)) {
+        if (
+            !empty(
+                $this->customer_name
+            )
+        ) {
             return $this->customer_name;
         }
 
-        return $this->customer?->customer_name
+        return
+            $this->customer?->customer_name
             ?? 'Tidak diketahui';
     }
 
-    /**
-     * Nomor HP customer yang akan ditampilkan.
-     *
-     * Prioritas:
-     * 1. customer_phone pada transaksi
-     * 2. nomor HP dari data customer lama
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISPLAY CUSTOMER PHONE
+    |--------------------------------------------------------------------------
+    */
+
     public function getDisplayCustomerPhoneAttribute(): string
     {
-        if (!empty($this->customer_phone)) {
+        if (
+            !empty(
+                $this->customer_phone
+            )
+        ) {
             return $this->customer_phone;
         }
 
-        return $this->customer?->phone
+        return
+            $this->customer?->phone
             ?? '-';
     }
 
-    /**
-     * Alamat customer yang akan ditampilkan.
-     *
-     * Prioritas:
-     * 1. customer_address pada transaksi
-     * 2. alamat dari data customer lama
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | DISPLAY CUSTOMER ADDRESS
+    |--------------------------------------------------------------------------
+    */
+
     public function getDisplayCustomerAddressAttribute(): string
     {
-        if (!empty($this->customer_address)) {
+        if (
+            !empty(
+                $this->customer_address
+            )
+        ) {
             return $this->customer_address;
         }
 
-        return $this->customer?->address
+        return
+            $this->customer?->address
             ?? '-';
     }
 
-    /**
-     * Label status proses isi ulang.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL STATUS ISI ULANG
+    |--------------------------------------------------------------------------
+    */
+
     public function getRechargeStatusLabelAttribute(): string
     {
-        return match ($this->recharge_status) {
+        return match (
+            $this->recharge_status
+        ) {
             self::RECHARGE_SUCCESS =>
                 'Berhasil',
 
@@ -235,12 +348,18 @@ class TvVoucherTransaction extends Model
         };
     }
 
-    /**
-     * Label status setoran lama.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL STATUS SETORAN LAMA
+    |--------------------------------------------------------------------------
+    */
+
     public function getPaymentStatusLabelAttribute(): string
     {
-        return match ($this->payment_status) {
+        return match (
+            $this->payment_status
+        ) {
             self::PAYMENT_PAID =>
                 'Sudah Setor',
 
@@ -249,12 +368,18 @@ class TvVoucherTransaction extends Model
         };
     }
 
-    /**
-     * Label status pembayaran customer.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL STATUS PEMBAYARAN CUSTOMER
+    |--------------------------------------------------------------------------
+    */
+
     public function getCustomerPaymentStatusLabelAttribute(): string
     {
-        return match ($this->customer_payment_status) {
+        return match (
+            $this->customer_payment_status
+        ) {
             self::CUSTOMER_PAYMENT_PAID =>
                 'Lunas',
 
@@ -266,12 +391,34 @@ class TvVoucherTransaction extends Model
         };
     }
 
-    /**
-     * Label status setoran petugas.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL STATUS SETORAN PETUGAS
+    |--------------------------------------------------------------------------
+    */
+
     public function getStaffDepositStatusLabelAttribute(): string
     {
-        return match ($this->staff_deposit_status) {
+        /*
+        |--------------------------------------------------------------------------
+        | BANK
+        |--------------------------------------------------------------------------
+        |
+        | Jika pembayaran melalui Bank, dana tidak perlu disetor petugas.
+        |
+        */
+
+        if (
+            $this->payment_method
+            === self::PAYMENT_METHOD_BANK
+        ) {
+            return 'Masuk Bank';
+        }
+
+        return match (
+            $this->staff_deposit_status
+        ) {
             self::STAFF_DEPOSIT_PAID =>
                 'Sudah Setor',
 
@@ -283,46 +430,145 @@ class TvVoucherTransaction extends Model
         };
     }
 
-    /**
-     * Customer sudah lunas.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL METODE PEMBAYARAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function getPaymentMethodLabelAttribute(): string
+    {
+        return match (
+            $this->payment_method
+        ) {
+            self::PAYMENT_METHOD_BANK =>
+                'BANK',
+
+            self::PAYMENT_METHOD_CASH =>
+                'CASH',
+
+            default =>
+                '-',
+        };
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CUSTOMER SUDAH LUNAS
+    |--------------------------------------------------------------------------
+    */
+
     public function getIsCustomerPaidAttribute(): bool
     {
-        return $this->customer_payment_status
+        return
+            $this->customer_payment_status
             === self::CUSTOMER_PAYMENT_PAID;
     }
 
-    /**
-     * Customer masih memiliki sisa pembayaran.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | CUSTOMER MASIH PUNYA SISA TAGIHAN
+    |--------------------------------------------------------------------------
+    */
+
     public function getHasCustomerBalanceAttribute(): bool
     {
-        return (float) $this->customer_balance > 0;
+        return
+            (float) $this->customer_balance
+            > 0;
     }
 
-    /**
-     * Petugas sudah setor semua.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | PEMBAYARAN CASH
+    |--------------------------------------------------------------------------
+    */
+
+    public function getIsCashPaymentAttribute(): bool
+    {
+        return
+            $this->payment_method
+            === self::PAYMENT_METHOD_CASH;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PEMBAYARAN BANK
+    |--------------------------------------------------------------------------
+    */
+
+    public function getIsBankPaymentAttribute(): bool
+    {
+        return
+            $this->payment_method
+            === self::PAYMENT_METHOD_BANK;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PETUGAS SUDAH SETOR SEMUA
+    |--------------------------------------------------------------------------
+    */
+
     public function getIsStaffDepositPaidAttribute(): bool
     {
-        return $this->staff_deposit_status
+        /*
+        |--------------------------------------------------------------------------
+        | BANK LANGSUNG DIANGGAP SELESAI
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $this->payment_method
+            === self::PAYMENT_METHOD_BANK
+        ) {
+            return true;
+        }
+
+        return
+            $this->staff_deposit_status
             === self::STAFF_DEPOSIT_PAID;
     }
 
-    /**
-     * Petugas masih memiliki uang yang belum disetor.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | PETUGAS MASIH MEMEGANG CASH
+    |--------------------------------------------------------------------------
+    */
+
     public function getHasStaffBalanceAttribute(): bool
     {
-        return (float) $this->staff_balance > 0;
+        if (
+            $this->payment_method
+            === self::PAYMENT_METHOD_BANK
+        ) {
+            return false;
+        }
+
+        return
+            (float) $this->staff_balance
+            > 0;
     }
 
-    /**
-     * Label masa aktif paket.
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | LABEL MASA AKTIF
+    |--------------------------------------------------------------------------
+    */
+
     public function getSubscriptionPeriodLabelAttribute(): string
     {
-        return match ((int) $this->subscription_months) {
+        return match (
+            (int) $this->subscription_months
+        ) {
             1 =>
                 '1 Bulan',
 

@@ -2,23 +2,35 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
     <title>Produk - Dulmar Satellite Store</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo-dulmar.jpg') }}">
+
+    <link
+        rel="icon"
+        type="image/jpeg"
+        href="{{ asset('images/logo-dulmar.jpg') }}"
+    >
 
     <style>
         * {
             box-sizing: border-box;
         }
 
+        html,
         body {
             margin: 0;
+            min-height: 100%;
+        }
+
+        body {
             font-family: Arial, sans-serif;
             background-color: #f4f6f9;
+            overflow-x: hidden;
         }
 
         body.menu-open {
@@ -26,21 +38,52 @@
         }
 
         .container {
-            display: flex;
+            width: 100%;
             min-height: 100vh;
         }
 
-        /* Sidebar */
+        /*
+        |--------------------------------------------------------------------------
+        | SIDEBAR FIXED
+        |--------------------------------------------------------------------------
+        */
 
         .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 900;
+
             width: 245px;
-            min-height: 100vh;
+            height: 100vh;
+
             display: flex;
-            flex-shrink: 0;
             flex-direction: column;
+
             padding: 35px 25px;
+
             background-color: #1f2b3a;
             color: white;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            scrollbar-width: thin;
+            scrollbar-color: #475569 #1f2b3a;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #1f2b3a;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
         }
 
         .sidebar h1 {
@@ -93,12 +136,20 @@
             display: none;
         }
 
-        /* Konten utama */
+        /*
+        |--------------------------------------------------------------------------
+        | MAIN CONTENT
+        |--------------------------------------------------------------------------
+        */
 
         .main-content {
-            flex: 1;
+            width: calc(100% - 245px);
             min-width: 0;
+            min-height: 100vh;
+
+            margin-left: 245px;
             padding: 50px 32px;
+
             overflow-x: hidden;
         }
 
@@ -136,7 +187,11 @@
             background-color: #1d4ed8;
         }
 
-        /* Pesan */
+        /*
+        |--------------------------------------------------------------------------
+        | ALERT
+        |--------------------------------------------------------------------------
+        */
 
         .alert-success,
         .alert-error {
@@ -163,7 +218,11 @@
             padding-left: 20px;
         }
 
-        /* Pencarian dan filter */
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER
+        |--------------------------------------------------------------------------
+        */
 
         .filter-card {
             margin-bottom: 25px;
@@ -251,7 +310,11 @@
             font-size: 14px;
         }
 
-        /* Ringkasan */
+        /*
+        |--------------------------------------------------------------------------
+        | SUMMARY
+        |--------------------------------------------------------------------------
+        */
 
         .summary-grid {
             display: grid;
@@ -319,7 +382,11 @@
             color: #dc2626;
         }
 
-        /* Tabel */
+        /*
+        |--------------------------------------------------------------------------
+        | TABLE
+        |--------------------------------------------------------------------------
+        */
 
         .table-card {
             width: 100%;
@@ -373,7 +440,11 @@
             font-weight: bold;
         }
 
-        /* Status stok */
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK BADGE
+        |--------------------------------------------------------------------------
+        */
 
         .stock-badge {
             display: inline-block;
@@ -400,7 +471,11 @@
             color: #991b1b;
         }
 
-        /* Tombol aksi */
+        /*
+        |--------------------------------------------------------------------------
+        | ACTION BUTTONS
+        |--------------------------------------------------------------------------
+        */
 
         .action-buttons {
             display: flex;
@@ -440,7 +515,11 @@
             margin: 0;
         }
 
-        /* Pagination */
+        /*
+        |--------------------------------------------------------------------------
+        | PAGINATION
+        |--------------------------------------------------------------------------
+        */
 
         .pagination {
             display: flex;
@@ -481,6 +560,12 @@
             text-align: center;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE TABLET
+        |--------------------------------------------------------------------------
+        */
+
         @media (max-width: 1250px) {
             .summary-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -496,7 +581,11 @@
             }
         }
 
-        /* Tampilan HP */
+        /*
+        |--------------------------------------------------------------------------
+        | MOBILE
+        |--------------------------------------------------------------------------
+        */
 
         @media (max-width: 700px) {
             .container {
@@ -508,28 +597,44 @@
                 top: 15px;
                 left: 15px;
                 z-index: 1200;
+
                 display: flex;
+
                 width: 46px;
                 height: 46px;
+
                 align-items: center;
                 justify-content: center;
+
                 border: none;
                 border-radius: 8px;
+
                 background-color: #1f2b3a;
                 color: white;
+
                 font-size: 25px;
+
                 cursor: pointer;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+
+                box-shadow:
+                    0 3px 10px
+                    rgba(0, 0, 0, 0.25);
             }
 
             .sidebar-overlay {
                 position: fixed;
                 inset: 0;
                 z-index: 1000;
+
                 display: block;
+
                 visibility: hidden;
-                background-color: rgba(0, 0, 0, 0.5);
+
+                background-color:
+                    rgba(0, 0, 0, 0.5);
+
                 opacity: 0;
+
                 transition:
                     opacity 0.25s,
                     visibility 0.25s;
@@ -546,13 +651,22 @@
                 bottom: 0;
                 left: 0;
                 z-index: 1100;
+
                 width: min(82vw, 285px);
-                min-height: 100vh;
+                height: 100vh;
+
                 padding: 82px 25px 30px;
+
                 overflow-y: auto;
+
                 transform: translateX(-105%);
-                transition: transform 0.25s ease;
-                box-shadow: 4px 0 15px rgba(0, 0, 0, 0.25);
+
+                transition:
+                    transform 0.25s ease;
+
+                box-shadow:
+                    4px 0 15px
+                    rgba(0, 0, 0, 0.25);
             }
 
             .sidebar.sidebar-open {
@@ -572,12 +686,14 @@
                 margin-bottom: 10px;
                 padding: 12px 10px;
                 border-radius: 6px;
-                background-color: rgba(255, 255, 255, 0.06);
+                background-color:
+                    rgba(255, 255, 255, 0.06);
                 font-size: 16px;
             }
 
             .main-content {
                 width: 100%;
+                margin-left: 0;
                 padding: 85px 15px 30px;
                 overflow-x: hidden;
             }
@@ -638,6 +754,7 @@
 </head>
 
 <body>
+
     <button
         type="button"
         id="sidebarToggle"
@@ -654,10 +771,18 @@
     ></div>
 
     <div class="container">
-        <aside class="sidebar" id="sidebar">
-            <h1>Dulmar Satellite Store</h1>
+
+        <aside
+            class="sidebar"
+            id="sidebar"
+        >
+
+            <h1>
+                Dulmar Satellite Store
+            </h1>
 
             <nav class="sidebar-menu">
+
                 <a
                     href="{{ route('dashboard') }}"
                     class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"
@@ -670,6 +795,13 @@
                     class="{{ request()->routeIs('products.*') ? 'active' : '' }}"
                 >
                     Daftar Barang
+                </a>
+
+                <a
+                    href="{{ route('promo-campaigns.index') }}"
+                    class="{{ request()->routeIs('promo-campaigns.*') ? 'active' : '' }}"
+                >
+                    Promo Campaign
                 </a>
 
                 <a
@@ -713,6 +845,7 @@
                 >
                     Laporan
                 </a>
+
             </nav>
 
             <form
@@ -729,16 +862,23 @@
                     Keluar
                 </button>
             </form>
+
         </aside>
 
         <main class="main-content">
+
             <div class="page-header">
+
                 <div>
-                    <h2>Produk</h2>
+
+                    <h2>
+                        Produk
+                    </h2>
 
                     <p>
                         Kelola produk dan pantau kondisi stok barang.
                     </p>
+
                 </div>
 
                 <a
@@ -747,39 +887,59 @@
                 >
                     + Tambah Produk
                 </a>
+
             </div>
 
             @if (session('success'))
+
                 <div class="alert-success">
                     {{ session('success') }}
                 </div>
+
             @endif
 
             @if (session('error'))
+
                 <div class="alert-error">
                     {{ session('error') }}
                 </div>
+
             @endif
 
             @if ($errors->any())
+
                 <div class="alert-error">
+
                     <ul>
+
                         @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
+
+                            <li>
+                                {{ $error }}
+                            </li>
+
                         @endforeach
+
                     </ul>
+
                 </div>
+
             @endif
 
             <section class="filter-card">
-                <h3>Pencarian dan Filter Produk</h3>
+
+                <h3>
+                    Pencarian dan Filter Produk
+                </h3>
 
                 <form
                     action="{{ route('products.index') }}"
                     method="GET"
                     class="filter-form"
                 >
+
                     <div class="form-group">
+
                         <label for="search">
                             Cari Nama Produk
                         </label>
@@ -792,9 +952,11 @@
                             value="{{ $search ?? '' }}"
                             placeholder="Contoh: K-Vision atau Receiver"
                         >
+
                     </div>
 
                     <div class="form-group">
+
                         <label for="category">
                             Kategori
                         </label>
@@ -804,22 +966,28 @@
                             name="category"
                             class="form-control"
                         >
+
                             <option value="">
                                 Semua Kategori
                             </option>
 
                             @foreach ($categories as $categoryOption)
+
                                 <option
                                     value="{{ $categoryOption }}"
                                     {{ ($category ?? '') === $categoryOption ? 'selected' : '' }}
                                 >
                                     {{ $categoryOption }}
                                 </option>
+
                             @endforeach
+
                         </select>
+
                     </div>
 
                     <div class="form-group">
+
                         <label for="stock_status">
                             Status Stok
                         </label>
@@ -829,6 +997,7 @@
                             name="stock_status"
                             class="form-control"
                         >
+
                             <option value="">
                                 Semua Status
                             </option>
@@ -853,7 +1022,9 @@
                             >
                                 Stok Habis
                             </option>
+
                         </select>
+
                     </div>
 
                     <button
@@ -869,63 +1040,98 @@
                     >
                         Reset
                     </a>
+
                 </form>
 
                 @if (
-                    ($search ?? '') !== '' ||
-                    ($category ?? '') !== '' ||
-                    ($stockStatus ?? '') !== ''
+                    ($search ?? '') !== ''
+                    || ($category ?? '') !== ''
+                    || ($stockStatus ?? '') !== ''
                 )
+
                     <p class="filter-info">
-                        Menampilkan {{ $products->total() }}
+                        Menampilkan
+                        {{ $products->total() }}
                         produk sesuai pencarian dan filter.
                     </p>
+
                 @endif
+
             </section>
 
             <section
                 class="summary-grid"
                 aria-label="Ringkasan produk"
             >
+
                 <article class="summary-card summary-total">
-                    <h3>Jumlah Produk</h3>
+
+                    <h3>
+                        Jumlah Produk
+                    </h3>
+
                     <strong class="value-total">
                         {{ $totalProducts }}
                     </strong>
+
                 </article>
 
                 <article class="summary-card summary-stock">
-                    <h3>Total Unit Stok</h3>
+
+                    <h3>
+                        Total Unit Stok
+                    </h3>
+
                     <strong class="value-stock">
                         {{ $totalStock }} unit
                     </strong>
+
                 </article>
 
                 <article class="summary-card summary-available">
-                    <h3>Produk Tersedia</h3>
+
+                    <h3>
+                        Produk Tersedia
+                    </h3>
+
                     <strong class="value-available">
                         {{ $availableProducts }}
                     </strong>
+
                 </article>
 
                 <article class="summary-card summary-low">
-                    <h3>Stok Rendah</h3>
+
+                    <h3>
+                        Stok Rendah
+                    </h3>
+
                     <strong class="value-low">
                         {{ $lowStockProducts }}
                     </strong>
+
                 </article>
 
                 <article class="summary-card summary-out">
-                    <h3>Stok Habis</h3>
+
+                    <h3>
+                        Stok Habis
+                    </h3>
+
                     <strong class="value-out">
                         {{ $outOfStockProducts }}
                     </strong>
+
                 </article>
+
             </section>
 
             <div class="table-card">
+
                 <table>
+
                     <thead>
+
                         <tr>
                             <th>No</th>
                             <th>Nama Produk</th>
@@ -937,12 +1143,16 @@
                             <th>Laba/Unit</th>
                             <th>Aksi</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
+
                         @forelse ($products as $product)
+
                             @php
-                                $stock = (int) $product->stock;
+                                $stock =
+                                    (int) $product->stock;
 
                                 $profit =
                                     (float) $product->selling_price
@@ -950,8 +1160,12 @@
                             @endphp
 
                             <tr>
+
                                 <td>
-                                    {{ $products->firstItem() + $loop->index }}
+                                    {{
+                                        $products->firstItem()
+                                        + $loop->index
+                                    }}
                                 </td>
 
                                 <td>
@@ -967,44 +1181,69 @@
                                 </td>
 
                                 <td>
+
                                     @if ($stock <= 0)
+
                                         <span class="stock-badge stock-out">
                                             Stok Habis
                                         </span>
+
                                     @elseif ($stock <= 5)
+
                                         <span class="stock-badge stock-low">
                                             Stok Rendah
                                         </span>
+
                                     @else
+
                                         <span class="stock-badge stock-available">
                                             Tersedia
                                         </span>
+
                                     @endif
+
                                 </td>
 
                                 <td class="purchase-price">
-                                    ${{ number_format($product->purchase_price, 2) }}
+                                    ${{ number_format(
+                                        $product->purchase_price,
+                                        2
+                                    ) }}
                                 </td>
 
                                 <td class="selling-price">
-                                    ${{ number_format($product->selling_price, 2) }}
+                                    ${{ number_format(
+                                        $product->selling_price,
+                                        2
+                                    ) }}
                                 </td>
 
                                 <td class="profit">
-                                    ${{ number_format($profit, 2) }}
+                                    ${{ number_format(
+                                        $profit,
+                                        2
+                                    ) }}
                                 </td>
 
                                 <td>
+
                                     <div class="action-buttons">
+
                                         <a
-                                            href="{{ route('products.edit', $product) }}"
+                                            href="{{ route(
+                                                'products.edit',
+                                                $product
+                                            ) }}"
                                             class="button-edit"
                                         >
                                             Edit
                                         </a>
 
                                         <form
-                                            action="{{ route('products.destroy', $product) }}"
+                                            action="{{ route(
+                                                'products.destroy',
+                                                $product
+                                            ) }}"
                                             method="POST"
                                             class="delete-form"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini? Produk yang memiliki transaksi atau stok tidak dapat dihapus.')"
@@ -1018,87 +1257,138 @@
                                             >
                                                 Hapus
                                             </button>
+
                                         </form>
+
                                     </div>
+
                                 </td>
+
                             </tr>
+
                         @empty
+
                             <tr>
+
                                 <td
                                     colspan="9"
                                     class="empty-data"
                                 >
                                     Tidak ada produk yang sesuai.
                                 </td>
+
                             </tr>
+
                         @endforelse
+
                     </tbody>
+
                 </table>
+
             </div>
 
             @if ($products->hasPages())
+
                 <nav
                     class="pagination"
                     aria-label="Navigasi halaman produk"
                 >
+
                     @if ($products->onFirstPage())
+
                         <span class="disabled">
                             Sebelumnya
                         </span>
+
                     @else
+
                         <a href="{{ $products->previousPageUrl() }}">
                             Sebelumnya
                         </a>
+
                     @endif
 
                     <span class="pagination-info">
-                        Halaman {{ $products->currentPage() }}
-                        dari {{ $products->lastPage() }}
-                        — Total {{ $products->total() }} produk
+
+                        Halaman
+                        {{ $products->currentPage() }}
+                        dari
+                        {{ $products->lastPage() }}
+                        — Total
+                        {{ $products->total() }}
+                        produk
+
                     </span>
 
                     @if ($products->hasMorePages())
+
                         <a href="{{ $products->nextPageUrl() }}">
                             Berikutnya
                         </a>
+
                     @else
+
                         <span class="disabled">
                             Berikutnya
                         </span>
+
                     @endif
+
                 </nav>
+
             @endif
+
         </main>
+
     </div>
 
     <script>
         const sidebar =
-            document.getElementById('sidebar');
+            document.getElementById(
+                'sidebar'
+            );
 
         const sidebarToggle =
-            document.getElementById('sidebarToggle');
+            document.getElementById(
+                'sidebarToggle'
+            );
 
         const sidebarOverlay =
-            document.getElementById('sidebarOverlay');
+            document.getElementById(
+                'sidebarOverlay'
+            );
 
         function closeSidebar() {
-            sidebar.classList.remove('sidebar-open');
-            sidebarOverlay.classList.remove('overlay-open');
-            sidebarToggle.textContent = '☰';
+
+            sidebar.classList.remove(
+                'sidebar-open'
+            );
+
+            sidebarOverlay.classList.remove(
+                'overlay-open'
+            );
+
+            sidebarToggle.textContent =
+                '☰';
 
             sidebarToggle.setAttribute(
                 'aria-expanded',
                 'false'
             );
 
-            document.body.classList.remove('menu-open');
+            document.body.classList.remove(
+                'menu-open'
+            );
         }
 
         sidebarToggle.addEventListener(
             'click',
             function () {
+
                 const isOpen =
-                    sidebar.classList.toggle('sidebar-open');
+                    sidebar.classList.toggle(
+                        'sidebar-open'
+                    );
 
                 sidebarOverlay.classList.toggle(
                     'overlay-open',
@@ -1106,11 +1396,15 @@
                 );
 
                 sidebarToggle.textContent =
-                    isOpen ? '✕' : '☰';
+                    isOpen
+                        ? '✕'
+                        : '☰';
 
                 sidebarToggle.setAttribute(
                     'aria-expanded',
-                    isOpen ? 'true' : 'false'
+                    isOpen
+                        ? 'true'
+                        : 'false'
                 );
 
                 document.body.classList.toggle(
@@ -1128,20 +1422,25 @@
         document
             .querySelectorAll('.sidebar a')
             .forEach(function (link) {
+
                 link.addEventListener(
                     'click',
                     closeSidebar
                 );
+
             });
 
         window.addEventListener(
             'resize',
             function () {
+
                 if (window.innerWidth > 700) {
                     closeSidebar();
                 }
+
             }
         );
     </script>
+
 </body>
 </html>

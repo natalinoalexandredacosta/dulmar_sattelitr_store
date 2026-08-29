@@ -114,10 +114,6 @@ class ProductController extends Controller
             ->orderBy('product_name')
             ->paginate(10);
 
-        /*
-         * Mempertahankan nilai pencarian dan filter
-         * ketika pengguna berpindah halaman pagination.
-         */
         $products->appends($request->query());
 
         return view('products.index', compact(
@@ -165,6 +161,15 @@ class ProductController extends Controller
                     'public'
                 );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status promo
+        |--------------------------------------------------------------------------
+        */
+
+        $isPromo =
+            $request->boolean('is_promo');
 
         /*
         |--------------------------------------------------------------------------
@@ -220,6 +225,45 @@ class ProductController extends Controller
 
             'warranty' =>
                 $data['warranty'] ?? null,
+
+            /*
+             * Promo / diskon.
+             */
+            'is_promo' =>
+                $isPromo,
+
+            'discount_type' =>
+                $isPromo
+                    ? ($data['discount_type'] ?? null)
+                    : null,
+
+            'discount_value' =>
+                $isPromo
+                    ? ($data['discount_value'] ?? null)
+                    : null,
+
+            'promo_start' =>
+                $isPromo
+                    ? ($data['promo_start'] ?? null)
+                    : null,
+
+            'promo_end' =>
+                $isPromo
+                    ? ($data['promo_end'] ?? null)
+                    : null,
+
+            /*
+             * Informasi promo.
+             */
+            'promo_title' =>
+                $isPromo
+                    ? ($data['promo_title'] ?? null)
+                    : null,
+
+            'promo_description' =>
+                $isPromo
+                    ? ($data['promo_description'] ?? null)
+                    : null,
         ]);
 
         return redirect()
@@ -291,6 +335,15 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Status promo
+        |--------------------------------------------------------------------------
+        */
+
+        $isPromo =
+            $request->boolean('is_promo');
+
+        /*
+        |--------------------------------------------------------------------------
         | Update produk
         |--------------------------------------------------------------------------
         */
@@ -337,6 +390,45 @@ class ProductController extends Controller
 
             'warranty' =>
                 $data['warranty'] ?? null,
+
+            /*
+             * Promo / diskon.
+             */
+            'is_promo' =>
+                $isPromo,
+
+            'discount_type' =>
+                $isPromo
+                    ? ($data['discount_type'] ?? null)
+                    : null,
+
+            'discount_value' =>
+                $isPromo
+                    ? ($data['discount_value'] ?? null)
+                    : null,
+
+            'promo_start' =>
+                $isPromo
+                    ? ($data['promo_start'] ?? null)
+                    : null,
+
+            'promo_end' =>
+                $isPromo
+                    ? ($data['promo_end'] ?? null)
+                    : null,
+
+            /*
+             * Informasi promo.
+             */
+            'promo_title' =>
+                $isPromo
+                    ? ($data['promo_title'] ?? null)
+                    : null,
+
+            'promo_description' =>
+                $isPromo
+                    ? ($data['promo_description'] ?? null)
+                    : null,
 
             /*
              * Stok tidak diubah melalui Edit Produk.
@@ -522,6 +614,12 @@ class ProductController extends Controller
         Request $request
     ): array {
         return $request->validate([
+            /*
+            |--------------------------------------------------------------------------
+            | Produk
+            |--------------------------------------------------------------------------
+            */
+
             'product_name' => [
                 'required',
                 'string',
@@ -533,6 +631,12 @@ class ProductController extends Controller
                 'string',
                 'max:255',
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Harga
+            |--------------------------------------------------------------------------
+            */
 
             'purchase_price' => [
                 'required',
@@ -548,8 +652,11 @@ class ProductController extends Controller
             ],
 
             /*
-             * Detail / spesifikasi produk.
-             */
+            |--------------------------------------------------------------------------
+            | Detail / spesifikasi produk
+            |--------------------------------------------------------------------------
+            */
+
             'description' => [
                 'nullable',
                 'string',
@@ -581,16 +688,62 @@ class ProductController extends Controller
             ],
 
             /*
-             * Foto tidak wajib.
-             *
-             * Format:
-             * JPG
-             * JPEG
-             * PNG
-             * WEBP
-             *
-             * Maksimal 5 MB.
-             */
+            |--------------------------------------------------------------------------
+            | Promo
+            |--------------------------------------------------------------------------
+            */
+
+            'is_promo' => [
+                'nullable',
+                'boolean',
+            ],
+
+            'promo_title' => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_if:is_promo,1',
+            ],
+
+            'promo_description' => [
+                'nullable',
+                'string',
+                'max:2000',
+                'required_if:is_promo,1',
+            ],
+
+            'discount_type' => [
+                'nullable',
+                'in:percent,fixed',
+                'required_if:is_promo,1',
+            ],
+
+            'discount_value' => [
+                'nullable',
+                'numeric',
+                'min:0.01',
+                'required_if:is_promo,1',
+            ],
+
+            'promo_start' => [
+                'nullable',
+                'date',
+                'required_if:is_promo,1',
+            ],
+
+            'promo_end' => [
+                'nullable',
+                'date',
+                'required_if:is_promo,1',
+                'after_or_equal:promo_start',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Foto
+            |--------------------------------------------------------------------------
+            */
+
             'image' => [
                 'nullable',
                 'image',
@@ -598,6 +751,12 @@ class ProductController extends Controller
                 'max:5120',
             ],
         ], [
+            /*
+            |--------------------------------------------------------------------------
+            | Produk
+            |--------------------------------------------------------------------------
+            */
+
             'product_name.required' =>
                 'Nama produk wajib diisi.',
 
@@ -606,7 +765,6 @@ class ProductController extends Controller
 
             'product_name.max' =>
                 'Nama produk maksimal 255 karakter.',
-
 
             'category.required' =>
                 'Kategori wajib diisi.',
@@ -617,6 +775,11 @@ class ProductController extends Controller
             'category.max' =>
                 'Kategori maksimal 255 karakter.',
 
+            /*
+            |--------------------------------------------------------------------------
+            | Harga
+            |--------------------------------------------------------------------------
+            */
 
             'purchase_price.required' =>
                 'Harga beli wajib diisi.',
@@ -626,7 +789,6 @@ class ProductController extends Controller
 
             'purchase_price.min' =>
                 'Harga beli tidak boleh kurang dari nol.',
-
 
             'selling_price.required' =>
                 'Harga jual wajib diisi.',
@@ -640,6 +802,11 @@ class ProductController extends Controller
             'selling_price.gte' =>
                 'Harga jual harus sama dengan atau lebih besar dari harga beli.',
 
+            /*
+            |--------------------------------------------------------------------------
+            | Spesifikasi
+            |--------------------------------------------------------------------------
+            */
 
             'description.string' =>
                 'Deskripsi produk harus berupa teks.',
@@ -647,13 +814,11 @@ class ProductController extends Controller
             'description.max' =>
                 'Deskripsi produk maksimal 5000 karakter.',
 
-
             'brand.string' =>
                 'Brand produk harus berupa teks.',
 
             'brand.max' =>
                 'Brand produk maksimal 255 karakter.',
-
 
             'model.string' =>
                 'Model produk harus berupa teks.',
@@ -661,13 +826,11 @@ class ProductController extends Controller
             'model.max' =>
                 'Model produk maksimal 255 karakter.',
 
-
             'connectivity.string' =>
                 'Konektivitas produk harus berupa teks.',
 
             'connectivity.max' =>
                 'Konektivitas produk maksimal 255 karakter.',
-
 
             'warranty.string' =>
                 'Garansi produk harus berupa teks.',
@@ -675,12 +838,74 @@ class ProductController extends Controller
             'warranty.max' =>
                 'Garansi produk maksimal 255 karakter.',
 
+            /*
+            |--------------------------------------------------------------------------
+            | Promo
+            |--------------------------------------------------------------------------
+            */
+
+            'is_promo.boolean' =>
+                'Status promo tidak valid.',
+
+            'promo_title.required_if' =>
+                'Judul promo wajib diisi jika promo diaktifkan.',
+
+            'promo_title.string' =>
+                'Judul promo harus berupa teks.',
+
+            'promo_title.max' =>
+                'Judul promo maksimal 255 karakter.',
+
+            'promo_description.required_if' =>
+                'Keterangan atau alasan promo wajib diisi jika promo diaktifkan.',
+
+            'promo_description.string' =>
+                'Keterangan promo harus berupa teks.',
+
+            'promo_description.max' =>
+                'Keterangan promo maksimal 2000 karakter.',
+
+            'discount_type.required_if' =>
+                'Jenis diskon wajib dipilih jika promo diaktifkan.',
+
+            'discount_type.in' =>
+                'Jenis diskon harus persen atau nominal.',
+
+            'discount_value.required_if' =>
+                'Nilai diskon wajib diisi jika promo diaktifkan.',
+
+            'discount_value.numeric' =>
+                'Nilai diskon harus berupa angka.',
+
+            'discount_value.min' =>
+                'Nilai diskon harus lebih besar dari nol.',
+
+            'promo_start.required_if' =>
+                'Tanggal mulai promo wajib diisi jika promo diaktifkan.',
+
+            'promo_start.date' =>
+                'Tanggal mulai promo tidak valid.',
+
+            'promo_end.required_if' =>
+                'Tanggal selesai promo wajib diisi jika promo diaktifkan.',
+
+            'promo_end.date' =>
+                'Tanggal selesai promo tidak valid.',
+
+            'promo_end.after_or_equal' =>
+                'Tanggal selesai promo tidak boleh lebih awal dari tanggal mulai.',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Foto
+            |--------------------------------------------------------------------------
+            */
 
             'image.image' =>
                 'File foto produk harus berupa gambar.',
 
             'image.mimes' =>
-                'Foto produk harus berformat JPG, JPEG, PNG, atau WEBP.',
+                'Foto produk harus berformat JPG, JPEG, PNG atau WEBP.',
 
             'image.max' =>
                 'Ukuran foto produk maksimal 5 MB.',

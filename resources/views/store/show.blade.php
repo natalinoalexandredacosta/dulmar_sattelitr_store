@@ -26,7 +26,9 @@
             --green: #16a34a;
             --green-dark: #128a3e;
             --red: #dc2626;
+            --red-dark: #b91c1c;
             --amber: #c07a05;
+            --orange: #f97316;
             --bg: #f3f5f8;
             --card: #ffffff;
             --border: #dfe5ec;
@@ -48,10 +50,15 @@
                 Roboto,
                 Arial,
                 sans-serif;
-
             background: var(--bg);
             color: var(--text);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOPBAR
+        |--------------------------------------------------------------------------
+        */
 
         .topbar {
             background: var(--navy-1);
@@ -62,7 +69,6 @@
             max-width: 1180px;
             margin: 0 auto;
             padding: 16px 24px;
-
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -80,7 +86,6 @@
             padding: 9px 14px;
             border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 6px;
-
             color: white;
             text-decoration: none;
             font-size: 13px;
@@ -90,6 +95,12 @@
         .back-link:hover {
             background: rgba(255, 255, 255, 0.08);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTENT
+        |--------------------------------------------------------------------------
+        */
 
         .wrap {
             max-width: 1180px;
@@ -101,29 +112,29 @@
             display: grid;
             grid-template-columns: 380px minmax(0, 1fr);
             gap: 36px;
-
             padding: 28px;
-
             border: 1px solid var(--border);
             border-radius: 12px;
-
             background: var(--card);
-
             box-shadow:
                 0 2px 10px
                 rgba(0, 0, 0, 0.04);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | IMAGE
+        |--------------------------------------------------------------------------
+        */
+
         .product-image-box {
+            position: relative;
             width: 100%;
             height: 360px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             overflow: hidden;
-
             border-radius: 10px;
             background: #eef1f5;
         }
@@ -139,37 +150,149 @@
             font-size: 14px;
         }
 
+        .promo-tag {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 4;
+            padding: 8px 11px;
+            border-radius: 6px;
+            background: var(--red);
+            color: white;
+            box-shadow:
+                0 2px 8px
+                rgba(220, 38, 38, 0.25);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRODUCT INFO
+        |--------------------------------------------------------------------------
+        */
+
         .category {
             display: inline-block;
-
             margin-bottom: 16px;
             padding: 5px 10px;
-
             border-radius: 5px;
-
             background: #e8f0fe;
             color: var(--blue);
-
             font-size: 12px;
             font-weight: 600;
         }
 
         .product-title {
             margin-bottom: 10px;
-
             font-size: 28px;
             font-weight: 800;
             line-height: 1.25;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | PROMO INFO
+        |--------------------------------------------------------------------------
+        */
+
+        .promo-box {
+            margin: 18px 0;
+            padding: 16px;
+            border: 1px solid #fed7aa;
+            border-radius: 9px;
+            background: #fff7ed;
+        }
+
+        .promo-box-label {
+            margin-bottom: 6px;
+            color: #c2410c;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .promo-box-title {
+            margin-bottom: 6px;
+            color: #9a3412;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .promo-box-description {
+            color: #7c2d12;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .promo-period {
+            display: block;
+            margin-top: 8px;
+            color: #9a3412;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRICE
+        |--------------------------------------------------------------------------
+        */
+
         .price {
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+        }
 
+        .normal-price {
             color: var(--blue);
-
             font-size: 28px;
             font-weight: 800;
         }
+
+        .promo-price-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            padding: 8px 0;
+        }
+
+        .promo-price-row {
+            display: grid;
+            grid-template-columns: 130px minmax(0, 1fr);
+            gap: 12px;
+            align-items: center;
+        }
+
+        .price-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .old-price {
+            color: #9ca3af;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: line-through;
+        }
+
+        .promo-price {
+            color: var(--red);
+            font-size: 29px;
+            font-weight: 800;
+        }
+
+        .discount-value {
+            color: var(--red-dark);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK
+        |--------------------------------------------------------------------------
+        */
 
         .stock {
             margin-bottom: 20px;
@@ -189,31 +312,30 @@
             color: var(--red);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DESCRIPTION / SPEC
+        |--------------------------------------------------------------------------
+        */
+
         .description {
             margin-bottom: 22px;
-
             color: #4b5563;
-
             font-size: 14px;
             line-height: 1.7;
         }
 
         .spec-table {
             margin-bottom: 20px;
-
             border-top: 1px solid var(--border);
         }
 
         .spec-row {
             display: grid;
             grid-template-columns: 190px 1fr;
-
             gap: 16px;
-
             padding: 12px 0;
-
             border-bottom: 1px solid var(--border);
-
             font-size: 13px;
         }
 
@@ -226,31 +348,30 @@
             font-weight: 500;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | ACTION
+        |--------------------------------------------------------------------------
+        */
+
         .actions {
             display: grid;
             grid-template-columns: 1fr auto;
-
             gap: 10px;
-
             margin-top: 20px;
         }
 
         .btn-wa,
         .btn-share {
             min-height: 46px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             padding: 0 18px;
-
             border-radius: 7px;
-
             text-decoration: none;
             font-size: 13px;
             font-weight: 700;
-
             cursor: pointer;
         }
 
@@ -281,12 +402,16 @@
 
         .footer-note {
             margin-top: 20px;
-
             color: var(--muted);
-
             text-align: center;
             font-size: 12px;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSIVE
+        |--------------------------------------------------------------------------
+        */
 
         @media (max-width: 850px) {
             .detail-card {
@@ -320,8 +445,13 @@
                 font-size: 22px;
             }
 
-            .price {
+            .normal-price,
+            .promo-price {
                 font-size: 23px;
+            }
+
+            .promo-price-row {
+                grid-template-columns: 115px 1fr;
             }
 
             .spec-row {
@@ -339,7 +469,40 @@
 <body>
 
 @php
-    $storeWhatsapp = '67076732586';
+    /*
+    |--------------------------------------------------------------------------
+    | SAPAAN OTOMATIS SESUAI WAKTU TIMOR-LESTE
+    |--------------------------------------------------------------------------
+    */
+
+    $currentHour =
+        now('Asia/Dili')->hour;
+
+    if (
+        $currentHour >= 5
+        && $currentHour < 12
+    ) {
+        $greeting = 'Bondia';
+
+    } elseif (
+        $currentHour >= 12
+        && $currentHour < 18
+    ) {
+        $greeting = 'Botarde';
+
+    } else {
+        $greeting = 'Bonoite';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA PRODUK
+    |--------------------------------------------------------------------------
+    */
+
+    $storeWhatsapp =
+        '67076732586';
 
     $productName =
         $product->product_name
@@ -349,7 +512,7 @@
         $product->category
         ?? '-';
 
-    $price =
+    $normalPrice =
         (float) (
             $product->selling_price
             ?? 0
@@ -361,23 +524,233 @@
             ?? 0
         );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROMO CAMPAIGN
+    |--------------------------------------------------------------------------
+    */
+
+    $promoActive =
+        isset($activePromoCampaign)
+        && $activePromoCampaign !== null
+        && isset($campaignPromoProduct)
+        && $campaignPromoProduct !== null;
+
+    $discountType = null;
+    $discountValue = 0;
+    $discountPercentage = 0;
+
+    $finalPrice =
+        $normalPrice;
+
+    if ($promoActive) {
+
+        $discountType =
+            $campaignPromoProduct
+                ->pivot
+                ->discount_type;
+
+        $discountValue =
+            (float) $campaignPromoProduct
+                ->pivot
+                ->discount_value;
+
+        if (
+            $discountType
+            === 'percent'
+        ) {
+
+            $discountPercentage =
+                $discountValue;
+
+            $finalPrice =
+                $normalPrice
+                - (
+                    $normalPrice
+                    * $discountValue
+                    / 100
+                );
+
+        } else {
+
+            $finalPrice =
+                $normalPrice
+                - $discountValue;
+
+            if (
+                $normalPrice > 0
+            ) {
+                $discountPercentage =
+                    (
+                        $discountValue
+                        / $normalPrice
+                    )
+                    * 100;
+            }
+        }
+
+        if (
+            $finalPrice < 0
+        ) {
+            $finalPrice = 0;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERIODE PROMO
+    |--------------------------------------------------------------------------
+    */
+
+    $promoPeriodText = null;
+
+    if ($promoActive) {
+
+        $promoStart =
+            $activePromoCampaign->start_date
+                ? $activePromoCampaign
+                    ->start_date
+                    ->format('d/m/Y')
+                : null;
+
+        $promoEnd =
+            $activePromoCampaign->end_date
+                ? $activePromoCampaign
+                    ->end_date
+                    ->format('d/m/Y')
+                : null;
+
+        if (
+            $promoStart
+            && $promoEnd
+        ) {
+
+            if (
+                $promoStart
+                === $promoEnd
+            ) {
+
+                $promoPeriodText =
+                    'Promosaun válidu iha loron '
+                    . $promoStart
+                    . " de'it.";
+
+            } else {
+
+                $promoPeriodText =
+                    'Promosaun válidu hosi '
+                    . $promoStart
+                    . " to'o "
+                    . $promoEnd
+                    . '.';
+            }
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | WHATSAPP MESSAGE
+    |--------------------------------------------------------------------------
+    */
+
     $productMessage =
-        "Bondia Dulmar Satellite Store,\n\n"
+        $greeting
+        . " Dulmar Satellite Store,\n\n"
         . "Hau hakarak halo pedidu produtu ida-ne'e:\n\n"
         . "Produtu: {$productName}\n"
-        . "Kategoria: {$category}\n"
-        . "Presu: $"
-        . number_format($price, 2)
-        . "\n"
-        . "Kuantidade: 1\n\n"
-        . "Favor konfirma disponibilidade no total pagamentu.\n\n"
+        . "Kategoria: {$category}\n";
+
+    if ($promoActive) {
+
+        $productMessage .=
+            "Promosaun: "
+            . $activePromoCampaign->title
+            . "\n";
+
+        $productMessage .=
+            "Presu Normal: $"
+            . number_format(
+                $normalPrice,
+                2
+            )
+            . "\n";
+
+        $productMessage .=
+            "Presu Promosaun: $"
+            . number_format(
+                $finalPrice,
+                2
+            )
+            . "\n";
+
+        if (
+            $discountType
+            === 'percent'
+        ) {
+
+            $productMessage .=
+                "Deskontu: "
+                . number_format(
+                    $discountValue,
+                    0
+                )
+                . "%\n";
+
+        } else {
+
+            $productMessage .=
+                "Deskontu: $"
+                . number_format(
+                    $discountValue,
+                    2
+                )
+                . "\n";
+        }
+
+        if (
+            $activePromoCampaign->start_date
+            && $activePromoCampaign->end_date
+        ) {
+
+            $productMessage .=
+                "Períodu Promosaun: "
+                . $activePromoCampaign
+                    ->start_date
+                    ->format('d/m/Y')
+                . " - "
+                . $activePromoCampaign
+                    ->end_date
+                    ->format('d/m/Y')
+                . "\n";
+        }
+
+    } else {
+
+        $productMessage .=
+            "Presu: $"
+            . number_format(
+                $normalPrice,
+                2
+            )
+            . "\n";
+    }
+
+    $productMessage .=
+        "Kuantidade: 1\n\n"
+        . "Favor konfirma disponibilidade "
+        . "no total pagamentu.\n\n"
         . "Obrigadu.";
 
     $productWhatsappUrl =
         'https://wa.me/'
         . $storeWhatsapp
         . '?text='
-        . urlencode($productMessage);
+        . urlencode(
+            $productMessage
+        );
 @endphp
 
 
@@ -408,18 +781,52 @@
 
     <div class="detail-card">
 
-
-        {{-- FOTO --}}
+        {{-- FOTO PRODUK --}}
 
         <div>
 
             <div class="product-image-box">
 
-                @if (!empty($product->image))
+                @if ($promoActive)
+
+                    <span class="promo-tag">
+
+                        🔥 PROMO
+
+                        @if (
+                            $discountType
+                            === 'percent'
+                        )
+
+                            {{ number_format(
+                                $discountValue,
+                                0
+                            ) }}%
+
+                        @else
+
+                            {{ number_format(
+                                $discountPercentage,
+                                0
+                            ) }}%
+
+                        @endif
+
+                    </span>
+
+                @endif
+
+
+                @if (
+                    !empty(
+                        $product->image
+                    )
+                )
 
                     <img
                         src="{{ asset(
-                            'storage/' . $product->image
+                            'storage/'
+                            . $product->image
                         ) }}"
                         alt="{{ $productName }}"
                     >
@@ -437,11 +844,15 @@
         </div>
 
 
-        {{-- DETAIL --}}
+        {{-- DETAIL PRODUK --}}
 
         <div>
 
-            @if (!empty($product->category))
+            @if (
+                !empty(
+                    $product->category
+                )
+            )
 
                 <span class="category">
                     {{ $product->category }}
@@ -455,10 +866,132 @@
             </h1>
 
 
+            {{-- PROMO CAMPAIGN --}}
+
+            @if ($promoActive)
+
+                <div class="promo-box">
+
+                    <div class="promo-box-label">
+                        🔥 Dulmar Online Promo
+                    </div>
+
+                    <div class="promo-box-title">
+                        {{ $activePromoCampaign->title }}
+                    </div>
+
+                    @if (
+                        $activePromoCampaign
+                            ->description
+                    )
+
+                        <div class="promo-box-description">
+                            {{ $activePromoCampaign->description }}
+                        </div>
+
+                    @endif
+
+                    @if ($promoPeriodText)
+
+                        <span class="promo-period">
+                            📅 {{ $promoPeriodText }}
+                        </span>
+
+                    @endif
+
+                </div>
+
+            @endif
+
+
+            {{-- HARGA --}}
+
             <div class="price">
-                ${{ number_format($price, 2) }}
+
+                @if ($promoActive)
+
+                    <div class="promo-price-wrapper">
+
+                        <div class="promo-price-row">
+
+                            <span class="price-label">
+                                Presu Normal
+                            </span>
+
+                            <span class="old-price">
+                                ${{ number_format(
+                                    $normalPrice,
+                                    2
+                                ) }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="promo-price-row">
+
+                            <span class="price-label">
+                                Presu Promosaun
+                            </span>
+
+                            <span class="promo-price">
+                                ${{ number_format(
+                                    $finalPrice,
+                                    2
+                                ) }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="promo-price-row">
+
+                            <span class="price-label">
+                                Deskontu
+                            </span>
+
+                            <span class="discount-value">
+
+                                @if (
+                                    $discountType
+                                    === 'percent'
+                                )
+
+                                    {{ number_format(
+                                        $discountValue,
+                                        0
+                                    ) }}%
+
+                                @else
+
+                                    ${{ number_format(
+                                        $discountValue,
+                                        2
+                                    ) }}
+
+                                @endif
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                @else
+
+                    <span class="normal-price">
+                        ${{ number_format(
+                            $normalPrice,
+                            2
+                        ) }}
+                    </span>
+
+                @endif
+
             </div>
 
+
+            {{-- STOCK --}}
 
             <div class="stock">
 
@@ -485,7 +1018,13 @@
             </div>
 
 
-            @if (!empty($product->description))
+            {{-- DESCRIPTION --}}
+
+            @if (
+                !empty(
+                    $product->description
+                )
+            )
 
                 <div class="description">
                     {{ $product->description }}
@@ -494,9 +1033,15 @@
             @endif
 
 
+            {{-- SPECIFICATION --}}
+
             <div class="spec-table">
 
-                @if (!empty($product->brand))
+                @if (
+                    !empty(
+                        $product->brand
+                    )
+                )
 
                     <div class="spec-row">
 
@@ -513,7 +1058,11 @@
                 @endif
 
 
-                @if (!empty($product->model))
+                @if (
+                    !empty(
+                        $product->model
+                    )
+                )
 
                     <div class="spec-row">
 
@@ -530,7 +1079,11 @@
                 @endif
 
 
-                @if (!empty($product->connectivity))
+                @if (
+                    !empty(
+                        $product->connectivity
+                    )
+                )
 
                     <div class="spec-row">
 
@@ -547,7 +1100,11 @@
                 @endif
 
 
-                @if (!empty($product->warranty))
+                @if (
+                    !empty(
+                        $product->warranty
+                    )
+                )
 
                     <div class="spec-row">
 
@@ -566,6 +1123,8 @@
             </div>
 
 
+            {{-- ACTION --}}
+
             <div class="actions">
 
                 <a
@@ -575,15 +1134,12 @@
                     }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="btn-wa
-                        {{ $stock <= 0
-                            ? 'disabled'
-                            : ''
-                        }}"
+                    class="btn-wa {{ $stock <= 0 ? 'disabled' : '' }}"
                 >
-                    {{ $stock > 0
-                        ? 'Order via WhatsApp'
-                        : 'Stok Hotu'
+                    {{
+                        $stock > 0
+                            ? 'Order via WhatsApp'
+                            : 'Stok Hotu'
                     }}
                 </a>
 
@@ -604,7 +1160,8 @@
 
 
     <div class="footer-note">
-        © {{ date('Y') }} Dulmar Satellite Store
+        © {{ date('Y') }}
+        Dulmar Satellite Store
     </div>
 
 </div>
@@ -613,34 +1170,52 @@
 <script>
     function shareProduct() {
         const shareData = {
-            title: @json($productName),
-            text: @json(
-                'Haree produtu '
-                . $productName
-                . ' iha Dulmar Satellite Store.'
-            ),
-            url: window.location.href
+            title:
+                @json($productName),
+
+            text:
+                @json(
+                    'Haree produtu '
+                    . $productName
+                    . ' iha Dulmar Satellite Store.'
+                ),
+
+            url:
+                window.location.href
         };
 
         if (navigator.share) {
+
             navigator
                 .share(shareData)
                 .catch(function () {});
-        } else {
+
+        } else if (navigator.clipboard) {
+
             navigator.clipboard
                 .writeText(
                     window.location.href
                 )
                 .then(function () {
+
                     alert(
                         'Link produtu kopia ona.'
                     );
+
                 })
                 .catch(function () {
+
                     alert(
                         window.location.href
                     );
+
                 });
+
+        } else {
+
+            alert(
+                window.location.href
+            );
         }
     }
 </script>
