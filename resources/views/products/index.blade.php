@@ -98,7 +98,9 @@
         .sidebar-menu a {
             display: block;
             margin-bottom: 30px;
+
             color: white;
+
             font-size: 18px;
             text-decoration: none;
         }
@@ -109,21 +111,29 @@
 
         .sidebar-menu a.active {
             padding: 12px 14px;
+
             border-left: 4px solid #60a5fa;
             border-radius: 6px;
+
             background-color: rgba(37, 99, 235, 0.3);
             color: #bfdbfe;
+
             font-weight: bold;
         }
 
         .button-logout {
             width: 100%;
+
             padding: 13px 15px;
+
             border: none;
             border-radius: 7px;
+
             background-color: #dc2626;
             color: white;
+
             font-size: 17px;
+
             cursor: pointer;
         }
 
@@ -157,28 +167,37 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+
             gap: 20px;
+
             margin-bottom: 35px;
         }
 
         .page-header h2 {
             margin: 0 0 15px;
+
             font-size: 36px;
         }
 
         .page-header p {
             margin: 0;
+
             color: #4b5563;
+
             font-size: 18px;
         }
 
         .button-add {
             display: inline-block;
             flex-shrink: 0;
+
             padding: 16px 22px;
+
             border-radius: 8px;
+
             background-color: #2563eb;
             color: white;
+
             font-size: 18px;
             text-decoration: none;
         }
@@ -196,19 +215,24 @@
         .alert-success,
         .alert-error {
             margin-bottom: 25px;
+
             padding: 15px 20px;
+
             border-radius: 6px;
+
             font-size: 16px;
         }
 
         .alert-success {
             border: 1px solid #86efac;
+
             background-color: #dcfce7;
             color: #166534;
         }
 
         .alert-error {
             border: 1px solid #fca5a5;
+
             background-color: #fee2e2;
             color: #991b1b;
         }
@@ -226,33 +250,44 @@
 
         .filter-card {
             margin-bottom: 25px;
+
             padding: 22px;
+
             border-radius: 10px;
+
             background-color: white;
+
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         .filter-card h3 {
             margin: 0 0 18px;
+
             font-size: 21px;
         }
 
         .filter-form {
             display: grid;
+
             grid-template-columns:
                 minmax(220px, 2fr)
                 minmax(180px, 1fr)
                 minmax(180px, 1fr)
                 auto
                 auto;
+
             align-items: end;
+
             gap: 12px;
         }
 
         .form-group label {
             display: block;
+
             margin-bottom: 7px;
+
             color: #374151;
+
             font-size: 14px;
             font-weight: bold;
         }
@@ -260,31 +295,43 @@
         .form-control {
             width: 100%;
             height: 45px;
+
             padding: 10px 12px;
+
             border: 1px solid #d1d5db;
             border-radius: 6px;
+
             background-color: white;
+
             font-size: 15px;
         }
 
         .form-control:focus {
             border-color: #2563eb;
+
             outline: none;
+
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
         .button-filter,
         .button-reset {
             height: 45px;
+
             display: inline-flex;
             align-items: center;
             justify-content: center;
+
             padding: 0 18px;
+
             border: none;
             border-radius: 6px;
+
             color: white;
+
             font-size: 15px;
             text-decoration: none;
+
             cursor: pointer;
         }
 
@@ -306,7 +353,9 @@
 
         .filter-info {
             margin: 15px 0 0;
+
             color: #6b7280;
+
             font-size: 14px;
         }
 
@@ -318,27 +367,36 @@
 
         .summary-grid {
             display: grid;
+
             grid-template-columns:
                 repeat(5, minmax(150px, 1fr));
+
             gap: 15px;
+
             margin-bottom: 25px;
         }
 
         .summary-card {
             padding: 20px;
+
             border-radius: 10px;
+
             background-color: white;
+
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         .summary-card h3 {
             margin: 0 0 12px;
+
             color: #6b7280;
+
             font-size: 14px;
         }
 
         .summary-card strong {
             display: block;
+
             font-size: 26px;
         }
 
@@ -390,18 +448,27 @@
 
         .table-card {
             width: 100%;
+
             overflow-x: auto;
+
             border-radius: 10px;
+
             background-color: white;
+
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
             -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
-            min-width: 1150px;
+            min-width: 1180px;
+
             border-collapse: collapse;
+
             background-color: white;
+
+            table-layout: auto;
         }
 
         thead {
@@ -410,10 +477,15 @@
 
         th,
         td {
-            padding: 18px;
+            padding: 16px 14px;
+
             border-bottom: 1px solid #d1d5db;
-            font-size: 16px;
+
+            font-size: 15px;
+
             text-align: left;
+            vertical-align: middle;
+
             white-space: nowrap;
         }
 
@@ -421,9 +493,73 @@
             font-weight: bold;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | UKURAN KOLOM TABLE
+        |--------------------------------------------------------------------------
+        */
+
+        .column-no {
+            width: 55px;
+            min-width: 55px;
+            max-width: 55px;
+
+            text-align: center;
+        }
+
+        .product-name-column {
+            width: 320px;
+            min-width: 320px;
+            max-width: 320px;
+
+            white-space: normal !important;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
+
+            line-height: 1.45;
+        }
+
+        .column-category {
+            width: 130px;
+            min-width: 130px;
+            max-width: 150px;
+
+            white-space: normal !important;
+
+            word-break: break-word;
+        }
+
+        .column-stock {
+            width: 90px;
+            min-width: 90px;
+        }
+
+        .column-status {
+            width: 130px;
+            min-width: 130px;
+        }
+
+        .column-price {
+            width: 110px;
+            min-width: 110px;
+        }
+
+        .column-profit {
+            width: 110px;
+            min-width: 110px;
+        }
+
+        .column-action {
+            width: 160px;
+            min-width: 160px;
+        }
+
         .empty-data {
             padding: 30px;
+
             color: #6b7280;
+
             text-align: center;
         }
 
@@ -437,6 +573,7 @@
 
         .profit {
             color: #16a34a;
+
             font-weight: bold;
         }
 
@@ -448,11 +585,16 @@
 
         .stock-badge {
             display: inline-block;
+
             min-width: 100px;
+
             padding: 7px 10px;
+
             border-radius: 20px;
+
             font-size: 13px;
             font-weight: bold;
+
             text-align: center;
         }
 
@@ -480,22 +622,29 @@
         .action-buttons {
             display: flex;
             align-items: center;
+
             gap: 8px;
         }
 
         .button-edit,
         .button-delete {
             padding: 9px 15px;
+
             border: none;
             border-radius: 6px;
+
             color: white;
+
             font-size: 14px;
+
             cursor: pointer;
         }
 
         .button-edit {
             display: inline-block;
+
             background-color: #f59e0b;
+
             text-decoration: none;
         }
 
@@ -525,18 +674,26 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+
             gap: 12px;
+
             margin-top: 18px;
+
             padding: 14px 16px;
+
             border-radius: 8px;
+
             background-color: white;
+
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
         .pagination a,
         .pagination .disabled {
             padding: 9px 15px;
+
             border-radius: 6px;
+
             text-decoration: none;
         }
 
@@ -556,7 +713,9 @@
 
         .pagination-info {
             color: #4b5563;
+
             font-size: 14px;
+
             text-align: center;
         }
 
@@ -567,6 +726,7 @@
         */
 
         @media (max-width: 1250px) {
+
             .summary-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
@@ -588,6 +748,7 @@
         */
 
         @media (max-width: 700px) {
+
             .container {
                 display: block;
             }
@@ -675,6 +836,7 @@
 
             .sidebar h1 {
                 margin-bottom: 40px;
+
                 font-size: 25px;
             }
 
@@ -684,22 +846,30 @@
 
             .sidebar-menu a {
                 margin-bottom: 10px;
+
                 padding: 12px 10px;
+
                 border-radius: 6px;
+
                 background-color:
                     rgba(255, 255, 255, 0.06);
+
                 font-size: 16px;
             }
 
             .main-content {
                 width: 100%;
+
                 margin-left: 0;
+
                 padding: 85px 15px 30px;
+
                 overflow-x: hidden;
             }
 
             .page-header {
                 flex-direction: column;
+
                 margin-bottom: 30px;
             }
 
@@ -714,6 +884,7 @@
 
             .button-add {
                 width: 100%;
+
                 text-align: center;
             }
 
@@ -729,10 +900,21 @@
                 border-radius: 7px;
             }
 
+            table {
+                min-width: 1050px;
+            }
+
             th,
             td {
-                padding: 14px;
+                padding: 12px;
+
                 font-size: 14px;
+            }
+
+            .product-name-column {
+                width: 250px;
+                min-width: 250px;
+                max-width: 250px;
             }
 
             .pagination {
@@ -742,6 +924,7 @@
 
             .pagination-info {
                 width: 100%;
+
                 order: -1;
             }
         }
@@ -826,6 +1009,13 @@
                 </a>
 
                 <a
+                    href="{{ route('cash-accounts.index') }}"
+                    class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
+                >
+                    Kas Admin
+                </a>
+
+                <a
                     href="{{ route('suppliers.index') }}"
                     class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}"
                 >
@@ -846,6 +1036,15 @@
                     Laporan
                 </a>
 
+                @can('users.view')
+                    <a
+                        href="{{ route('users.index') }}"
+                        class="{{ request()->routeIs('users.*') ? 'active' : '' }}"
+                    >
+                        User Management
+                    </a>
+                @endcan
+
             </nav>
 
             <form
@@ -853,6 +1052,7 @@
                 method="POST"
                 onsubmit="return confirm('Apakah Anda yakin ingin keluar?')"
             >
+
                 @csrf
 
                 <button
@@ -861,6 +1061,7 @@
                 >
                     Keluar
                 </button>
+
             </form>
 
         </aside>
@@ -1133,15 +1334,43 @@
                     <thead>
 
                         <tr>
-                            <th>No</th>
-                            <th>Nama Produk</th>
-                            <th>Kategori</th>
-                            <th>Stok</th>
-                            <th>Status</th>
-                            <th>Harga Beli</th>
-                            <th>Harga Jual</th>
-                            <th>Laba/Unit</th>
-                            <th>Aksi</th>
+
+                            <th class="column-no">
+                                No
+                            </th>
+
+                            <th class="product-name-column">
+                                Nama Produk
+                            </th>
+
+                            <th class="column-category">
+                                Kategori
+                            </th>
+
+                            <th class="column-stock">
+                                Stok
+                            </th>
+
+                            <th class="column-status">
+                                Status
+                            </th>
+
+                            <th class="column-price">
+                                Harga Beli
+                            </th>
+
+                            <th class="column-price">
+                                Harga Jual
+                            </th>
+
+                            <th class="column-profit">
+                                Laba/Unit
+                            </th>
+
+                            <th class="column-action">
+                                Aksi
+                            </th>
+
                         </tr>
 
                     </thead>
@@ -1161,26 +1390,26 @@
 
                             <tr>
 
-                                <td>
+                                <td class="column-no">
                                     {{
                                         $products->firstItem()
                                         + $loop->index
                                     }}
                                 </td>
 
-                                <td>
+                                <td class="product-name-column">
                                     {{ $product->product_name }}
                                 </td>
 
-                                <td>
+                                <td class="column-category">
                                     {{ $product->category }}
                                 </td>
 
-                                <td>
+                                <td class="column-stock">
                                     {{ $stock }} unit
                                 </td>
 
-                                <td>
+                                <td class="column-status">
 
                                     @if ($stock <= 0)
 
@@ -1204,28 +1433,28 @@
 
                                 </td>
 
-                                <td class="purchase-price">
+                                <td class="purchase-price column-price">
                                     ${{ number_format(
                                         $product->purchase_price,
                                         2
                                     ) }}
                                 </td>
 
-                                <td class="selling-price">
+                                <td class="selling-price column-price">
                                     ${{ number_format(
                                         $product->selling_price,
                                         2
                                     ) }}
                                 </td>
 
-                                <td class="profit">
+                                <td class="profit column-profit">
                                     ${{ number_format(
                                         $profit,
                                         2
                                     ) }}
                                 </td>
 
-                                <td>
+                                <td class="column-action">
 
                                     <div class="action-buttons">
 
@@ -1248,6 +1477,7 @@
                                             class="delete-form"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini? Produk yang memiliki transaksi atau stok tidak dapat dihapus.')"
                                         >
+
                                             @csrf
                                             @method('DELETE')
 
@@ -1341,6 +1571,17 @@
         </main>
 
     </div>
+
+    <form
+        id="idleLogoutForm"
+        action="{{ route('logout') }}"
+        method="POST"
+        style="display:none;"
+    >
+        @csrf
+    </form>
+
+    <script src="{{ asset('js/idle-timeout.js') }}"></script>
 
     <script>
         const sidebar =
