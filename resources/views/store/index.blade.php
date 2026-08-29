@@ -376,8 +376,8 @@
 
     <p>
      Buka receiver, parabola, kabel, remote,
-    no TV No sasan cleseluk tan.
-    Hili sasán ne'ebé ita hakarak no halo pedidu diretamente liuhusi WhatsApp.
+    no TV No sasan seluk tan.
+    Hili sasán ne'ebé ita hakarak bele liga diretamente liuhusi WhatsApp.
 
     </p>
 
