@@ -553,6 +553,14 @@
                 @endcan
 
 
+                <a
+                    href="{{ route('homepage-banners.index') }}"
+                    class="{{ request()->routeIs('homepage-banners.*') ? 'active' : '' }}"
+                >
+                    Homepage Banner
+                </a>
+
+
                 @can('stock-ins.view')
 
                     <a

@@ -44,9 +44,15 @@ class ProductController extends Controller
                 'Status stok yang dipilih tidak valid.',
         ]);
 
-        $search = trim($validated['search'] ?? '');
-        $category = $validated['category'] ?? '';
-        $stockStatus = $validated['stock_status'] ?? '';
+        $search = trim(
+            $validated['search'] ?? ''
+        );
+
+        $category =
+            $validated['category'] ?? '';
+
+        $stockStatus =
+            $validated['stock_status'] ?? '';
 
         /*
         |--------------------------------------------------------------------------
@@ -68,7 +74,8 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $productQuery = Product::query();
+        $productQuery =
+            Product::query();
 
         $this->applyProductFilters(
             $productQuery,
@@ -84,24 +91,38 @@ class ProductController extends Controller
         */
 
         $totalProducts =
-            (clone $productQuery)->count();
+            (clone $productQuery)
+                ->count();
 
         $totalStock =
-            (int) (clone $productQuery)->sum('stock');
+            (int)
+            (clone $productQuery)
+                ->sum('stock');
 
         $outOfStockProducts =
             (clone $productQuery)
-                ->where('stock', '<=', 0)
+                ->where(
+                    'stock',
+                    '<=',
+                    0
+                )
                 ->count();
 
         $lowStockProducts =
             (clone $productQuery)
-                ->whereBetween('stock', [1, 5])
+                ->whereBetween(
+                    'stock',
+                    [1, 5]
+                )
                 ->count();
 
         $availableProducts =
             (clone $productQuery)
-                ->where('stock', '>', 5)
+                ->where(
+                    'stock',
+                    '>',
+                    5
+                )
                 ->count();
 
         /*
@@ -110,24 +131,32 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $products = $productQuery
-            ->orderBy('product_name')
-            ->paginate(10);
+        $products =
+            $productQuery
+                ->orderBy(
+                    'product_name'
+                )
+                ->paginate(10);
 
-        $products->appends($request->query());
+        $products->appends(
+            $request->query()
+        );
 
-        return view('products.index', compact(
-            'products',
-            'categories',
-            'totalProducts',
-            'totalStock',
-            'outOfStockProducts',
-            'lowStockProducts',
-            'availableProducts',
-            'search',
-            'category',
-            'stockStatus'
-        ));
+        return view(
+            'products.index',
+            compact(
+                'products',
+                'categories',
+                'totalProducts',
+                'totalStock',
+                'outOfStockProducts',
+                'lowStockProducts',
+                'availableProducts',
+                'search',
+                'category',
+                'stockStatus'
+            )
+        );
     }
 
     /**
@@ -135,15 +164,21 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        return view(
+            'products.create'
+        );
     }
 
     /**
      * Menyimpan produk baru.
      */
-    public function store(Request $request)
-    {
-        $data = $this->validateProduct($request);
+    public function store(
+        Request $request
+    ) {
+        $data =
+            $this->validateProduct(
+                $request
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -153,13 +188,18 @@ class ProductController extends Controller
 
         $imagePath = null;
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request
-                ->file('image')
-                ->store(
-                    'products',
-                    'public'
-                );
+        if (
+            $request->hasFile(
+                'image'
+            )
+        ) {
+            $imagePath =
+                $request
+                    ->file('image')
+                    ->store(
+                        'products',
+                        'public'
+                    );
         }
 
         /*
@@ -169,7 +209,9 @@ class ProductController extends Controller
         */
 
         $isPromo =
-            $request->boolean('is_promo');
+            $request->boolean(
+                'is_promo'
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -181,26 +223,48 @@ class ProductController extends Controller
             'product_name' =>
                 $data['product_name'],
 
+            /*
+            |--------------------------------------------------------------------------
+            | Normalisasi kategori
+            |--------------------------------------------------------------------------
+            |
+            | Contoh:
+            | tv / Tv / telvisi / televisi -> TV
+            | rca -> RCA
+            | receiver -> Receiver
+            |
+            */
+
             'category' =>
-                $data['category'],
+                $this->normalizeCategory(
+                    $data['category']
+                ),
 
             /*
              * Produk baru mempunyai stok nol.
-             * Penambahan stok dilakukan melalui menu Stok Masuk.
+             * Penambahan stok dilakukan
+             * melalui menu Stok Masuk.
              */
             'stock' => 0,
 
             'purchase_price' =>
-                $data['purchase_price'],
+                $data[
+                    'purchase_price'
+                ],
 
             'selling_price' =>
-                $data['selling_price'],
+                $data[
+                    'selling_price'
+                ],
 
             /*
-             * Kolom price lama mengikuti harga jual.
+             * Kolom price lama
+             * mengikuti harga jual.
              */
             'price' =>
-                $data['selling_price'],
+                $data[
+                    'selling_price'
+                ],
 
             /*
              * Foto produk.
@@ -212,19 +276,29 @@ class ProductController extends Controller
              * Detail / spesifikasi produk.
              */
             'description' =>
-                $data['description'] ?? null,
+                $data[
+                    'description'
+                ] ?? null,
 
             'brand' =>
-                $data['brand'] ?? null,
+                $data[
+                    'brand'
+                ] ?? null,
 
             'model' =>
-                $data['model'] ?? null,
+                $data[
+                    'model'
+                ] ?? null,
 
             'connectivity' =>
-                $data['connectivity'] ?? null,
+                $data[
+                    'connectivity'
+                ] ?? null,
 
             'warranty' =>
-                $data['warranty'] ?? null,
+                $data[
+                    'warranty'
+                ] ?? null,
 
             /*
              * Promo / diskon.
@@ -234,22 +308,38 @@ class ProductController extends Controller
 
             'discount_type' =>
                 $isPromo
-                    ? ($data['discount_type'] ?? null)
+                    ? (
+                        $data[
+                            'discount_type'
+                        ] ?? null
+                    )
                     : null,
 
             'discount_value' =>
                 $isPromo
-                    ? ($data['discount_value'] ?? null)
+                    ? (
+                        $data[
+                            'discount_value'
+                        ] ?? null
+                    )
                     : null,
 
             'promo_start' =>
                 $isPromo
-                    ? ($data['promo_start'] ?? null)
+                    ? (
+                        $data[
+                            'promo_start'
+                        ] ?? null
+                    )
                     : null,
 
             'promo_end' =>
                 $isPromo
-                    ? ($data['promo_end'] ?? null)
+                    ? (
+                        $data[
+                            'promo_end'
+                        ] ?? null
+                    )
                     : null,
 
             /*
@@ -257,17 +347,27 @@ class ProductController extends Controller
              */
             'promo_title' =>
                 $isPromo
-                    ? ($data['promo_title'] ?? null)
+                    ? (
+                        $data[
+                            'promo_title'
+                        ] ?? null
+                    )
                     : null,
 
             'promo_description' =>
                 $isPromo
-                    ? ($data['promo_description'] ?? null)
+                    ? (
+                        $data[
+                            'promo_description'
+                        ] ?? null
+                    )
                     : null,
         ]);
 
         return redirect()
-            ->route('products.index')
+            ->route(
+                'products.index'
+            )
             ->with(
                 'success',
                 'Produk berhasil ditambahkan.'
@@ -277,11 +377,14 @@ class ProductController extends Controller
     /**
      * Menampilkan form edit produk.
      */
-    public function edit(Product $product)
-    {
+    public function edit(
+        Product $product
+    ) {
         return view(
             'products.edit',
-            compact('product')
+            compact(
+                'product'
+            )
         );
     }
 
@@ -292,7 +395,10 @@ class ProductController extends Controller
         Request $request,
         Product $product
     ) {
-        $data = $this->validateProduct($request);
+        $data =
+            $this->validateProduct(
+                $request
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -300,7 +406,8 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $imagePath = $product->image;
+        $imagePath =
+            $product->image;
 
         /*
         |--------------------------------------------------------------------------
@@ -308,29 +415,45 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($request->hasFile('image')) {
+        if (
+            $request->hasFile(
+                'image'
+            )
+        ) {
 
             /*
              * Hapus foto lama jika ada.
              */
+
             if (
-                !empty($product->image)
-                && Storage::disk('public')
-                    ->exists($product->image)
+                !empty(
+                    $product->image
+                )
+                &&
+                Storage::disk(
+                    'public'
+                )->exists(
+                    $product->image
+                )
             ) {
-                Storage::disk('public')
-                    ->delete($product->image);
+                Storage::disk(
+                    'public'
+                )->delete(
+                    $product->image
+                );
             }
 
             /*
              * Simpan foto baru.
              */
-            $imagePath = $request
-                ->file('image')
-                ->store(
-                    'products',
-                    'public'
-                );
+
+            $imagePath =
+                $request
+                    ->file('image')
+                    ->store(
+                        'products',
+                        'public'
+                    );
         }
 
         /*
@@ -340,7 +463,9 @@ class ProductController extends Controller
         */
 
         $isPromo =
-            $request->boolean('is_promo');
+            $request->boolean(
+                'is_promo'
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -350,22 +475,39 @@ class ProductController extends Controller
 
         $product->update([
             'product_name' =>
-                $data['product_name'],
-
-            'category' =>
-                $data['category'],
-
-            'purchase_price' =>
-                $data['purchase_price'],
-
-            'selling_price' =>
-                $data['selling_price'],
+                $data[
+                    'product_name'
+                ],
 
             /*
-             * Kolom price lama mengikuti harga jual.
+            |--------------------------------------------------------------------------
+            | Normalisasi kategori
+            |--------------------------------------------------------------------------
+            */
+
+            'category' =>
+                $this->normalizeCategory(
+                    $data['category']
+                ),
+
+            'purchase_price' =>
+                $data[
+                    'purchase_price'
+                ],
+
+            'selling_price' =>
+                $data[
+                    'selling_price'
+                ],
+
+            /*
+             * Kolom price lama
+             * mengikuti harga jual.
              */
             'price' =>
-                $data['selling_price'],
+                $data[
+                    'selling_price'
+                ],
 
             /*
              * Foto produk.
@@ -377,19 +519,29 @@ class ProductController extends Controller
              * Detail / spesifikasi produk.
              */
             'description' =>
-                $data['description'] ?? null,
+                $data[
+                    'description'
+                ] ?? null,
 
             'brand' =>
-                $data['brand'] ?? null,
+                $data[
+                    'brand'
+                ] ?? null,
 
             'model' =>
-                $data['model'] ?? null,
+                $data[
+                    'model'
+                ] ?? null,
 
             'connectivity' =>
-                $data['connectivity'] ?? null,
+                $data[
+                    'connectivity'
+                ] ?? null,
 
             'warranty' =>
-                $data['warranty'] ?? null,
+                $data[
+                    'warranty'
+                ] ?? null,
 
             /*
              * Promo / diskon.
@@ -399,22 +551,38 @@ class ProductController extends Controller
 
             'discount_type' =>
                 $isPromo
-                    ? ($data['discount_type'] ?? null)
+                    ? (
+                        $data[
+                            'discount_type'
+                        ] ?? null
+                    )
                     : null,
 
             'discount_value' =>
                 $isPromo
-                    ? ($data['discount_value'] ?? null)
+                    ? (
+                        $data[
+                            'discount_value'
+                        ] ?? null
+                    )
                     : null,
 
             'promo_start' =>
                 $isPromo
-                    ? ($data['promo_start'] ?? null)
+                    ? (
+                        $data[
+                            'promo_start'
+                        ] ?? null
+                    )
                     : null,
 
             'promo_end' =>
                 $isPromo
-                    ? ($data['promo_end'] ?? null)
+                    ? (
+                        $data[
+                            'promo_end'
+                        ] ?? null
+                    )
                     : null,
 
             /*
@@ -422,22 +590,35 @@ class ProductController extends Controller
              */
             'promo_title' =>
                 $isPromo
-                    ? ($data['promo_title'] ?? null)
+                    ? (
+                        $data[
+                            'promo_title'
+                        ] ?? null
+                    )
                     : null,
 
             'promo_description' =>
                 $isPromo
-                    ? ($data['promo_description'] ?? null)
+                    ? (
+                        $data[
+                            'promo_description'
+                        ] ?? null
+                    )
                     : null,
 
             /*
-             * Stok tidak diubah melalui Edit Produk.
-             * Stok dikelola melalui Stok Masuk/Keluar.
+             * Stok tidak diubah melalui
+             * Edit Produk.
+             *
+             * Stok dikelola melalui
+             * Stok Masuk / Stok Keluar.
              */
         ]);
 
         return redirect()
-            ->route('products.index')
+            ->route(
+                'products.index'
+            )
             ->with(
                 'success',
                 'Produk berhasil diperbarui.'
@@ -447,29 +628,39 @@ class ProductController extends Controller
     /**
      * Menghapus produk.
      */
-    public function destroy(Product $product)
-    {
+    public function destroy(
+        Product $product
+    ) {
         /*
         |--------------------------------------------------------------------------
         | Periksa riwayat transaksi
         |--------------------------------------------------------------------------
         */
 
-        $hasStockIn = $product
-            ->stockIns()
-            ->exists();
+        $hasStockIn =
+            $product
+                ->stockIns()
+                ->exists();
 
-        $hasStockOut = $product
-            ->stockOuts()
-            ->exists();
+        $hasStockOut =
+            $product
+                ->stockOuts()
+                ->exists();
 
         /*
          * Produk yang memiliki transaksi
          * tidak boleh dihapus.
          */
-        if ($hasStockIn || $hasStockOut) {
+
+        if (
+            $hasStockIn
+            ||
+            $hasStockOut
+        ) {
             return redirect()
-                ->route('products.index')
+                ->route(
+                    'products.index'
+                )
                 ->with(
                     'error',
                     'Produk "'
@@ -481,12 +672,17 @@ class ProductController extends Controller
         }
 
         /*
-         * Produk dengan stok yang masih tersedia
-         * tidak boleh dihapus.
+         * Produk dengan stok yang masih
+         * tersedia tidak boleh dihapus.
          */
-        if ((int) $product->stock > 0) {
+
+        if (
+            (int) $product->stock > 0
+        ) {
             return redirect()
-                ->route('products.index')
+                ->route(
+                    'products.index'
+                )
                 ->with(
                     'error',
                     'Produk "'
@@ -505,12 +701,21 @@ class ProductController extends Controller
         */
 
         if (
-            !empty($product->image)
-            && Storage::disk('public')
-                ->exists($product->image)
+            !empty(
+                $product->image
+            )
+            &&
+            Storage::disk(
+                'public'
+            )->exists(
+                $product->image
+            )
         ) {
-            Storage::disk('public')
-                ->delete($product->image);
+            Storage::disk(
+                'public'
+            )->delete(
+                $product->image
+            );
         }
 
         /*
@@ -522,7 +727,9 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()
-            ->route('products.index')
+            ->route(
+                'products.index'
+            )
             ->with(
                 'success',
                 'Produk berhasil dihapus.'
@@ -544,7 +751,9 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($search !== '') {
+        if (
+            $search !== ''
+        ) {
             $query->where(
                 'product_name',
                 'like',
@@ -558,7 +767,9 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($category !== '') {
+        if (
+            $category !== ''
+        ) {
             $query->where(
                 'category',
                 $category
@@ -571,7 +782,10 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($stockStatus === 'available') {
+        if (
+            $stockStatus
+            === 'available'
+        ) {
             $query->where(
                 'stock',
                 '>',
@@ -585,7 +799,10 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($stockStatus === 'low') {
+        if (
+            $stockStatus
+            === 'low'
+        ) {
             $query->whereBetween(
                 'stock',
                 [1, 5]
@@ -598,7 +815,10 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($stockStatus === 'out') {
+        if (
+            $stockStatus
+            === 'out'
+        ) {
             $query->where(
                 'stock',
                 '<=',
@@ -910,5 +1130,166 @@ class ProductController extends Controller
             'image.max' =>
                 'Ukuran foto produk maksimal 5 MB.',
         ]);
+    }
+
+    /**
+     * Menstandarkan penulisan kategori produk.
+     *
+     * Tujuan:
+     * - Mencegah kategori duplikat karena perbedaan huruf.
+     * - Tetap mengizinkan kategori baru dibuat otomatis.
+     *
+     * Contoh:
+     * tv / Tv / TV / telvisi / televisi -> TV
+     * rca / Rca -> RCA
+     * receiver -> Receiver
+     * remote control -> Remote Control
+     */
+    private function normalizeCategory(
+        string $category
+    ): string {
+        /*
+         * Hilangkan spasi di awal
+         * dan akhir input.
+         */
+        $category =
+            trim($category);
+
+        /*
+         * Jika input kosong,
+         * kembalikan string kosong.
+         *
+         * Secara normal kondisi ini
+         * sudah ditolak oleh validation.
+         */
+        if (
+            $category === ''
+        ) {
+            return '';
+        }
+
+        /*
+         * Buat key lowercase
+         * untuk proses pencocokan.
+         */
+        $key =
+            mb_strtolower(
+                $category,
+                'UTF-8'
+            );
+
+        /*
+         * Standarisasi kategori
+         * yang mempunyai penulisan khusus.
+         */
+        return match ($key) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | TV
+            |--------------------------------------------------------------------------
+            */
+
+            'tv',
+            'telvisi',
+            'televisi',
+            'television'
+                => 'TV',
+
+            /*
+            |--------------------------------------------------------------------------
+            | RCA
+            |--------------------------------------------------------------------------
+            */
+
+            'rca'
+                => 'RCA',
+
+            /*
+            |--------------------------------------------------------------------------
+            | HDMI
+            |--------------------------------------------------------------------------
+            */
+
+            'hdmi'
+                => 'HDMI',
+
+            /*
+            |--------------------------------------------------------------------------
+            | USB
+            |--------------------------------------------------------------------------
+            */
+
+            'usb'
+                => 'USB',
+
+            /*
+            |--------------------------------------------------------------------------
+            | LED
+            |--------------------------------------------------------------------------
+            */
+
+            'led'
+                => 'LED',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Receiver
+            |--------------------------------------------------------------------------
+            */
+
+            'receiver'
+                => 'Receiver',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Kabel
+            |--------------------------------------------------------------------------
+            */
+
+            'kabel',
+            'cable'
+                => 'Kabel',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Speaker
+            |--------------------------------------------------------------------------
+            */
+
+            'speaker'
+                => 'Speaker',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Remote
+            |--------------------------------------------------------------------------
+            */
+
+            'remote'
+                => 'Remote',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Kategori baru
+            |--------------------------------------------------------------------------
+            |
+            | Jika belum ada pada mapping di atas,
+            | tetap boleh disimpan sebagai kategori baru.
+            |
+            | Contoh:
+            | "remote control"
+            | menjadi
+            | "Remote Control"
+            |
+            */
+
+            default =>
+                mb_convert_case(
+                    $category,
+                    MB_CASE_TITLE,
+                    'UTF-8'
+                ),
+        };
     }
 }

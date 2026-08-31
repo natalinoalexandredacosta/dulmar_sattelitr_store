@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CashAccountController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomepageBannerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PromoCampaignController;
 use App\Http\Controllers\ReportController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TvVoucherTransactionController;
 use App\Http\Controllers\UserManagementController;
 
+use App\Models\HomepageBanner;
 use App\Models\Product;
 use App\Models\PromoCampaign;
 
@@ -42,13 +44,86 @@ Route::get('/', function (Request $request) {
         )
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | HOMEPAGE BANNER
+    |--------------------------------------------------------------------------
+    */
+
+    $homepageBanners = HomepageBanner::query()
+        ->where('is_active', true)
+        ->orderBy('sort_order')
+        ->orderBy('id')
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KATEGORI PRODUK
+    |--------------------------------------------------------------------------
+    |
+    | Urutan kategori utama:
+    | 1. Receiver
+    | 2. TV
+    | 3. Kabel
+    | 4. RCA
+    | 5. Speaker
+    |
+    | Kategori baru tetap muncul otomatis setelah kategori utama.
+    |
+    */
+
     $categories = Product::query()
         ->whereNotNull('category')
         ->where('category', '!=', '')
         ->select('category')
         ->distinct()
-        ->orderBy('category')
         ->pluck('category');
+
+
+    $categoryPriority = [
+        'Receiver' => 1,
+        'TV' => 2,
+        'Kabel' => 3,
+        'RCA' => 4,
+        'Speaker' => 5,
+    ];
+
+
+    $categories = $categories
+        ->sortBy(function ($category) use ($categoryPriority) {
+
+            if (
+                isset(
+                    $categoryPriority[
+                        $category
+                    ]
+                )
+            ) {
+                return sprintf(
+                    '%03d-%s',
+                    $categoryPriority[
+                        $category
+                    ],
+                    $category
+                );
+            }
+
+            return
+                '999-'
+                . mb_strtolower(
+                    $category,
+                    'UTF-8'
+                );
+        })
+        ->values();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUK
+    |--------------------------------------------------------------------------
+    */
 
     $productQuery = Product::query();
 
@@ -70,6 +145,13 @@ Route::get('/', function (Request $request) {
     $products = $productQuery
         ->orderBy('product_name')
         ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROMO CAMPAIGN AKTIF
+    |--------------------------------------------------------------------------
+    */
 
     $activePromoCampaign = PromoCampaign::query()
         ->with([
@@ -101,6 +183,13 @@ Route::get('/', function (Request $request) {
                 ->keyBy('id');
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN HOMEPAGE
+    |--------------------------------------------------------------------------
+    */
+
     return view(
         'store.index',
         compact(
@@ -108,6 +197,7 @@ Route::get('/', function (Request $request) {
             'categories',
             'search',
             'category',
+            'homepageBanners',
             'activePromoCampaign',
             'campaignPromoProducts'
         )
@@ -282,6 +372,47 @@ Route::middleware([
 
     /*
     |--------------------------------------------------------------------------
+    | HOMEPAGE BANNER
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/homepage-banners', [
+        HomepageBannerController::class,
+        'index',
+    ])
+        ->name('homepage-banners.index');
+
+
+    Route::post('/homepage-banners', [
+        HomepageBannerController::class,
+        'store',
+    ])
+        ->name('homepage-banners.store');
+
+
+    Route::put('/homepage-banners/{homepageBanner}', [
+        HomepageBannerController::class,
+        'update',
+    ])
+        ->name('homepage-banners.update');
+
+
+    Route::patch('/homepage-banners/{homepageBanner}/toggle', [
+        HomepageBannerController::class,
+        'toggle',
+    ])
+        ->name('homepage-banners.toggle');
+
+
+    Route::delete('/homepage-banners/{homepageBanner}', [
+        HomepageBannerController::class,
+        'destroy',
+    ])
+        ->name('homepage-banners.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
     | KAS ADMIN
     |--------------------------------------------------------------------------
     */
@@ -322,18 +453,6 @@ Route::middleware([
     /*
     |--------------------------------------------------------------------------
     | SETOR UANG ADMIN KE BANK
-    |--------------------------------------------------------------------------
-    |
-    | Contoh:
-    |
-    | Uang Admin = $100
-    | Uang Bank  = $100
-    |
-    | Setor $40
-    |
-    | Uang Admin = $60
-    | Uang Bank  = $140
-    |
     |--------------------------------------------------------------------------
     */
 
