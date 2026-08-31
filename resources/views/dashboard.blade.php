@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
 
@@ -553,12 +554,16 @@
                 @endcan
 
 
-                <a
-                    href="{{ route('homepage-banners.index') }}"
-                    class="{{ request()->routeIs('homepage-banners.*') ? 'active' : '' }}"
-                >
-                    Homepage Banner
-                </a>
+                @if(Route::has('homepage-banners.index'))
+
+                    <a
+                        href="{{ route('homepage-banners.index') }}"
+                        class="{{ request()->routeIs('homepage-banners.*') ? 'active' : '' }}"
+                    >
+                        Homepage Banner
+                    </a>
+
+                @endif
 
 
                 @can('stock-ins.view')
@@ -597,12 +602,39 @@
                 @endcan
 
 
-                <a
-                    href="{{ route('cash-accounts.index') }}"
-                    class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
-                >
-                    Kas Admin
-                </a>
+                @if(Route::has('cash-accounts.index'))
+
+                    <a
+                        href="{{ route('cash-accounts.index') }}"
+                        class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
+                    >
+                        Kas Admin
+                    </a>
+
+                @endif
+
+
+                @if(Route::has('cash.index'))
+
+                    <a
+                        href="{{ route('cash.index') }}"
+                        class="{{ request()->routeIs('cash.index') ? 'active' : '' }}"
+                    >
+                        Kas Inventory
+                    </a>
+
+                @endif
+
+
+                @if(Route::has('cash.index'))
+
+                    <a
+                        href="{{ route('cash.index') }}"
+                    >
+                        Persetujuan Kas
+                    </a>
+
+                @endif
 
 
                 @can('suppliers.view')
@@ -1163,4 +1195,5 @@
     </script>
 
 </body>
+
 </html>

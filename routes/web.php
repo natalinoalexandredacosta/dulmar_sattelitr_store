@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CashAccountController;
+use App\Http\Controllers\CashController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomepageBannerController;
@@ -44,6 +45,7 @@ Route::get('/', function (Request $request) {
         )
     );
 
+
     /*
     |--------------------------------------------------------------------------
     | HOMEPAGE BANNER
@@ -61,16 +63,6 @@ Route::get('/', function (Request $request) {
     |--------------------------------------------------------------------------
     | KATEGORI PRODUK
     |--------------------------------------------------------------------------
-    |
-    | Urutan kategori utama:
-    | 1. Receiver
-    | 2. TV
-    | 3. Kabel
-    | 4. RCA
-    | 5. Speaker
-    |
-    | Kategori baru tetap muncul otomatis setelah kategori utama.
-    |
     */
 
     $categories = Product::query()
@@ -174,7 +166,9 @@ Route::get('/', function (Request $request) {
         ->orderByDesc('id')
         ->first();
 
+
     $campaignPromoProducts = collect();
+
 
     if ($activePromoCampaign) {
         $campaignPromoProducts =
@@ -231,25 +225,31 @@ Route::get(
             ->whereHas(
                 'products',
                 function ($query) use ($product) {
+
                     $query->where(
                         'products.id',
                         $product->id
                     );
+
                 }
             )
             ->with([
                 'products' => function ($query) use ($product) {
+
                     $query->where(
                         'products.id',
                         $product->id
                     );
+
                 },
             ])
             ->orderByDesc('start_date')
             ->orderByDesc('id')
             ->first();
 
+
         $campaignPromoProduct = null;
+
 
         if ($activePromoCampaign) {
             $campaignPromoProduct =
@@ -257,6 +257,7 @@ Route::get(
                     ->products
                     ->first();
         }
+
 
         return view(
             'store.show',
@@ -282,54 +283,72 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [
         AuthController::class,
         'showLogin',
-    ])->name('login');
+    ])
+        ->name('login');
+
 
     Route::post('/login', [
         AuthController::class,
         'login',
-    ])->name('login.process');
+    ])
+        ->name('login.process');
 
 
     Route::get('/verify-otp', [
         AuthController::class,
         'showOtpForm',
-    ])->name('otp.form');
+    ])
+        ->name('otp.form');
+
 
     Route::post('/verify-otp', [
         AuthController::class,
         'verifyOtp',
-    ])->name('otp.verify');
+    ])
+        ->name('otp.verify');
 
 
     Route::get('/forgot-password', [
         AuthController::class,
         'showForgotPassword',
-    ])->name('password.request');
+    ])
+        ->name('password.request');
+
 
     Route::post('/forgot-password', [
         AuthController::class,
         'sendResetOtp',
-    ])->name('password.email');
+    ])
+        ->name('password.email');
+
 
     Route::get('/forgot-password/verify-otp', [
         AuthController::class,
         'showResetOtpForm',
-    ])->name('password.otp.form');
+    ])
+        ->name('password.otp.form');
+
 
     Route::post('/forgot-password/verify-otp', [
         AuthController::class,
         'verifyResetOtp',
-    ])->name('password.otp.verify');
+    ])
+        ->name('password.otp.verify');
+
 
     Route::get('/reset-password', [
         AuthController::class,
         'showResetPasswordForm',
-    ])->name('password.reset.form');
+    ])
+        ->name('password.reset.form');
+
 
     Route::post('/reset-password', [
         AuthController::class,
         'resetPassword',
-    ])->name('password.update');
+    ])
+        ->name('password.update');
+
 });
 
 
@@ -344,6 +363,7 @@ Route::middleware([
     'idle.timeout',
 ])->group(function () {
 
+
     /*
     |--------------------------------------------------------------------------
     | LOGOUT
@@ -353,7 +373,8 @@ Route::middleware([
     Route::post('/logout', [
         AuthController::class,
         'logout',
-    ])->name('logout');
+    ])
+        ->name('logout');
 
 
     /*
@@ -366,7 +387,9 @@ Route::middleware([
         DashboardController::class,
         'index',
     ])
-        ->middleware('permission:dashboard.view')
+        ->middleware(
+            'permission:dashboard.view'
+        )
         ->name('dashboard');
 
 
@@ -409,6 +432,110 @@ Route::middleware([
         'destroy',
     ])
         ->name('homepage-banners.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KAS INVENTORY
+    |--------------------------------------------------------------------------
+    |
+    | Kas khusus bisnis barang / inventory.
+    |
+    | Fitur:
+    | - Cash masuk manual
+    | - Cash keluar dengan approval
+    | - Pinjaman dengan approval
+    | - Pengembalian pinjaman dengan approval
+    | - Approve transaksi
+    | - Reject transaksi
+    | - Edit transaksi manual yang masih diperbolehkan
+    | - Hapus transaksi manual yang masih diperbolehkan
+    |
+    */
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HALAMAN KAS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/cash', [
+        CashController::class,
+        'index',
+    ])
+        ->name('cash.index');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMBAH TRANSAKSI KAS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/cash', [
+        CashController::class,
+        'store',
+    ])
+        ->name('cash.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT TRANSAKSI KAS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch('/cash/{cashTransaction}', [
+        CashController::class,
+        'update',
+    ])
+        ->name('cash.update');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPROVE TRANSAKSI KAS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch(
+        '/cash/{cashTransaction}/approve',
+        [
+            CashController::class,
+            'approve',
+        ]
+    )
+        ->name('cash.approve');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REJECT TRANSAKSI KAS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch(
+        '/cash/{cashTransaction}/reject',
+        [
+            CashController::class,
+            'reject',
+        ]
+    )
+        ->name('cash.reject');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HAPUS TRANSAKSI KAS
+    |--------------------------------------------------------------------------
+    */
+
+    Route::delete('/cash/{cashTransaction}', [
+        CashController::class,
+        'destroy',
+    ])
+        ->name('cash.destroy');
 
 
     /*
@@ -499,48 +626,68 @@ Route::middleware([
         UserManagementController::class,
         'index',
     ])
-        ->middleware('permission:users.view')
+        ->middleware(
+            'permission:users.view'
+        )
         ->name('users.index');
+
 
     Route::get('/users/create', [
         UserManagementController::class,
         'create',
     ])
-        ->middleware('permission:users.create')
+        ->middleware(
+            'permission:users.create'
+        )
         ->name('users.create');
+
 
     Route::post('/users', [
         UserManagementController::class,
         'store',
     ])
-        ->middleware('permission:users.create')
+        ->middleware(
+            'permission:users.create'
+        )
         ->name('users.store');
+
 
     Route::get('/users/{user}/edit', [
         UserManagementController::class,
         'edit',
     ])
-        ->middleware('permission:users.edit')
+        ->middleware(
+            'permission:users.edit'
+        )
         ->name('users.edit');
+
 
     Route::put('/users/{user}', [
         UserManagementController::class,
         'update',
     ])
-        ->middleware('permission:users.edit')
+        ->middleware(
+            'permission:users.edit'
+        )
         ->name('users.update');
+
 
     Route::patch('/users/{user}', [
         UserManagementController::class,
         'update',
     ])
-        ->middleware('permission:users.edit');
+        ->middleware(
+            'permission:users.edit'
+        );
+
 
     Route::delete('/users/{user}', [
         UserManagementController::class,
         'destroy',
     ])
-        ->middleware('permission:users.delete')
+        ->middleware(
+            'permission:users.delete'
+        )
         ->name('users.destroy');
 
 
@@ -554,42 +701,59 @@ Route::middleware([
         ProductController::class,
         'index',
     ])
-        ->middleware('permission:products.view')
+        ->middleware(
+            'permission:products.view'
+        )
         ->name('products.index');
+
 
     Route::get('/products/create', [
         ProductController::class,
         'create',
     ])
-        ->middleware('permission:products.create')
+        ->middleware(
+            'permission:products.create'
+        )
         ->name('products.create');
+
 
     Route::post('/products', [
         ProductController::class,
         'store',
     ])
-        ->middleware('permission:products.create')
+        ->middleware(
+            'permission:products.create'
+        )
         ->name('products.store');
+
 
     Route::get('/products/{product}/edit', [
         ProductController::class,
         'edit',
     ])
-        ->middleware('permission:products.edit')
+        ->middleware(
+            'permission:products.edit'
+        )
         ->name('products.edit');
+
 
     Route::put('/products/{product}', [
         ProductController::class,
         'update',
     ])
-        ->middleware('permission:products.edit')
+        ->middleware(
+            'permission:products.edit'
+        )
         ->name('products.update');
+
 
     Route::delete('/products/{product}', [
         ProductController::class,
         'destroy',
     ])
-        ->middleware('permission:products.delete')
+        ->middleware(
+            'permission:products.delete'
+        )
         ->name('products.destroy');
 
 
@@ -603,42 +767,59 @@ Route::middleware([
         PromoCampaignController::class,
         'index',
     ])
-        ->middleware('permission:promo-campaigns.view')
+        ->middleware(
+            'permission:promo-campaigns.view'
+        )
         ->name('promo-campaigns.index');
+
 
     Route::get('/promo-campaigns/create', [
         PromoCampaignController::class,
         'create',
     ])
-        ->middleware('permission:promo-campaigns.create')
+        ->middleware(
+            'permission:promo-campaigns.create'
+        )
         ->name('promo-campaigns.create');
+
 
     Route::post('/promo-campaigns', [
         PromoCampaignController::class,
         'store',
     ])
-        ->middleware('permission:promo-campaigns.create')
+        ->middleware(
+            'permission:promo-campaigns.create'
+        )
         ->name('promo-campaigns.store');
+
 
     Route::get('/promo-campaigns/{promoCampaign}/edit', [
         PromoCampaignController::class,
         'edit',
     ])
-        ->middleware('permission:promo-campaigns.edit')
+        ->middleware(
+            'permission:promo-campaigns.edit'
+        )
         ->name('promo-campaigns.edit');
+
 
     Route::put('/promo-campaigns/{promoCampaign}', [
         PromoCampaignController::class,
         'update',
     ])
-        ->middleware('permission:promo-campaigns.edit')
+        ->middleware(
+            'permission:promo-campaigns.edit'
+        )
         ->name('promo-campaigns.update');
+
 
     Route::delete('/promo-campaigns/{promoCampaign}', [
         PromoCampaignController::class,
         'destroy',
     ])
-        ->middleware('permission:promo-campaigns.delete')
+        ->middleware(
+            'permission:promo-campaigns.delete'
+        )
         ->name('promo-campaigns.destroy');
 
 
@@ -652,42 +833,59 @@ Route::middleware([
         StockInController::class,
         'index',
     ])
-        ->middleware('permission:stock-ins.view')
+        ->middleware(
+            'permission:stock-ins.view'
+        )
         ->name('stock-ins.index');
+
 
     Route::get('/stock-ins/create', [
         StockInController::class,
         'create',
     ])
-        ->middleware('permission:stock-ins.create')
+        ->middleware(
+            'permission:stock-ins.create'
+        )
         ->name('stock-ins.create');
+
 
     Route::post('/stock-ins', [
         StockInController::class,
         'store',
     ])
-        ->middleware('permission:stock-ins.create')
+        ->middleware(
+            'permission:stock-ins.create'
+        )
         ->name('stock-ins.store');
+
 
     Route::get('/stock-ins/{stockIn}/edit', [
         StockInController::class,
         'edit',
     ])
-        ->middleware('permission:stock-ins.edit')
+        ->middleware(
+            'permission:stock-ins.edit'
+        )
         ->name('stock-ins.edit');
+
 
     Route::put('/stock-ins/{stockIn}', [
         StockInController::class,
         'update',
     ])
-        ->middleware('permission:stock-ins.edit')
+        ->middleware(
+            'permission:stock-ins.edit'
+        )
         ->name('stock-ins.update');
+
 
     Route::delete('/stock-ins/{stockIn}', [
         StockInController::class,
         'destroy',
     ])
-        ->middleware('permission:stock-ins.delete')
+        ->middleware(
+            'permission:stock-ins.delete'
+        )
         ->name('stock-ins.destroy');
 
 
@@ -701,36 +899,57 @@ Route::middleware([
         StockOutController::class,
         'index',
     ])
-        ->middleware('permission:stock-outs.view')
+        ->middleware(
+            'permission:stock-outs.view'
+        )
         ->name('stock-outs.index');
+
 
     Route::get('/stock-outs/create', [
         StockOutController::class,
         'create',
     ])
-        ->middleware('permission:stock-outs.create')
+        ->middleware(
+            'permission:stock-outs.create'
+        )
         ->name('stock-outs.create');
+
 
     Route::post('/stock-outs', [
         StockOutController::class,
         'store',
     ])
-        ->middleware('permission:stock-outs.create')
+        ->middleware(
+            'permission:stock-outs.create'
+        )
         ->name('stock-outs.store');
+
 
     Route::get('/stock-outs/{stockOut}/edit', [
         StockOutController::class,
         'edit',
     ])
-        ->middleware('permission:stock-outs.edit')
+        ->middleware(
+            'permission:stock-outs.edit'
+        )
         ->name('stock-outs.edit');
+
 
     Route::put('/stock-outs/{stockOut}', [
         StockOutController::class,
         'update',
     ])
-        ->middleware('permission:stock-outs.edit')
+        ->middleware(
+            'permission:stock-outs.edit'
+        )
         ->name('stock-outs.update');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VERIFIKASI PEMBAYARAN CUSTOMER
+    |--------------------------------------------------------------------------
+    */
 
     Route::patch(
         '/stock-outs/{stockOut}/verify-payment',
@@ -746,6 +965,13 @@ Route::middleware([
             'stock-outs.verify-payment'
         );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | KONFIRMASI SETORAN
+    |--------------------------------------------------------------------------
+    */
+
     Route::patch(
         '/stock-outs/{stockOut}/confirm-deposit',
         [
@@ -760,11 +986,14 @@ Route::middleware([
             'stock-outs.confirm-deposit'
         );
 
+
     Route::delete('/stock-outs/{stockOut}', [
         StockOutController::class,
         'destroy',
     ])
-        ->middleware('permission:stock-outs.delete')
+        ->middleware(
+            'permission:stock-outs.delete'
+        )
         ->name('stock-outs.destroy');
 
 
@@ -778,42 +1007,59 @@ Route::middleware([
         SupplierController::class,
         'index',
     ])
-        ->middleware('permission:suppliers.view')
+        ->middleware(
+            'permission:suppliers.view'
+        )
         ->name('suppliers.index');
+
 
     Route::get('/suppliers/create', [
         SupplierController::class,
         'create',
     ])
-        ->middleware('permission:suppliers.create')
+        ->middleware(
+            'permission:suppliers.create'
+        )
         ->name('suppliers.create');
+
 
     Route::post('/suppliers', [
         SupplierController::class,
         'store',
     ])
-        ->middleware('permission:suppliers.create')
+        ->middleware(
+            'permission:suppliers.create'
+        )
         ->name('suppliers.store');
+
 
     Route::get('/suppliers/{supplier}/edit', [
         SupplierController::class,
         'edit',
     ])
-        ->middleware('permission:suppliers.edit')
+        ->middleware(
+            'permission:suppliers.edit'
+        )
         ->name('suppliers.edit');
+
 
     Route::put('/suppliers/{supplier}', [
         SupplierController::class,
         'update',
     ])
-        ->middleware('permission:suppliers.edit')
+        ->middleware(
+            'permission:suppliers.edit'
+        )
         ->name('suppliers.update');
+
 
     Route::delete('/suppliers/{supplier}', [
         SupplierController::class,
         'destroy',
     ])
-        ->middleware('permission:suppliers.delete')
+        ->middleware(
+            'permission:suppliers.delete'
+        )
         ->name('suppliers.destroy');
 
 
@@ -827,42 +1073,59 @@ Route::middleware([
         CustomerController::class,
         'index',
     ])
-        ->middleware('permission:customers.view')
+        ->middleware(
+            'permission:customers.view'
+        )
         ->name('customers.index');
+
 
     Route::get('/customers/create', [
         CustomerController::class,
         'create',
     ])
-        ->middleware('permission:customers.create')
+        ->middleware(
+            'permission:customers.create'
+        )
         ->name('customers.create');
+
 
     Route::post('/customers', [
         CustomerController::class,
         'store',
     ])
-        ->middleware('permission:customers.create')
+        ->middleware(
+            'permission:customers.create'
+        )
         ->name('customers.store');
+
 
     Route::get('/customers/{customer}/edit', [
         CustomerController::class,
         'edit',
     ])
-        ->middleware('permission:customers.edit')
+        ->middleware(
+            'permission:customers.edit'
+        )
         ->name('customers.edit');
+
 
     Route::put('/customers/{customer}', [
         CustomerController::class,
         'update',
     ])
-        ->middleware('permission:customers.edit')
+        ->middleware(
+            'permission:customers.edit'
+        )
         ->name('customers.update');
+
 
     Route::delete('/customers/{customer}', [
         CustomerController::class,
         'destroy',
     ])
-        ->middleware('permission:customers.delete')
+        ->middleware(
+            'permission:customers.delete'
+        )
         ->name('customers.destroy');
 
 
@@ -876,7 +1139,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'index',
     ])
-        ->middleware('permission:tv-vouchers.view')
+        ->middleware(
+            'permission:tv-vouchers.view'
+        )
         ->name('tv-vouchers.index');
 
 
@@ -890,7 +1155,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'report',
     ])
-        ->middleware('permission:tv-vouchers.view')
+        ->middleware(
+            'permission:tv-vouchers.view'
+        )
         ->name('tv-vouchers.report');
 
 
@@ -898,7 +1165,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'create',
     ])
-        ->middleware('permission:tv-vouchers.create')
+        ->middleware(
+            'permission:tv-vouchers.create'
+        )
         ->name('tv-vouchers.create');
 
 
@@ -906,7 +1175,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'store',
     ])
-        ->middleware('permission:tv-vouchers.create')
+        ->middleware(
+            'permission:tv-vouchers.create'
+        )
         ->name('tv-vouchers.store');
 
 
@@ -983,7 +1254,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'show',
     ])
-        ->middleware('permission:tv-vouchers.view')
+        ->middleware(
+            'permission:tv-vouchers.view'
+        )
         ->name('tv-vouchers.show');
 
 
@@ -991,7 +1264,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'edit',
     ])
-        ->middleware('permission:tv-vouchers.edit')
+        ->middleware(
+            'permission:tv-vouchers.edit'
+        )
         ->name('tv-vouchers.edit');
 
 
@@ -999,7 +1274,9 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'update',
     ])
-        ->middleware('permission:tv-vouchers.edit')
+        ->middleware(
+            'permission:tv-vouchers.edit'
+        )
         ->name('tv-vouchers.update');
 
 
@@ -1007,14 +1284,18 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'update',
     ])
-        ->middleware('permission:tv-vouchers.edit');
+        ->middleware(
+            'permission:tv-vouchers.edit'
+        );
 
 
     Route::delete('/tv-vouchers/{tvVoucher}', [
         TvVoucherTransactionController::class,
         'destroy',
     ])
-        ->middleware('permission:tv-vouchers.delete')
+        ->middleware(
+            'permission:tv-vouchers.delete'
+        )
         ->name('tv-vouchers.destroy');
 
 
@@ -1028,7 +1309,9 @@ Route::middleware([
         ReportController::class,
         'index',
     ])
-        ->middleware('permission:reports.view')
+        ->middleware(
+            'permission:reports.view'
+        )
         ->name('reports.index');
 
 
@@ -1036,6 +1319,9 @@ Route::middleware([
         ReportController::class,
         'exportExcel',
     ])
-        ->middleware('permission:reports.view')
+        ->middleware(
+            'permission:reports.view'
+        )
         ->name('reports.export-excel');
+
 });

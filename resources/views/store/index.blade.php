@@ -1127,61 +1127,38 @@
 
         .info-grid {
             display: grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
+            grid-template-columns: 1fr 1fr;
             gap: 14px;
+            align-items: stretch;
         }
 
         .info-card {
+            height: 100%;
             padding: 20px;
-
             border: 1px solid var(--border);
             border-radius: 11px;
-
             background: white;
         }
 
         .info-card h3 {
             margin-bottom: 10px;
-
             font-size: 14px;
-        }
-
-        .payment-chips {
-            display: flex;
-            flex-wrap: wrap;
-
-            gap: 7px;
-        }
-
-        .payment-chip {
-            padding: 7px 10px;
-
-            border-radius: 6px;
-
-            background: #eef2f7;
-
-            font-size: 10px;
-            font-weight: 700;
         }
 
         .steps {
             list-style: none;
+            margin: 0;
+            padding: 0;
         }
 
         .steps li {
             display: flex;
-
+            align-items: center;
             gap: 9px;
-
+            min-height: 40px;
             padding: 7px 0;
-
-            border-bottom:
-                1px solid
-                #f0f2f5;
-
+            border-bottom: 1px solid #f0f2f5;
+            color: #374151;
             font-size: 10px;
             line-height: 1.5;
         }
@@ -1192,19 +1169,14 @@
 
         .step-number {
             flex-shrink: 0;
-
             width: 21px;
             height: 21px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             border-radius: 50%;
-
-            background: #ffffff;
-            color: white;
-
+            background: var(--brand-red, #ef2f35);
+            color: #ffffff;
             font-size: 8px;
             font-weight: 800;
         }
@@ -5560,25 +5532,54 @@
                 </h3>
 
 
-                <div class="payment-chips">
+                <ul class="steps">
 
-                    <span class="payment-chip">
-                    Cash
-                    </span>
 
-                    <span class="payment-chip">
+                    <li>
+
+                        <span class="step-number">
+                            1
+                        </span>
+
+                        Cash
+
+                    </li>
+
+
+                    <li>
+
+                        <span class="step-number">
+                            2
+                        </span>
+
                         Transferénsia Banku
-                    </span>
 
-                    <span class="payment-chip">
+                    </li>
+
+
+                    <li>
+
+                        <span class="step-number">
+                            3
+                        </span>
+
                         Transferénsia Mosan
-                    </span>
 
-                    <span class="payment-chip">
+                    </li>
+
+
+                    <li>
+
+                        <span class="step-number">
+                            4
+                        </span>
+
                         Transferénsia T-PAY
-                    </span>
 
-                </div>
+                    </li>
+
+
+                </ul>
 
             </div>
 

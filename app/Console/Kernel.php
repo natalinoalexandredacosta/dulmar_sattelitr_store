@@ -21,6 +21,20 @@ class Kernel extends ConsoleKernel
             ->dailyAt('08:00')
             ->timezone('Asia/Dili')
             ->withoutOverlapping();
+
+
+        /*
+         * Report inventory bulanan otomatis.
+         * Dikirim setiap tanggal 1 jam 08:05 waktu Timor-Leste.
+         *
+         * Contoh:
+         * 1 September 2026 -> kirim report Agustus 2026.
+         */
+        $schedule
+            ->command('telegram:stock-monthly-report')
+            ->monthlyOn(1, '08:05')
+            ->timezone('Asia/Dili')
+            ->withoutOverlapping();
     }
 
     /**

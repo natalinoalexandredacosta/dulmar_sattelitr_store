@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashTransaction;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\StockOut;
+use App\Services\StockTelegramService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +14,12 @@ use Illuminate\Validation\ValidationException;
 
 class StockOutController extends Controller
 {
-    /**
-     * Daftar transaksi Stok Keluar.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         $validated = $request->validate([
@@ -23,12 +28,10 @@ class StockOutController extends Controller
                 'string',
                 'max:100',
             ],
-
             'start_date' => [
                 'nullable',
                 'date',
             ],
-
             'end_date' => [
                 'nullable',
                 'date',
@@ -48,11 +51,9 @@ class StockOutController extends Controller
                 'Tanggal selesai harus sama atau setelah tanggal mulai.',
         ]);
 
-        $search =
-            trim(
-                $validated['search']
-                ?? ''
-            );
+        $search = trim(
+            $validated['search'] ?? ''
+        );
 
         $startDate =
             $validated['start_date']
@@ -65,7 +66,7 @@ class StockOutController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | RINGKASAN TRANSAKSI
+        | SUMMARY
         |--------------------------------------------------------------------------
         */
 
@@ -79,27 +80,17 @@ class StockOutController extends Controller
             $endDate
         );
 
-
         $totalTransactions =
             (clone $summaryQuery)
                 ->count();
-
 
         $totalSales =
             (float) (clone $summaryQuery)
                 ->sum('subtotal');
 
-
         $totalProfit =
             (float) (clone $summaryQuery)
                 ->sum('total_profit');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN PEMBAYARAN CUSTOMER
-        |--------------------------------------------------------------------------
-        */
 
         $totalCustomerPaid =
             (float) (clone $summaryQuery)
@@ -107,19 +98,11 @@ class StockOutController extends Controller
                     'customer_paid_amount'
                 );
 
-
         $totalCustomerBalance =
             (float) (clone $summaryQuery)
                 ->sum(
                     'customer_balance'
                 );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN SETORAN PETUGAS
-        |--------------------------------------------------------------------------
-        */
 
         $totalStaffReceived =
             (float) (clone $summaryQuery)
@@ -127,13 +110,11 @@ class StockOutController extends Controller
                     'staff_received_amount'
                 );
 
-
         $totalDeposited =
             (float) (clone $summaryQuery)
                 ->sum(
                     'staff_deposited_amount'
                 );
-
 
         $totalNotDeposited =
             (float) (clone $summaryQuery)
@@ -144,7 +125,7 @@ class StockOutController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | DAFTAR TRANSAKSI
+        | TABLE
         |--------------------------------------------------------------------------
         */
 
@@ -162,8 +143,6 @@ class StockOutController extends Controller
             $endDate
         );
 
-
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $stockOuts */
         $stockOuts =
             $stockOutQuery
                 ->orderByDesc(
@@ -172,13 +151,12 @@ class StockOutController extends Controller
                 ->orderByDesc('id')
                 ->paginate(10);
 
-        $stockOuts
-            ->withQueryString();
+        $stockOuts->withQueryString();
 
 
         /*
         |--------------------------------------------------------------------------
-        | DATA GRAFIK
+        | CHART
         |--------------------------------------------------------------------------
         */
 
@@ -199,7 +177,6 @@ class StockOutController extends Controller
             $endDate
         );
 
-
         $chartData =
             $chartQuery
                 ->groupBy('product_id')
@@ -207,7 +184,6 @@ class StockOutController extends Controller
                     'total_quantity'
                 )
                 ->get();
-
 
         $chartLabels =
             $chartData
@@ -220,7 +196,6 @@ class StockOutController extends Controller
                 )
                 ->values();
 
-
         $chartValues =
             $chartData
                 ->pluck(
@@ -228,12 +203,10 @@ class StockOutController extends Controller
                 )
                 ->map(
                     function ($quantity) {
-                        return
-                            (int) $quantity;
+                        return (int) $quantity;
                     }
                 )
                 ->values();
-
 
         $totalStockOut =
             $chartValues->sum();
@@ -243,22 +216,17 @@ class StockOutController extends Controller
             'stock-outs.index',
             compact(
                 'stockOuts',
-
                 'chartLabels',
                 'chartValues',
                 'totalStockOut',
-
                 'totalTransactions',
                 'totalSales',
                 'totalProfit',
-
                 'totalCustomerPaid',
                 'totalCustomerBalance',
-
                 'totalStaffReceived',
                 'totalDeposited',
                 'totalNotDeposited',
-
                 'search',
                 'startDate',
                 'endDate'
@@ -267,9 +235,12 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Form tambah transaksi.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE
+    |--------------------------------------------------------------------------
+    */
+
     public function create()
     {
         $products =
@@ -283,13 +254,11 @@ class StockOutController extends Controller
                 )
                 ->get();
 
-
         $customers =
             Customer::orderBy(
                 'customer_name'
             )
                 ->get();
-
 
         return view(
             'stock-outs.create',
@@ -301,9 +270,12 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Simpan transaksi penjualan.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | STORE
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
         $validated =
@@ -311,197 +283,283 @@ class StockOutController extends Controller
                 $request
             );
 
-
-        DB::transaction(
-            function () use (
-                $validated
-            ) {
-
-                $product =
-                    Product::where(
-                        'id',
-                        $validated[
-                            'product_id'
-                        ]
-                    )
-                        ->lockForUpdate()
-                        ->firstOrFail();
-
-
-                $quantity =
-                    (int) $validated[
-                        'quantity'
-                    ];
-
-
-                if (
-                    $quantity
-                    > $product->stock
+        $stockOut =
+            DB::transaction(
+                function () use (
+                    $validated
                 ) {
-                    throw ValidationException::withMessages([
-                        'quantity' =>
-                            'Jumlah barang keluar melebihi stok tersedia. '
-                            . 'Stok saat ini: '
-                            . $product->stock
-                            . ' unit.',
-                    ]);
-                }
+                    $product =
+                        Product::where(
+                            'id',
+                            $validated[
+                                'product_id'
+                            ]
+                        )
+                            ->lockForUpdate()
+                            ->firstOrFail();
 
+                    $quantity =
+                        (int) $validated[
+                            'quantity'
+                        ];
 
-                $hargaBeli =
-                    (float) $product
-                        ->purchase_price;
+                    if (
+                        $quantity
+                        > (int) $product->stock
+                    ) {
+                        throw ValidationException::withMessages([
+                            'quantity' =>
+                                'Jumlah barang keluar melebihi stok tersedia. '
+                                . 'Stok saat ini: '
+                                . $product->stock
+                                . ' unit.',
+                        ]);
+                    }
 
+                    $hargaBeli =
+                        (float) $product
+                            ->purchase_price;
 
-                $hargaJual =
-                    (float) $product
-                        ->selling_price;
+                    $hargaJual =
+                        (float) $product
+                            ->selling_price;
 
-
-                $subtotal =
-                    $hargaJual
-                    * $quantity;
-
-
-                $totalProfit =
-                    (
+                    $subtotal =
                         $hargaJual
-                        - $hargaBeli
-                    )
-                    * $quantity;
+                        * $quantity;
+
+                    $totalProfit =
+                        (
+                            $hargaJual
+                            - $hargaBeli
+                        )
+                        * $quantity;
+
+                    $stockOut =
+                        StockOut::create([
+                            'product_id' =>
+                                $product->id,
+
+                            'customer_id' =>
+                                $validated[
+                                    'customer_id'
+                                ]
+                                ?? null,
+
+                            'quantity' =>
+                                $quantity,
+
+                            'unit_purchase_price' =>
+                                $hargaBeli,
+
+                            'unit_selling_price' =>
+                                $hargaJual,
+
+                            'subtotal' =>
+                                $subtotal,
+
+                            'total_profit' =>
+                                $totalProfit,
+
+                            'transaction_date' =>
+                                $validated[
+                                    'transaction_date'
+                                ],
+
+                            'notes' =>
+                                $validated[
+                                    'notes'
+                                ]
+                                ?? null,
+                        ]);
+
+                    $stockOut->sold_by =
+                        auth()->user()?->name
+                        ?? 'Tidak diketahui';
+
+                    $stockOut
+                        ->customer_paid_amount =
+                        0;
+
+                    $stockOut
+                        ->customer_balance =
+                        $subtotal;
+
+                    $stockOut
+                        ->customer_payment_status =
+                        'unpaid';
+
+                    $stockOut
+                        ->customer_paid_at =
+                        null;
+
+                    $stockOut
+                        ->staff_received_amount =
+                        0;
+
+                    $stockOut
+                        ->staff_deposited_amount =
+                        0;
+
+                    $stockOut
+                        ->staff_balance =
+                        0;
+
+                    $stockOut
+                        ->staff_deposit_status =
+                        'unpaid';
+
+                    $stockOut
+                        ->staff_deposited_at =
+                        null;
+
+                    $stockOut
+                        ->deposit_verified_by =
+                        null;
+
+                    $stockOut->save();
+
+                    $product->decrement(
+                        'stock',
+                        $quantity
+                    );
+
+                    return $stockOut;
+                }
+            );
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | SIMPAN TRANSAKSI DASAR
-                |--------------------------------------------------------------------------
-                */
+        /*
+        |--------------------------------------------------------------------------
+        | TELEGRAM BARANG TERJUAL
+        |--------------------------------------------------------------------------
+        */
 
-                $stockOut =
-                    StockOut::create([
-                        'product_id' =>
-                            $product->id,
+        $stockOut->load([
+            'product',
+            'customer',
+        ]);
 
-                        'customer_id' =>
-                            $validated[
-                                'customer_id'
-                            ]
-                            ?? null,
+        $productFresh =
+            $stockOut->product?->fresh();
 
-                        'quantity' =>
-                            $quantity,
+        if (
+            $productFresh
+            &&
+            !$this->isTvVoucherProduct(
+                $productFresh
+            )
+        ) {
+            $stockTelegram =
+                app(
+                    StockTelegramService::class
+                );
 
-                        'unit_purchase_price' =>
-                            $hargaBeli,
+            $productName =
+                $productFresh->product_name
+                ?: 'Produk tidak ditemukan';
 
-                        'unit_selling_price' =>
-                            $hargaJual,
+            $category =
+                $productFresh->category
+                ?: '-';
 
-                        'subtotal' =>
-                            $subtotal,
+            $customerName =
+                $stockOut->customer?->customer_name
+                ?? '-';
 
-                        'total_profit' =>
-                            $totalProfit,
+            $soldBy =
+                $stockOut->sold_by
+                ?: '-';
 
-                        'transaction_date' =>
-                            $validated[
-                                'transaction_date'
-                            ],
+            $quantity =
+                (int) $stockOut->quantity;
 
-                        'notes' =>
-                            $validated[
-                                'notes'
-                            ]
-                            ?? null,
-                    ]);
+            $unitPrice =
+                number_format(
+                    (float) $stockOut
+                        ->unit_selling_price,
+                    2
+                );
 
+            $subtotal =
+                number_format(
+                    (float) $stockOut
+                        ->subtotal,
+                    2
+                );
 
-                /*
-                |--------------------------------------------------------------------------
-                | DATA PETUGAS & PEMBAYARAN
-                |--------------------------------------------------------------------------
-                |
-                | Transaksi baru dianggap customer belum diverifikasi membayar.
-                |
-                */
+            $profit =
+                number_format(
+                    (float) $stockOut
+                        ->total_profit,
+                    2
+                );
 
-                $stockOut->sold_by =
-                    auth()->user()?->name
-                    ?? 'Tidak diketahui';
+            $transactionDate =
+                $stockOut->transaction_date
+                    ? $stockOut
+                        ->transaction_date
+                        ->format(
+                            'd-m-Y'
+                        )
+                    : '-';
 
+            $notes =
+                $stockOut->notes
+                ?: '-';
 
-                $stockOut
-                    ->customer_paid_amount =
-                    0;
-
-
-                $stockOut
-                    ->customer_balance =
-                    $subtotal;
-
-
-                $stockOut
-                    ->customer_payment_status =
-                    'unpaid';
-
-
-                $stockOut
-                    ->customer_paid_at =
-                    null;
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | SETORAN PETUGAS
-                |--------------------------------------------------------------------------
-                */
-
-                $stockOut
-                    ->staff_received_amount =
-                    0;
-
-
-                $stockOut
-                    ->staff_deposited_amount =
-                    0;
-
-
-                $stockOut
-                    ->staff_balance =
-                    0;
+            $stockTelegram->send(
+                "<b>📤 BARANG TERJUAL</b>\n\n"
+                . "<b>Produk:</b> {$productName}\n"
+                . "<b>Kategori:</b> {$category}\n"
+                . "<b>Jumlah Keluar:</b> -{$quantity} unit\n"
+                . "<b>Harga Satuan:</b> \${$unitPrice}\n"
+                . "<b>Total Penjualan:</b> \${$subtotal}\n"
+                . "<b>Profit:</b> \${$profit}\n"
+                . "<b>Customer:</b> {$customerName}\n"
+                . "<b>Petugas:</b> {$soldBy}\n"
+                . "<b>Tanggal:</b> {$transactionDate}\n"
+                . "<b>Stok Sekarang:</b> "
+                . (int) $productFresh->stock
+                . " unit\n"
+                . "<b>Catatan:</b> {$notes}\n\n"
+                . "✅ Transaksi penjualan berhasil dicatat."
+            );
 
 
-                $stockOut
-                    ->staff_deposit_status =
-                    'unpaid';
+            /*
+            |--------------------------------------------------------------------------
+            | LOW STOCK
+            |--------------------------------------------------------------------------
+            */
 
+            if (
+                (int) $productFresh->stock
+                <= 0
+            ) {
+                $stockTelegram->send(
+                    "<b>🔴 STOK HABIS</b>\n\n"
+                    . "<b>Produk:</b> {$productName}\n"
+                    . "<b>Kategori:</b> {$category}\n"
+                    . "<b>Stok Sekarang:</b> 0 unit\n\n"
+                    . "⚠️ Segera lakukan penambahan stok."
+                );
 
-                $stockOut
-                    ->staff_deposited_at =
-                    null;
-
-
-                $stockOut
-                    ->deposit_verified_by =
-                    null;
-
-
-                $stockOut->save();
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | KURANGI STOK
-                |--------------------------------------------------------------------------
-                */
-
-                $product->decrement(
-                    'stock',
-                    $quantity
+            } elseif (
+                (int) $productFresh->stock
+                <= 3
+            ) {
+                $stockTelegram->send(
+                    "<b>⚠️ STOK MENIPIS</b>\n\n"
+                    . "<b>Produk:</b> {$productName}\n"
+                    . "<b>Kategori:</b> {$category}\n"
+                    . "<b>Sisa Stok:</b> "
+                    . (int) $productFresh->stock
+                    . " unit\n\n"
+                    . "⚠️ Pertimbangkan untuk menambah stok."
                 );
             }
-        );
-
+        }
 
         return redirect()
             ->route(
@@ -514,9 +572,12 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Form edit transaksi.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
+
     public function edit(
         StockOut $stockOut
     ) {
@@ -536,13 +597,11 @@ class StockOutController extends Controller
                 )
                 ->get();
 
-
         $customers =
             Customer::orderBy(
                 'customer_name'
             )
                 ->get();
-
 
         return view(
             'stock-outs.edit',
@@ -555,9 +614,12 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Update transaksi.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
     public function update(
         Request $request,
         StockOut $stockOut
@@ -567,13 +629,11 @@ class StockOutController extends Controller
                 $request
             );
 
-
         DB::transaction(
             function () use (
                 $validated,
                 $stockOut
             ) {
-
                 $oldProduct =
                     Product::where(
                         'id',
@@ -583,18 +643,15 @@ class StockOutController extends Controller
                         ->lockForUpdate()
                         ->firstOrFail();
 
-
                 $newProductId =
                     (int) $validated[
                         'product_id'
                     ];
 
-
                 $newQuantity =
                     (int) $validated[
                         'quantity'
                     ];
-
 
                 $oldQuantity =
                     (int) $stockOut
@@ -603,7 +660,7 @@ class StockOutController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | PENYESUAIAN STOK
+                | PRODUCT SAMA
                 |--------------------------------------------------------------------------
                 */
 
@@ -612,13 +669,11 @@ class StockOutController extends Controller
                     ===
                     (int) $oldProduct->id
                 ) {
-
                     $availableStock =
                         (int) $oldProduct
                             ->stock
                         +
                         $oldQuantity;
-
 
                     if (
                         $newQuantity
@@ -633,15 +688,12 @@ class StockOutController extends Controller
                         ]);
                     }
 
-
                     $newProduct =
                         $oldProduct;
-
 
                     $newStock =
                         $availableStock
                         - $newQuantity;
-
 
                     $newProduct->update([
                         'stock' =>
@@ -650,12 +702,17 @@ class StockOutController extends Controller
 
                 } else {
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | PRODUCT BERUBAH
+                    |--------------------------------------------------------------------------
+                    */
+
                     $oldProduct
                         ->increment(
                             'stock',
                             $oldQuantity
                         );
-
 
                     $newProduct =
                         Product::where(
@@ -664,7 +721,6 @@ class StockOutController extends Controller
                         )
                             ->lockForUpdate()
                             ->firstOrFail();
-
 
                     if (
                         $newQuantity
@@ -679,7 +735,6 @@ class StockOutController extends Controller
                         ]);
                     }
 
-
                     $newProduct
                         ->decrement(
                             'stock',
@@ -690,7 +745,7 @@ class StockOutController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | HITUNG ULANG TRANSAKSI
+                | RECALCULATE
                 |--------------------------------------------------------------------------
                 */
 
@@ -698,16 +753,13 @@ class StockOutController extends Controller
                     (float) $newProduct
                         ->purchase_price;
 
-
                 $hargaJual =
                     (float) $newProduct
                         ->selling_price;
 
-
                 $newSubtotal =
                     $hargaJual
                     * $newQuantity;
-
 
                 $newProfit =
                     (
@@ -717,19 +769,12 @@ class StockOutController extends Controller
                     * $newQuantity;
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | PEMBAYARAN CUSTOMER YANG SUDAH ADA
-                |--------------------------------------------------------------------------
-                */
-
                 $customerPaid =
                     min(
                         (float) $stockOut
                             ->customer_paid_amount,
                         $newSubtotal
                     );
-
 
                 $customerBalance =
                     max(
@@ -738,6 +783,12 @@ class StockOutController extends Controller
                         0
                     );
 
+
+                /*
+                |--------------------------------------------------------------------------
+                | CUSTOMER STATUS
+                |--------------------------------------------------------------------------
+                */
 
                 if (
                     $customerPaid <= 0
@@ -770,13 +821,12 @@ class StockOutController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | UANG PETUGAS
+                | STAFF MONEY
                 |--------------------------------------------------------------------------
                 */
 
                 $staffReceived =
                     $customerPaid;
-
 
                 $staffDeposited =
                     min(
@@ -784,7 +834,6 @@ class StockOutController extends Controller
                             ->staff_deposited_amount,
                         $staffReceived
                     );
-
 
                 $staffBalance =
                     max(
@@ -797,7 +846,6 @@ class StockOutController extends Controller
                 if (
                     $staffReceived <= 0
                 ) {
-
                     $staffDepositStatus =
                         'unpaid';
 
@@ -810,7 +858,6 @@ class StockOutController extends Controller
                 } elseif (
                     $staffBalance <= 0
                 ) {
-
                     $staffDepositStatus =
                         'paid';
 
@@ -826,7 +873,6 @@ class StockOutController extends Controller
                 } elseif (
                     $staffDeposited > 0
                 ) {
-
                     $staffDepositStatus =
                         'partial';
 
@@ -839,7 +885,6 @@ class StockOutController extends Controller
                             ->deposit_verified_by;
 
                 } else {
-
                     $staffDepositStatus =
                         'unpaid';
 
@@ -853,13 +898,12 @@ class StockOutController extends Controller
 
                 /*
                 |--------------------------------------------------------------------------
-                | UPDATE TRANSAKSI
+                | SAVE
                 |--------------------------------------------------------------------------
                 */
 
                 $stockOut->product_id =
                     $newProduct->id;
-
 
                 $stockOut->customer_id =
                     $validated[
@@ -867,28 +911,22 @@ class StockOutController extends Controller
                     ]
                     ?? null;
 
-
                 $stockOut->quantity =
                     $newQuantity;
-
 
                 $stockOut
                     ->unit_purchase_price =
                     $hargaBeli;
 
-
                 $stockOut
                     ->unit_selling_price =
                     $hargaJual;
 
-
                 $stockOut->subtotal =
                     $newSubtotal;
 
-
                 $stockOut->total_profit =
                     $newProfit;
-
 
                 $stockOut
                     ->transaction_date =
@@ -896,75 +934,51 @@ class StockOutController extends Controller
                         'transaction_date'
                     ];
 
-
                 $stockOut->notes =
                     $validated[
                         'notes'
                     ]
                     ?? null;
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE PEMBAYARAN
-                |--------------------------------------------------------------------------
-                */
-
                 $stockOut
                     ->customer_paid_amount =
                     $customerPaid;
-
 
                 $stockOut
                     ->customer_balance =
                     $customerBalance;
 
-
                 $stockOut
                     ->customer_payment_status =
                     $customerStatus;
-
 
                 $stockOut
                     ->customer_paid_at =
                     $customerPaidAt;
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE SETORAN
-                |--------------------------------------------------------------------------
-                */
-
                 $stockOut
                     ->staff_received_amount =
                     $staffReceived;
-
 
                 $stockOut
                     ->staff_deposited_amount =
                     $staffDeposited;
 
-
                 $stockOut
                     ->staff_balance =
                     $staffBalance;
-
 
                 $stockOut
                     ->staff_deposit_status =
                     $staffDepositStatus;
 
-
                 $stockOut
                     ->staff_deposited_at =
                     $staffDepositedAt;
 
-
                 $stockOut
                     ->deposit_verified_by =
                     $depositVerifiedBy;
-
 
                 $stockOut->save();
             }
@@ -982,11 +996,24 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Verifikasi pembayaran customer.
-     *
-     * Digunakan oleh petugas yang menerima uang customer.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | VERIFY CUSTOMER PAYMENT
+    |--------------------------------------------------------------------------
+    |
+    | PENTING:
+    |
+    | Customer bayar kepada petugas.
+    |
+    | Uang BELUM MASUK Kas Inventory.
+    |
+    | Uang masih dianggap berada di tangan petugas sampai:
+    |
+    | Admin melakukan Konfirmasi Setoran.
+    |
+    |--------------------------------------------------------------------------
+    */
+
     public function verifyCustomerPayment(
         Request $request,
         StockOut $stockOut
@@ -1010,197 +1037,382 @@ class StockOutController extends Controller
             ]);
 
 
-        $total =
-            (float) $stockOut
-                ->subtotal;
-
-
-        $alreadyPaid =
-            (float) $stockOut
-                ->customer_paid_amount;
-
-
         $paymentAmount =
             (float) $validated[
                 'payment_amount'
             ];
 
 
-        $remaining =
-            max(
-                $total
-                - $alreadyPaid,
-                0
+        /*
+        |--------------------------------------------------------------------------
+        | DATABASE TRANSACTION + LOCK
+        |--------------------------------------------------------------------------
+        */
+
+        $result =
+            DB::transaction(
+                function () use (
+                    $stockOut,
+                    $paymentAmount
+                ) {
+                    $lockedStockOut =
+                        StockOut::query()
+                            ->lockForUpdate()
+                            ->findOrFail(
+                                $stockOut->id
+                            );
+
+
+                    $total =
+                        (float) $lockedStockOut
+                            ->subtotal;
+
+
+                    $alreadyPaid =
+                        (float) $lockedStockOut
+                            ->customer_paid_amount;
+
+
+                    $remaining =
+                        max(
+                            $total
+                            - $alreadyPaid,
+                            0
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | SUDAH LUNAS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $remaining <= 0
+                    ) {
+                        throw ValidationException::withMessages([
+                            'payment_amount' =>
+                                'Pembayaran customer sudah lunas.',
+                        ]);
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | JANGAN BAYAR LEBIH
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $paymentAmount
+                        > $remaining
+                    ) {
+                        throw ValidationException::withMessages([
+                            'payment_amount' =>
+                                'Jumlah pembayaran melebihi sisa tagihan customer sebesar $'
+                                . number_format(
+                                    $remaining,
+                                    2
+                                )
+                                . '.',
+                        ]);
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | TOTAL CUSTOMER BAYAR
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $newPaid =
+                        $alreadyPaid
+                        + $paymentAmount;
+
+
+                    $newCustomerBalance =
+                        max(
+                            $total
+                            - $newPaid,
+                            0
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CUSTOMER STATUS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $newCustomerBalance
+                        <= 0
+                    ) {
+                        $customerStatus =
+                            'paid';
+
+                        $customerPaidAt =
+                            now();
+
+                    } else {
+                        $customerStatus =
+                            'partial';
+
+                        $customerPaidAt =
+                            null;
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | UANG DI TANGAN PETUGAS
+                    |--------------------------------------------------------------------------
+                    |
+                    | staff_received_amount = total customer yang sudah bayar
+                    |
+                    | staff_deposited_amount = yang sudah disetor & diverifikasi
+                    |
+                    | staff_balance = uang yang masih di tangan petugas
+                    |
+                    */
+
+                    $staffReceived =
+                        $newPaid;
+
+
+                    $staffDeposited =
+                        min(
+                            (float) $lockedStockOut
+                                ->staff_deposited_amount,
+                            $staffReceived
+                        );
+
+
+                    $staffBalance =
+                        max(
+                            $staffReceived
+                            - $staffDeposited,
+                            0
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | STATUS SETORAN
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $staffBalance <= 0
+                        &&
+                        $staffReceived > 0
+                    ) {
+                        $staffDepositStatus =
+                            'paid';
+
+                    } elseif (
+                        $staffDeposited > 0
+                    ) {
+                        $staffDepositStatus =
+                            'partial';
+
+                    } else {
+                        $staffDepositStatus =
+                            'unpaid';
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | SAVE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $lockedStockOut
+                        ->customer_paid_amount =
+                        $newPaid;
+
+
+                    $lockedStockOut
+                        ->customer_balance =
+                        $newCustomerBalance;
+
+
+                    $lockedStockOut
+                        ->customer_payment_status =
+                        $customerStatus;
+
+
+                    $lockedStockOut
+                        ->customer_paid_at =
+                        $customerPaidAt;
+
+
+                    $lockedStockOut
+                        ->staff_received_amount =
+                        $staffReceived;
+
+
+                    $lockedStockOut
+                        ->staff_deposited_amount =
+                        $staffDeposited;
+
+
+                    $lockedStockOut
+                        ->staff_balance =
+                        $staffBalance;
+
+
+                    $lockedStockOut
+                        ->staff_deposit_status =
+                        $staffDepositStatus;
+
+
+                    $lockedStockOut->save();
+
+
+                    return [
+                        'stock_out' =>
+                            $lockedStockOut,
+
+                        'new_paid' =>
+                            $newPaid,
+
+                        'customer_balance' =>
+                            $newCustomerBalance,
+
+                        'staff_balance' =>
+                            $staffBalance,
+                    ];
+                }
             );
 
 
-        if ($remaining <= 0) {
-            return redirect()
-                ->route(
-                    'stock-outs.index'
-                )
-                ->with(
-                    'error',
-                    'Pembayaran customer sudah lunas.'
-                );
-        }
-
-
-        if (
-            $paymentAmount
-            > $remaining
-        ) {
-            return redirect()
-                ->route(
-                    'stock-outs.index'
-                )
-                ->with(
-                    'error',
-                    'Jumlah pembayaran melebihi sisa tagihan customer.'
-                );
-        }
+        $stockOutFresh =
+            $result[
+                'stock_out'
+            ];
 
 
         $newPaid =
-            $alreadyPaid
-            + $paymentAmount;
+            (float) $result[
+                'new_paid'
+            ];
 
 
         $newCustomerBalance =
-            max(
-                $total
-                - $newPaid,
-                0
-            );
+            (float) $result[
+                'customer_balance'
+            ];
+
+
+        $staffBalance =
+            (float) $result[
+                'staff_balance'
+            ];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TELEGRAM
+        |--------------------------------------------------------------------------
+        */
+
+        $stockOutFresh->load([
+            'product',
+            'customer',
+        ]);
+
+
+        $product =
+            $stockOutFresh->product;
 
 
         if (
-            $newCustomerBalance
-            <= 0
+            $product
+            &&
+            !$this->isTvVoucherProduct(
+                $product
+            )
         ) {
+            $stockTelegram =
+                app(
+                    StockTelegramService::class
+                );
 
-            $customerStatus =
-                'paid';
 
-            $customerPaidAt =
-                now();
+            $productName =
+                $product->product_name
+                ?: 'Produk tidak ditemukan';
 
-        } else {
 
-            $customerStatus =
-                'partial';
+            $customerName =
+                $stockOutFresh
+                    ->customer
+                    ?->customer_name
+                ?? '-';
 
-            $customerPaidAt =
-                null;
+
+            $paymentFormatted =
+                number_format(
+                    $paymentAmount,
+                    2
+                );
+
+
+            $totalPaidFormatted =
+                number_format(
+                    $newPaid,
+                    2
+                );
+
+
+            $remainingFormatted =
+                number_format(
+                    $newCustomerBalance,
+                    2
+                );
+
+
+            $staffBalanceFormatted =
+                number_format(
+                    $staffBalance,
+                    2
+                );
+
+
+            $statusText =
+                $newCustomerBalance <= 0
+                    ? 'LUNAS'
+                    : 'BAYAR SEBAGIAN';
+
+
+            $verifiedBy =
+                auth()->user()?->name
+                ?? 'Tidak diketahui';
+
+
+            $stockTelegram->send(
+                "<b>💳 VERIFIKASI PEMBAYARAN CUSTOMER</b>\n\n"
+                . "<b>Produk:</b> {$productName}\n"
+                . "<b>Customer:</b> {$customerName}\n"
+                . "<b>Pembayaran Baru:</b> \${$paymentFormatted}\n"
+                . "<b>Total Sudah Bayar:</b> \${$totalPaidFormatted}\n"
+                . "<b>Sisa Tagihan:</b> \${$remainingFormatted}\n"
+                . "<b>Status Customer:</b> {$statusText}\n"
+                . "<b>Uang di Tangan Petugas:</b> \${$staffBalanceFormatted}\n"
+                . "<b>Diverifikasi Oleh:</b> {$verifiedBy}\n\n"
+                . "⏳ Uang belum masuk Kas Inventory.\n"
+                . "Kas baru bertambah setelah setoran petugas dikonfirmasi Admin."
+            );
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | UANG CUSTOMER DIANGGAP DITERIMA PETUGAS
+        | RESPONSE
         |--------------------------------------------------------------------------
         */
-
-        $staffReceived =
-            $newPaid;
-
-
-        $staffDeposited =
-            min(
-                (float) $stockOut
-                    ->staff_deposited_amount,
-                $staffReceived
-            );
-
-
-        $staffBalance =
-            max(
-                $staffReceived
-                - $staffDeposited,
-                0
-            );
-
-
-        if (
-            $staffReceived > 0
-            &&
-            $staffBalance <= 0
-        ) {
-
-            $staffDepositStatus =
-                'paid';
-
-        } elseif (
-            $staffDeposited > 0
-        ) {
-
-            $staffDepositStatus =
-                'partial';
-
-        } else {
-
-            $staffDepositStatus =
-                'unpaid';
-        }
-
-
-        DB::transaction(
-            function () use (
-                $stockOut,
-                $newPaid,
-                $newCustomerBalance,
-                $customerStatus,
-                $customerPaidAt,
-                $staffReceived,
-                $staffDeposited,
-                $staffBalance,
-                $staffDepositStatus
-            ) {
-
-                $stockOut
-                    ->customer_paid_amount =
-                    $newPaid;
-
-
-                $stockOut
-                    ->customer_balance =
-                    $newCustomerBalance;
-
-
-                $stockOut
-                    ->customer_payment_status =
-                    $customerStatus;
-
-
-                $stockOut
-                    ->customer_paid_at =
-                    $customerPaidAt;
-
-
-                $stockOut
-                    ->staff_received_amount =
-                    $staffReceived;
-
-
-                $stockOut
-                    ->staff_deposited_amount =
-                    $staffDeposited;
-
-
-                $stockOut
-                    ->staff_balance =
-                    $staffBalance;
-
-
-                $stockOut
-                    ->staff_deposit_status =
-                    $staffDepositStatus;
-
-
-                $stockOut->save();
-            }
-        );
-
 
         if (
             $newCustomerBalance
@@ -1212,7 +1424,7 @@ class StockOutController extends Controller
                 )
                 ->with(
                     'success',
-                    'Pembayaran customer berhasil diverifikasi. Customer sudah lunas dan uang menunggu konfirmasi setoran Admin.'
+                    'Pembayaran customer berhasil diverifikasi dan customer sudah lunas. Uang belum masuk Kas Inventory karena masih menunggu setoran petugas.'
                 );
         }
 
@@ -1223,7 +1435,7 @@ class StockOutController extends Controller
             )
             ->with(
                 'success',
-                'Pembayaran customer berhasil diverifikasi sebagian. Sisa tagihan $'
+                'Pembayaran customer berhasil diverifikasi sebagian. Uang belum masuk Kas Inventory. Sisa tagihan $'
                 . number_format(
                     $newCustomerBalance,
                     2
@@ -1233,91 +1445,511 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Konfirmasi setoran petugas.
-     *
-     * Hanya Admin / user dengan permission
-     * stock-outs.confirm-deposit.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CONFIRM DEPOSIT
+    |--------------------------------------------------------------------------
+    |
+    | INI TITIK UANG MASUK KE KAS INVENTORY.
+    |
+    | Alur:
+    |
+    | Customer bayar
+    |       ↓
+    | Petugas memegang uang
+    |       ↓
+    | Admin konfirmasi setoran
+    |       ↓
+    | CashTransaction dibuat
+    |       ↓
+    | Kas Inventory bertambah
+    |
+    |--------------------------------------------------------------------------
+    */
+
     public function confirmDeposit(
         StockOut $stockOut
     ) {
-        $staffReceived =
-            (float) $stockOut
-                ->staff_received_amount;
+        $result =
+            DB::transaction(
+                function () use (
+                    $stockOut
+                ) {
+                    /*
+                    |--------------------------------------------------------------------------
+                    | LOCK STOCK OUT
+                    |--------------------------------------------------------------------------
+                    */
 
+                    $lockedStockOut =
+                        StockOut::query()
+                            ->lockForUpdate()
+                            ->findOrFail(
+                                $stockOut->id
+                            );
+
+
+                    $staffReceived =
+                        (float) $lockedStockOut
+                            ->staff_received_amount;
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | BELUM ADA UANG
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $staffReceived <= 0
+                    ) {
+                        throw ValidationException::withMessages([
+                            'deposit' =>
+                                'Belum ada uang customer yang diterima petugas.',
+                        ]);
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | BERAPA UANG YANG SUDAH MASUK KAS
+                    |--------------------------------------------------------------------------
+                    |
+                    | Kita hitung berdasarkan CashTransaction.
+                    |
+                    | Ini penting untuk mencegah double count.
+                    |
+                    */
+
+                    $alreadyRecordedCash =
+                        (float) CashTransaction::query()
+                            ->where(
+                                'source',
+                                'sale_deposit'
+                            )
+                            ->where(
+                                'reference_id',
+                                $lockedStockOut->id
+                            )
+                            ->where(
+                                'approval_status',
+                                'approved'
+                            )
+                            ->sum(
+                                'amount'
+                            );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | UANG BARU YANG BELUM MASUK KAS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $cashToAdd =
+                        max(
+                            $staffReceived
+                            - $alreadyRecordedCash,
+                            0
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | SUDAH SEMUA MASUK
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        $cashToAdd <= 0
+                    ) {
+                        throw ValidationException::withMessages([
+                            'deposit' =>
+                                'Seluruh setoran transaksi ini sudah dikonfirmasi dan sudah masuk Kas Inventory.',
+                        ]);
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | PRODUCT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $product =
+                        Product::query()
+                            ->find(
+                                $lockedStockOut
+                                    ->product_id
+                            );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | UPDATE SETORAN STOCK OUT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $lockedStockOut
+                        ->staff_deposited_amount =
+                        $staffReceived;
+
+
+                    $lockedStockOut
+                        ->staff_balance =
+                        0;
+
+
+                    $lockedStockOut
+                        ->staff_deposit_status =
+                        'paid';
+
+
+                    $lockedStockOut
+                        ->staff_deposited_at =
+                        now();
+
+
+                    $verifiedBy =
+                        auth()->user()?->name
+                        ?? 'Administrator';
+
+
+                    $lockedStockOut
+                        ->deposit_verified_by =
+                        $verifiedBy;
+
+
+                    $lockedStockOut->save();
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CASH INVENTORY
+                    |--------------------------------------------------------------------------
+                    |
+                    | TV Voucher tidak masuk ke Kas Inventory private.
+                    |
+                    */
+
+                    $cashTransaction =
+                        null;
+
+
+                    if (
+                        $product
+                        &&
+                        !$this->isTvVoucherProduct(
+                            $product
+                        )
+                    ) {
+                        /*
+                        |--------------------------------------------------------------------------
+                        | CUSTOMER
+                        |--------------------------------------------------------------------------
+                        */
+
+                        $customer =
+                            $lockedStockOut
+                                ->customer()
+                                ->first();
+
+
+                        $customerName =
+                            $customer?->customer_name
+                            ?? '-';
+
+
+                        $productName =
+                            $product->product_name
+                            ?? 'Produk';
+
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | CREATE CASH
+                        |--------------------------------------------------------------------------
+                        |
+                        | Langsung approved karena tindakan confirmDeposit
+                        | adalah verifikasi Admin bahwa uang fisik sudah diterima.
+                        |
+                        */
+
+                        $cashTransaction =
+                            CashTransaction::create([
+                                'type' =>
+                                    'income',
+
+                                'source' =>
+                                    'sale_deposit',
+
+                                'category' =>
+                                    'Penjualan Barang',
+
+                                'borrower_name' =>
+                                    null,
+
+                                'loan_reference' =>
+                                    null,
+
+                                'reference_id' =>
+                                    $lockedStockOut->id,
+
+                                'amount' =>
+                                    $cashToAdd,
+
+                                'description' =>
+                                    'Setoran penjualan '
+                                    . $productName
+                                    . ' - Customer '
+                                    . $customerName
+                                    . ' - Transaksi #'
+                                    . $lockedStockOut->id,
+
+                                'approval_status' =>
+                                    'approved',
+
+                                'approved_by' =>
+                                    $verifiedBy,
+
+                                'approved_at' =>
+                                    now(),
+
+                                'rejection_reason' =>
+                                    null,
+
+                                /*
+                                |--------------------------------------------------------------------------
+                                | TANGGAL CASH
+                                |--------------------------------------------------------------------------
+                                |
+                                | Gunakan tanggal aktual saat uang fisik masuk Kas.
+                                |
+                                */
+
+                                'transaction_date' =>
+                                    now()
+                                        ->toDateString(),
+
+                                'created_by' =>
+                                    $verifiedBy,
+                            ]);
+                    }
+
+
+                    return [
+                        'stock_out' =>
+                            $lockedStockOut,
+
+                        'product' =>
+                            $product,
+
+                        'cash_transaction' =>
+                            $cashTransaction,
+
+                        'cash_to_add' =>
+                            $cashToAdd,
+
+                        'already_recorded_cash' =>
+                            $alreadyRecordedCash,
+                    ];
+                }
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESULT
+        |--------------------------------------------------------------------------
+        */
+
+        $stockOutFresh =
+            $result[
+                'stock_out'
+            ];
+
+
+        $cashTransaction =
+            $result[
+                'cash_transaction'
+            ];
+
+
+        $cashToAdd =
+            (float) $result[
+                'cash_to_add'
+            ];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD RELATION
+        |--------------------------------------------------------------------------
+        */
+
+        $stockOutFresh->load([
+            'product',
+            'customer',
+        ]);
+
+
+        $product =
+            $stockOutFresh->product;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TELEGRAM
+        |--------------------------------------------------------------------------
+        */
 
         if (
-            $staffReceived
-            <= 0
-        ) {
-            return redirect()
-                ->route(
-                    'stock-outs.index'
-                )
-                ->with(
-                    'error',
-                    'Belum ada uang customer yang diterima petugas.'
-                );
-        }
-
-
-        if (
-            (float) $stockOut
-                ->staff_balance
-            <= 0
+            $product
             &&
-            $stockOut
-                ->staff_deposit_status
-            === 'paid'
+            !$this->isTvVoucherProduct(
+                $product
+            )
         ) {
-            return redirect()
-                ->route(
-                    'stock-outs.index'
-                )
-                ->with(
-                    'error',
-                    'Setoran transaksi ini sudah dikonfirmasi sebelumnya.'
+            $stockTelegram =
+                app(
+                    StockTelegramService::class
                 );
+
+
+            $productName =
+                $product->product_name
+                ?: 'Produk tidak ditemukan';
+
+
+            $customerName =
+                $stockOutFresh
+                    ->customer
+                    ?->customer_name
+                ?? '-';
+
+
+            $soldBy =
+                $stockOutFresh->sold_by
+                ?: '-';
+
+
+            $verifiedBy =
+                $stockOutFresh
+                    ->deposit_verified_by
+                ?: (
+                    auth()->user()?->name
+                    ?? 'Administrator'
+                );
+
+
+            $received =
+                number_format(
+                    (float) $stockOutFresh
+                        ->staff_received_amount,
+                    2
+                );
+
+
+            $deposited =
+                number_format(
+                    (float) $stockOutFresh
+                        ->staff_deposited_amount,
+                    2
+                );
+
+
+            $balance =
+                number_format(
+                    (float) $stockOutFresh
+                        ->staff_balance,
+                    2
+                );
+
+
+            $cashAddedFormatted =
+                number_format(
+                    $cashToAdd,
+                    2
+                );
+
+
+            $cashBalance =
+                CashTransaction::currentBalance();
+
+
+            $cashBalanceFormatted =
+                number_format(
+                    $cashBalance,
+                    2
+                );
+
+
+            $depositedAt =
+                $stockOutFresh
+                    ->staff_deposited_at
+                    ? $stockOutFresh
+                        ->staff_deposited_at
+                        ->format(
+                            'd-m-Y H:i'
+                        )
+                    : now()->format(
+                        'd-m-Y H:i'
+                    );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TELEGRAM SETORAN
+            |--------------------------------------------------------------------------
+            */
+
+            $stockTelegram->send(
+                "<b>💵 SETORAN PETUGAS DIKONFIRMASI</b>\n\n"
+                . "<b>Produk:</b> {$productName}\n"
+                . "<b>Customer:</b> {$customerName}\n"
+                . "<b>Petugas Penjualan:</b> {$soldBy}\n"
+                . "<b>Uang Diterima Petugas:</b> \${$received}\n"
+                . "<b>Sudah Disetor:</b> \${$deposited}\n"
+                . "<b>Belum Disetor:</b> \${$balance}\n"
+                . "<b>Cash Baru Masuk:</b> +\${$cashAddedFormatted}\n"
+                . "<b>Status:</b> SUDAH SETOR\n"
+                . "<b>Dikonfirmasi Oleh:</b> {$verifiedBy}\n"
+                . "<b>Waktu Setoran:</b> {$depositedAt}\n\n"
+                . "✅ Uang fisik sudah diterima dan diverifikasi Admin."
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TELEGRAM CASH INVENTORY
+            |--------------------------------------------------------------------------
+            */
+
+            if ($cashTransaction) {
+                $cashId =
+                    $cashTransaction->id;
+
+
+                $stockTelegram->send(
+                    "<b>💰 CASH INVENTORY BERTAMBAH</b>\n\n"
+                    . "<b>Cash ID:</b> #{$cashId}\n"
+                    . "<b>Sumber:</b> Setoran Penjualan\n"
+                    . "<b>Produk:</b> {$productName}\n"
+                    . "<b>Customer:</b> {$customerName}\n"
+                    . "<b>Cash Masuk:</b> +\${$cashAddedFormatted}\n"
+                    . "<b>Saldo Kas Sekarang:</b> \${$cashBalanceFormatted}\n"
+                    . "<b>Diverifikasi Oleh:</b> {$verifiedBy}\n\n"
+                    . "✅ Setoran otomatis tercatat di Kas Inventory."
+                );
+            }
         }
 
 
-        DB::transaction(
-            function () use (
-                $stockOut,
-                $staffReceived
-            ) {
-
-                $stockOut
-                    ->staff_deposited_amount =
-                    $staffReceived;
-
-
-                $stockOut
-                    ->staff_balance =
-                    0;
-
-
-                $stockOut
-                    ->staff_deposit_status =
-                    'paid';
-
-
-                $stockOut
-                    ->staff_deposited_at =
-                    now();
-
-
-                $stockOut
-                    ->deposit_verified_by =
-                    auth()->user()?->name
-                    ?? 'Administrator';
-
-
-                $stockOut->save();
-            }
-        );
-
+        /*
+        |--------------------------------------------------------------------------
+        | RESPONSE
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route(
@@ -1327,26 +1959,28 @@ class StockOutController extends Controller
                 'success',
                 'Setoran dari '
                 . (
-                    $stockOut->sold_by
+                    $stockOutFresh->sold_by
                     ?: 'petugas'
                 )
-                . ' berhasil dikonfirmasi lunas.'
+                . ' berhasil dikonfirmasi. Cash sebesar $'
+                . number_format(
+                    $cashToAdd,
+                    2
+                )
+                . ' otomatis masuk ke Kas Inventory.'
             );
     }
 
 
-    /**
-     * Hapus transaksi.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | DESTROY
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy(
         StockOut $stockOut
     ) {
-        /*
-        |--------------------------------------------------------------------------
-        | TRANSAKSI YANG SUDAH MEMILIKI PEMBAYARAN TIDAK BOLEH DIHAPUS
-        |--------------------------------------------------------------------------
-        */
-
         if (
             (float) $stockOut
                 ->customer_paid_amount
@@ -1367,11 +2001,41 @@ class StockOutController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | TAMBAHAN PROTEKSI CASH
+        |--------------------------------------------------------------------------
+        */
+
+        $hasCashTransaction =
+            CashTransaction::query()
+                ->where(
+                    'source',
+                    'sale_deposit'
+                )
+                ->where(
+                    'reference_id',
+                    $stockOut->id
+                )
+                ->exists();
+
+
+        if ($hasCashTransaction) {
+            return redirect()
+                ->route(
+                    'stock-outs.index'
+                )
+                ->with(
+                    'error',
+                    'Transaksi tidak dapat dihapus karena sudah memiliki pencatatan Kas Inventory.'
+                );
+        }
+
+
         DB::transaction(
             function () use (
                 $stockOut
             ) {
-
                 $product =
                     Product::where(
                         'id',
@@ -1383,7 +2047,6 @@ class StockOutController extends Controller
 
 
                 if ($product) {
-
                     $product->increment(
                         'stock',
                         $stockOut
@@ -1408,9 +2071,12 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Filter index.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY FILTER
+    |--------------------------------------------------------------------------
+    */
+
     private function applyIndexFilters(
         Builder $query,
         string $search,
@@ -1420,14 +2086,12 @@ class StockOutController extends Controller
         if (
             $search !== ''
         ) {
-
             $query->where(
                 function (
                     Builder $query
                 ) use (
                     $search
                 ) {
-
                     $query
                         ->whereHas(
                             'product',
@@ -1436,7 +2100,6 @@ class StockOutController extends Controller
                             ) use (
                                 $search
                             ) {
-
                                 $productQuery
                                     ->where(
                                         'product_name',
@@ -1447,7 +2110,6 @@ class StockOutController extends Controller
                                     );
                             }
                         )
-
                         ->orWhereHas(
                             'customer',
                             function (
@@ -1455,7 +2117,6 @@ class StockOutController extends Controller
                             ) use (
                                 $search
                             ) {
-
                                 $customerQuery
                                     ->where(
                                         'customer_name',
@@ -1466,7 +2127,6 @@ class StockOutController extends Controller
                                     );
                             }
                         )
-
                         ->orWhere(
                             'sold_by',
                             'like',
@@ -1474,7 +2134,6 @@ class StockOutController extends Controller
                             . $search
                             . '%'
                         )
-
                         ->orWhere(
                             'deposit_verified_by',
                             'like',
@@ -1482,7 +2141,6 @@ class StockOutController extends Controller
                             . $search
                             . '%'
                         )
-
                         ->orWhere(
                             'notes',
                             'like',
@@ -1496,7 +2154,6 @@ class StockOutController extends Controller
 
 
         if ($startDate) {
-
             $query->whereDate(
                 'transaction_date',
                 '>=',
@@ -1506,7 +2163,6 @@ class StockOutController extends Controller
 
 
         if ($endDate) {
-
             $query->whereDate(
                 'transaction_date',
                 '<=',
@@ -1516,9 +2172,12 @@ class StockOutController extends Controller
     }
 
 
-    /**
-     * Validasi transaksi stok keluar.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE STOCK OUT
+    |--------------------------------------------------------------------------
+    */
+
     private function validateStockOut(
         Request $request
     ): array {
@@ -1577,5 +2236,54 @@ class StockOutController extends Controller
             'notes.max' =>
                 'Catatan maksimal 1.000 karakter.',
         ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK TV VOUCHER
+    |--------------------------------------------------------------------------
+    */
+
+    private function isTvVoucherProduct(
+        ?Product $product
+    ): bool {
+        if (!$product) {
+            return false;
+        }
+
+
+        $category =
+            strtolower(
+                trim(
+                    (string) (
+                        $product->category
+                        ?? ''
+                    )
+                )
+            );
+
+
+        $productName =
+            strtolower(
+                trim(
+                    (string) (
+                        $product->product_name
+                        ?? ''
+                    )
+                )
+            );
+
+
+        return
+            str_contains(
+                $category,
+                'tv voucher'
+            )
+            ||
+            str_contains(
+                $productName,
+                'tv voucher'
+            );
     }
 }
