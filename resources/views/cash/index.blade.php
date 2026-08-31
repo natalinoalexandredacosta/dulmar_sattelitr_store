@@ -571,6 +571,33 @@
             color: #991b1b;
         }
 
+        .badge-historical {
+            background: #e0f2fe;
+            color: #075985;
+            border: 1px solid #bae6fd;
+        }
+
+        .row-historical {
+            background: #f8fbff;
+        }
+
+        .historical-box {
+            margin-top: 7px;
+            padding: 8px 9px;
+            border: 1px solid #bae6fd;
+            border-radius: 6px;
+            background: #f0f9ff;
+            color: #075985;
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+        .historical-title {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 800;
+        }
+
         .category-badge {
             display: inline-block;
             padding: 5px 9px;
@@ -1397,11 +1424,23 @@
 
                     @forelse($transactions as $transaction)
 
+                        @php
+                            $isHistorical =
+                                $transaction->approved_by === 'System - Data Historis';
+                        @endphp
 
                         <tr
                             class="
                                 {{ $transaction->approval_status === 'pending' ? 'row-pending' : '' }}
-                                {{ $transaction->approval_status === 'rejected' ? 'row-rejected' : '' }}
+
+                                {{
+                                    $transaction->approval_status === 'rejected'
+                                    && !$isHistorical
+                                        ? 'row-rejected'
+                                        : ''
+                                }}
+
+                                {{ $isHistorical ? 'row-historical' : '' }}
                             "
                         >
 
@@ -1497,7 +1536,13 @@
 
                             <td>
 
-                                @if(
+                                @if($isHistorical)
+
+                                    <span class="badge badge-historical">
+                                        📦 Historis
+                                    </span>
+
+                                @elseif(
                                     $transaction->approval_status
                                     === 'pending'
                                 )
@@ -1533,7 +1578,26 @@
                                 </div>
 
 
-                                @if(
+                                @if($isHistorical)
+
+                                    <div class="historical-box">
+
+                                        <span class="historical-title">
+                                            📦 Transaksi Historis
+                                        </span>
+
+                                        Pembelian stok ini terjadi sebelum sistem
+                                        Kas Inventory mulai digunakan.
+
+                                        <br>
+
+                                        Transaksi ini tidak mengurangi saldo
+                                        Kas Inventory saat ini.
+
+                                    </div>
+
+
+                                @elseif(
                                     $transaction->approval_status === 'rejected'
                                     &&
                                     $transaction->rejection_reason
