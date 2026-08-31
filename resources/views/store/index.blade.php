@@ -4421,6 +4421,20 @@
             }
         }
 
+    
+        /* MOBILE NAV FINAL - HIDE CATEGORY ITEMS */
+        @media (max-width: 820px) {
+            .nav-category-item { display: none !important; }
+            .nav-inner {
+                justify-content: flex-start !important;
+                gap: 0 !important;
+                padding-left: 6px !important;
+                padding-right: 6px !important;
+                overflow-x: auto !important;
+            }
+            .nav-inner a { flex: 0 0 auto !important; }
+        }
+
     </style>
 </head>
 
@@ -4791,7 +4805,7 @@
                                 $categoryItem
                         ]
                     ) }}"
-                    class="{{
+                    class="nav-category-item {{
                         ($category ?? '')
                         === $categoryItem
                             ? 'active'
