@@ -6,6 +6,7 @@ use App\Models\CashTransaction;
 use App\Services\StockTelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CashController extends Controller
 {
@@ -204,8 +205,7 @@ class CashController extends Controller
         if (
             $type === 'expense'
             &&
-            $amount
-                > CashTransaction::currentBalance()
+            $amount > CashTransaction::currentBalance()
         ) {
             return redirect()
                 ->route('cash.index')
@@ -331,61 +331,83 @@ class CashController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $cashTransaction =
-            CashTransaction::create([
-                'type' =>
-                    $type,
+        try {
+            $cashTransaction =
+                CashTransaction::create([
+                    'type' =>
+                        $type,
 
-                'source' =>
-                    $source,
+                    'source' =>
+                        $source,
 
-                'category' =>
-                    $category,
+                    'category' =>
+                        $category,
 
-                'borrower_name' =>
-                    $borrowerName !== ''
-                        ? $borrowerName
-                        : null,
+                    'borrower_name' =>
+                        $borrowerName !== ''
+                            ? $borrowerName
+                            : null,
 
-                'loan_reference' =>
-                    $validated['loan_reference']
-                    ?? null,
+                    'loan_reference' =>
+                        $validated['loan_reference']
+                        ?? null,
 
-                'reference_id' =>
-                    null,
+                    'reference_id' =>
+                        null,
 
-                'amount' =>
-                    $amount,
+                    'amount' =>
+                        $amount,
 
-                'description' =>
-                    $description,
+                    'description' =>
+                        $description,
 
-                'approval_status' =>
-                    $approvalStatus,
+                    'approval_status' =>
+                        $approvalStatus,
 
-                'approved_by' =>
-                    $approvalStatus === 'approved'
-                        ? (
-                            auth()->user()?->name
-                            ?? 'Administrator'
-                        )
-                        : null,
+                    'approved_by' =>
+                        $approvalStatus === 'approved'
+                            ? (
+                                auth()->user()?->name
+                                ?? 'Administrator'
+                            )
+                            : null,
 
-                'approved_at' =>
-                    $approvalStatus === 'approved'
-                        ? now()
-                        : null,
+                    'approved_at' =>
+                        $approvalStatus === 'approved'
+                            ? now()
+                            : null,
 
-                'rejection_reason' =>
-                    null,
+                    'rejection_reason' =>
+                        null,
 
-                'transaction_date' =>
-                    now()->toDateString(),
+                    'transaction_date' =>
+                        now()->toDateString(),
 
-                'created_by' =>
-                    auth()->user()?->name
-                    ?? 'Administrator',
-            ]);
+                    'created_by' =>
+                        auth()->user()?->name
+                        ?? 'Administrator',
+                ]);
+
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('cash.index')
+                ->withInput()
+                ->with(
+                    'error',
+                    'Transaksi kas gagal disimpan.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REFRESH DATA
+        |--------------------------------------------------------------------------
+        */
+
+        $cashTransaction->refresh();
 
 
         /*
@@ -415,6 +437,15 @@ class CashController extends Controller
         |--------------------------------------------------------------------------
         | CASH MASUK LANGSUNG APPROVED
         |--------------------------------------------------------------------------
+        |
+        | Cash Masuk manual, Modal Tambahan, Saldo Awal,
+        | Penjualan Barang, Pengembalian Dana dan lain-lain
+        | yang tidak membutuhkan approval akan langsung
+        | menambah saldo.
+        |
+        | Setelah tersimpan, Telegram akan mendapatkan
+        | notifikasi Cash Masuk.
+        |
         */
 
         $this->sendApprovedIncomeTelegram(
@@ -573,8 +604,7 @@ class CashController extends Controller
         if (
             $newType === 'expense'
             &&
-            $newAmount
-                > CashTransaction::currentBalance()
+            $newAmount > CashTransaction::currentBalance()
         ) {
             return redirect()
                 ->route('cash.index')
@@ -605,8 +635,7 @@ class CashController extends Controller
                 'loan_repayment';
 
         } elseif (
-            $cashTransaction->source
-                === 'opening_balance'
+            $cashTransaction->source === 'opening_balance'
             &&
             $newType === 'income'
         ) {
@@ -742,9 +771,12 @@ class CashController extends Controller
         ]);
 
 
+        $cashTransaction->refresh();
+
+
         /*
         |--------------------------------------------------------------------------
-        | TELEGRAM REQUEST BARU
+        | TELEGRAM SETELAH EDIT
         |--------------------------------------------------------------------------
         */
 
@@ -752,7 +784,12 @@ class CashController extends Controller
             $needsApproval
         ) {
             $this->sendPendingTelegram(
-                $cashTransaction->fresh()
+                $cashTransaction
+            );
+
+        } else {
+            $this->sendApprovedIncomeTelegram(
+                $cashTransaction
             );
         }
 
@@ -812,8 +849,7 @@ class CashController extends Controller
                         */
 
                         if (
-                            $transaction->type
-                            === 'expense'
+                            $transaction->type === 'expense'
                         ) {
                             $balance =
                                 CashTransaction::currentBalance();
@@ -840,26 +876,18 @@ class CashController extends Controller
                         |--------------------------------------------------------------------------
                         */
 
-                        $transaction
-                            ->approval_status =
+                        $transaction->approval_status =
                             'approved';
 
-
-                        $transaction
-                            ->approved_by =
+                        $transaction->approved_by =
                             auth()->user()?->name
                             ?? 'Administrator';
 
-
-                        $transaction
-                            ->approved_at =
+                        $transaction->approved_at =
                             now();
 
-
-                        $transaction
-                            ->rejection_reason =
+                        $transaction->rejection_reason =
                             null;
-
 
                         $transaction->save();
 
@@ -876,8 +904,7 @@ class CashController extends Controller
 
 
             if (
-                $result['status']
-                === 'not_found'
+                $result['status'] === 'not_found'
             ) {
                 return redirect()
                     ->route('cash.index')
@@ -889,8 +916,7 @@ class CashController extends Controller
 
 
             if (
-                $result['status']
-                === 'already_processed'
+                $result['status'] === 'already_processed'
             ) {
                 return redirect()
                     ->route('cash.index')
@@ -902,8 +928,7 @@ class CashController extends Controller
 
 
             if (
-                $result['status']
-                === 'insufficient_balance'
+                $result['status'] === 'insufficient_balance'
             ) {
                 return redirect()
                     ->route('cash.index')
@@ -923,9 +948,14 @@ class CashController extends Controller
             $transaction =
                 $result['transaction'];
 
-
             $transaction->refresh();
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | TELEGRAM APPROVED
+            |--------------------------------------------------------------------------
+            */
 
             $this->sendApprovedTelegram(
                 $transaction
@@ -955,8 +985,6 @@ class CashController extends Controller
 
     /**
      * Reject transaksi dari website.
-     *
-     * Alasan wajib diisi.
      */
     public function reject(
         Request $request,
@@ -1016,36 +1044,22 @@ class CashController extends Controller
                         }
 
 
-                        /*
-                        |--------------------------------------------------------------------------
-                        | REJECT
-                        |--------------------------------------------------------------------------
-                        */
-
-                        $transaction
-                            ->approval_status =
+                        $transaction->approval_status =
                             'rejected';
 
-
-                        $transaction
-                            ->approved_by =
+                        $transaction->approved_by =
                             auth()->user()?->name
                             ?? 'Administrator';
 
-
-                        $transaction
-                            ->approved_at =
+                        $transaction->approved_at =
                             now();
 
-
-                        $transaction
-                            ->rejection_reason =
+                        $transaction->rejection_reason =
                             trim(
                                 $validated[
                                     'rejection_reason'
                                 ]
                             );
-
 
                         $transaction->save();
 
@@ -1062,8 +1076,7 @@ class CashController extends Controller
 
 
             if (
-                $result['status']
-                === 'not_found'
+                $result['status'] === 'not_found'
             ) {
                 return redirect()
                     ->route('cash.index')
@@ -1075,8 +1088,7 @@ class CashController extends Controller
 
 
             if (
-                $result['status']
-                === 'already_processed'
+                $result['status'] === 'already_processed'
             ) {
                 return redirect()
                     ->route('cash.index')
@@ -1091,9 +1103,14 @@ class CashController extends Controller
             $transaction =
                 $result['transaction'];
 
-
             $transaction->refresh();
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | TELEGRAM REJECTED
+            |--------------------------------------------------------------------------
+            */
 
             $this->sendRejectedTelegram(
                 $transaction
@@ -1139,18 +1156,10 @@ class CashController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | OPENING BALANCE
-        |--------------------------------------------------------------------------
-        */
-
         if (
-            $cashTransaction->source
-            === 'opening_balance'
+            $cashTransaction->source === 'opening_balance'
             &&
-            $cashTransaction->type
-            === 'income'
+            $cashTransaction->type === 'income'
         ) {
             $balanceAfterDelete =
                 CashTransaction::currentBalance()
@@ -1185,119 +1194,111 @@ class CashController extends Controller
 
     /**
      * Telegram request pending.
-     *
-     * Pesan dikirim dengan tombol:
-     * ✅ APPROVE
-     * ❌ TOLAK
      */
     private function sendPendingTelegram(
         CashTransaction $transaction
     ): void {
-        $telegram =
-            app(
-                StockTelegramService::class
-            );
+        try {
+            $telegram =
+                app(
+                    StockTelegramService::class
+                );
 
 
-        $amount =
-            number_format(
-                (float) $transaction->amount,
-                2
-            );
+            $amount =
+                number_format(
+                    (float) $transaction->amount,
+                    2
+                );
 
 
-        $category =
-            e(
-                $transaction->category
-                ?: '-'
-            );
+            $category =
+                e(
+                    $transaction->category
+                    ?: '-'
+                );
 
 
-        $description =
-            e(
-                $transaction->description
-                ?: '-'
-            );
+            $description =
+                e(
+                    $transaction->description
+                    ?: '-'
+                );
 
 
-        $createdBy =
-            e(
-                $transaction->created_by
-                ?: '-'
-            );
+            $createdBy =
+                e(
+                    $transaction->created_by
+                    ?: '-'
+                );
 
 
-        $borrower =
-            e(
-                $transaction->borrower_name
-                ?: '-'
-            );
+            $borrower =
+                e(
+                    $transaction->borrower_name
+                    ?: '-'
+                );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TITLE
-        |--------------------------------------------------------------------------
-        */
+            if (
+                $transaction->category === 'Pinjaman Keluar'
+            ) {
+                $title =
+                    '🟠 PERMINTAAN PINJAMAN KAS';
 
-        if (
-            $transaction->category
-            === 'Pinjaman Keluar'
-        ) {
-            $title =
-                '🟠 PERMINTAAN PINJAMAN KAS';
+            } elseif (
+                $transaction->category === 'Pengembalian Pinjaman'
+            ) {
+                $title =
+                    '🔵 PENGEMBALIAN PINJAMAN';
 
-        } elseif (
-            $transaction->category
-            === 'Pengembalian Pinjaman'
-        ) {
-            $title =
-                '🔵 PENGEMBALIAN PINJAMAN';
-
-        } else {
-            $title =
-                '💸 PERMINTAAN CASH KELUAR';
-        }
+            } else {
+                $title =
+                    '💸 PERMINTAAN CASH KELUAR';
+            }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MESSAGE
-        |--------------------------------------------------------------------------
-        */
-
-        $message =
-            "<b>{$title}</b>\n\n"
-            . "<b>ID:</b> #{$transaction->id}\n"
-            . "<b>Kategori:</b> {$category}\n"
-            . "<b>Jumlah:</b> \${$amount}\n";
+            $message =
+                "<b>{$title}</b>\n\n"
+                . "<b>ID:</b> #{$transaction->id}\n"
+                . "<b>Kategori:</b> {$category}\n"
+                . "<b>Jumlah:</b> \${$amount}\n";
 
 
-        if (
-            $transaction->isLoanTransaction()
-        ) {
+            if (
+                $transaction->isLoanTransaction()
+            ) {
+                $message .=
+                    "<b>Peminjam:</b> {$borrower}\n";
+            }
+
+
             $message .=
-                "<b>Peminjam:</b> {$borrower}\n";
-        }
+                "<b>Keterangan:</b> {$description}\n"
+                . "<b>Dibuat Oleh:</b> {$createdBy}\n\n"
+                . "<b>Status:</b> ⏳ MENUNGGU PERSETUJUAN";
 
 
-        $message .=
-            "<b>Keterangan:</b> {$description}\n"
-            . "<b>Dibuat Oleh:</b> {$createdBy}\n\n"
-            . "<b>Status:</b> ⏳ MENUNGGU PERSETUJUAN";
+            $telegram
+                ->sendCashApprovalRequest(
+                    $transaction->id,
+                    $message
+                );
 
+        } catch (\Throwable $e) {
+            Log::error(
+                'Gagal mengirim Telegram pending Kas Inventory.',
+                [
+                    'cash_transaction_id' =>
+                        $transaction->id,
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEND WITH BUTTON
-        |--------------------------------------------------------------------------
-        */
-
-        $telegram
-            ->sendCashApprovalRequest(
-                $transaction->id,
-                $message
+                    'error' =>
+                        $e->getMessage(),
+                ]
             );
+
+            report($e);
+        }
     }
 
 
@@ -1307,110 +1308,119 @@ class CashController extends Controller
     private function sendApprovedTelegram(
         CashTransaction $transaction
     ): void {
-        $telegram =
-            app(
-                StockTelegramService::class
-            );
+        try {
+            $telegram =
+                app(
+                    StockTelegramService::class
+                );
 
 
-        $amount =
-            number_format(
-                (float) $transaction->amount,
-                2
-            );
+            $amount =
+                number_format(
+                    (float) $transaction->amount,
+                    2
+                );
 
 
-        $balance =
-            number_format(
-                CashTransaction::currentBalance(),
-                2
-            );
+            $balance =
+                number_format(
+                    CashTransaction::currentBalance(),
+                    2
+                );
 
 
-        $category =
-            e(
-                $transaction->category
-                ?: '-'
-            );
+            $category =
+                e(
+                    $transaction->category
+                    ?: '-'
+                );
 
 
-        $approvedBy =
-            e(
-                $transaction->approved_by
-                ?: 'Administrator'
-            );
+            $description =
+                e(
+                    $transaction->description
+                    ?: '-'
+                );
 
 
-        $borrower =
-            e(
-                $transaction->borrower_name
-                ?: '-'
-            );
+            $approvedBy =
+                e(
+                    $transaction->approved_by
+                    ?: 'Administrator'
+                );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TITLE
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $transaction->category
-            === 'Pinjaman Keluar'
-        ) {
-            $title =
-                '✅ PINJAMAN KAS DISETUJUI';
-
-        } elseif (
-            $transaction->category
-            === 'Pengembalian Pinjaman'
-        ) {
-            $title =
-                '✅ PENGEMBALIAN PINJAMAN DISETUJUI';
-
-        } elseif (
-            $transaction->type
-            === 'expense'
-        ) {
-            $title =
-                '✅ CASH KELUAR DISETUJUI';
-
-        } else {
-            $title =
-                '✅ CASH MASUK DISETUJUI';
-        }
+            $borrower =
+                e(
+                    $transaction->borrower_name
+                    ?: '-'
+                );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | MESSAGE
-        |--------------------------------------------------------------------------
-        */
+            if (
+                $transaction->category === 'Pinjaman Keluar'
+            ) {
+                $title =
+                    '✅ PINJAMAN KAS DISETUJUI';
 
-        $message =
-            "<b>{$title}</b>\n\n"
-            . "<b>ID:</b> #{$transaction->id}\n"
-            . "<b>Kategori:</b> {$category}\n"
-            . "<b>Jumlah:</b> \${$amount}\n";
+            } elseif (
+                $transaction->category === 'Pengembalian Pinjaman'
+            ) {
+                $title =
+                    '✅ PENGEMBALIAN PINJAMAN DISETUJUI';
+
+            } elseif (
+                $transaction->type === 'expense'
+            ) {
+                $title =
+                    '✅ CASH KELUAR DISETUJUI';
+
+            } else {
+                $title =
+                    '✅ CASH MASUK DISETUJUI';
+            }
 
 
-        if (
-            $transaction->isLoanTransaction()
-        ) {
+            $message =
+                "<b>{$title}</b>\n\n"
+                . "<b>ID:</b> #{$transaction->id}\n"
+                . "<b>Kategori:</b> {$category}\n"
+                . "<b>Jumlah:</b> \${$amount}\n";
+
+
+            if (
+                $transaction->isLoanTransaction()
+            ) {
+                $message .=
+                    "<b>Peminjam:</b> {$borrower}\n";
+            }
+
+
             $message .=
-                "<b>Peminjam:</b> {$borrower}\n";
+                "<b>Keterangan:</b> {$description}\n"
+                . "<b>Disetujui Oleh:</b> {$approvedBy}\n"
+                . "<b>Saldo Kas Sekarang:</b> \${$balance}\n\n"
+                . "✅ Transaksi berhasil diproses.";
+
+
+            $telegram->send(
+                $message
+            );
+
+        } catch (\Throwable $e) {
+            Log::error(
+                'Gagal mengirim Telegram approved Kas Inventory.',
+                [
+                    'cash_transaction_id' =>
+                        $transaction->id,
+
+                    'error' =>
+                        $e->getMessage(),
+                ]
+            );
+
+            report($e);
         }
-
-
-        $message .=
-            "<b>Disetujui Oleh:</b> {$approvedBy}\n"
-            . "<b>Saldo Kas Sekarang:</b> \${$balance}\n\n"
-            . "✅ Transaksi berhasil diproses.";
-
-
-        $telegram->send(
-            $message
-        );
     }
 
 
@@ -1420,113 +1430,240 @@ class CashController extends Controller
     private function sendRejectedTelegram(
         CashTransaction $transaction
     ): void {
-        $telegram =
-            app(
-                StockTelegramService::class
-            );
+        try {
+            $telegram =
+                app(
+                    StockTelegramService::class
+                );
 
 
-        $amount =
-            number_format(
-                (float) $transaction->amount,
-                2
-            );
+            $amount =
+                number_format(
+                    (float) $transaction->amount,
+                    2
+                );
 
 
-        $category =
-            e(
-                $transaction->category
-                ?: '-'
-            );
+            $category =
+                e(
+                    $transaction->category
+                    ?: '-'
+                );
 
 
-        $rejectedBy =
-            e(
-                $transaction->approved_by
-                ?: 'Administrator'
-            );
+            $rejectedBy =
+                e(
+                    $transaction->approved_by
+                    ?: 'Administrator'
+                );
 
 
-        $reason =
-            e(
-                $transaction->rejection_reason
-                ?: '-'
-            );
+            $reason =
+                e(
+                    $transaction->rejection_reason
+                    ?: '-'
+                );
 
 
-        $borrower =
-            e(
-                $transaction->borrower_name
-                ?: '-'
-            );
+            $borrower =
+                e(
+                    $transaction->borrower_name
+                    ?: '-'
+                );
 
 
-        $message =
-            "<b>❌ PERMINTAAN KAS DITOLAK</b>\n\n"
-            . "<b>ID:</b> #{$transaction->id}\n"
-            . "<b>Kategori:</b> {$category}\n"
-            . "<b>Jumlah:</b> \${$amount}\n";
+            $message =
+                "<b>❌ PERMINTAAN KAS DITOLAK</b>\n\n"
+                . "<b>ID:</b> #{$transaction->id}\n"
+                . "<b>Kategori:</b> {$category}\n"
+                . "<b>Jumlah:</b> \${$amount}\n";
 
 
-        if (
-            $transaction->isLoanTransaction()
-        ) {
+            if (
+                $transaction->isLoanTransaction()
+            ) {
+                $message .=
+                    "<b>Peminjam:</b> {$borrower}\n";
+            }
+
+
             $message .=
-                "<b>Peminjam:</b> {$borrower}\n";
+                "<b>Ditolak Oleh:</b> {$rejectedBy}\n"
+                . "<b>Alasan:</b> {$reason}\n\n"
+                . "Saldo kas tidak berubah.";
+
+
+            $telegram->send(
+                $message
+            );
+
+        } catch (\Throwable $e) {
+            Log::error(
+                'Gagal mengirim Telegram rejected Kas Inventory.',
+                [
+                    'cash_transaction_id' =>
+                        $transaction->id,
+
+                    'error' =>
+                        $e->getMessage(),
+                ]
+            );
+
+            report($e);
         }
-
-
-        $message .=
-            "<b>Ditolak Oleh:</b> {$rejectedBy}\n"
-            . "<b>Alasan:</b> {$reason}\n\n"
-            . "Saldo kas tidak berubah.";
-
-
-        $telegram->send(
-            $message
-        );
     }
 
 
     /**
-     * Telegram cash masuk biasa.
+     * Telegram Cash Masuk langsung approved.
      */
     private function sendApprovedIncomeTelegram(
         CashTransaction $transaction
     ): void {
-        $telegram =
-            app(
-                StockTelegramService::class
+        try {
+            $telegram =
+                app(
+                    StockTelegramService::class
+                );
+
+
+            $amount =
+                number_format(
+                    (float) $transaction->amount,
+                    2
+                );
+
+
+            $balance =
+                number_format(
+                    CashTransaction::currentBalance(),
+                    2
+                );
+
+
+            $category =
+                e(
+                    $transaction->category
+                    ?: '-'
+                );
+
+
+            $description =
+                e(
+                    $transaction->description
+                    ?: '-'
+                );
+
+
+            $createdBy =
+                e(
+                    $transaction->created_by
+                    ?: 'Administrator'
+                );
+
+
+            $date =
+                optional(
+                    $transaction->transaction_date
+                )->format('d-m-Y')
+                ?: now()->format('d-m-Y');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TITLE
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $transaction->source === 'opening_balance'
+            ) {
+                $title =
+                    '💰 SALDO AWAL KAS';
+
+            } elseif (
+                $transaction->category === 'Modal Tambahan'
+            ) {
+                $title =
+                    '💵 MODAL TAMBAHAN';
+
+            } elseif (
+                $transaction->category === 'Penjualan Barang'
+            ) {
+                $title =
+                    '💰 CASH PENJUALAN MASUK';
+
+            } else {
+                $title =
+                    '💰 CASH MASUK';
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MESSAGE
+            |--------------------------------------------------------------------------
+            */
+
+            $message =
+                "<b>{$title}</b>\n\n"
+                . "<b>ID:</b> #{$transaction->id}\n"
+                . "<b>Tanggal:</b> {$date}\n"
+                . "<b>Kategori:</b> {$category}\n"
+                . "<b>Jumlah:</b> +\${$amount}\n"
+                . "<b>Keterangan:</b> {$description}\n"
+                . "<b>Dibuat Oleh:</b> {$createdBy}\n"
+                . "<b>Status:</b> ✅ DISETUJUI\n\n"
+                . "<b>Saldo Kas Sekarang:</b> \${$balance}";
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SEND
+            |--------------------------------------------------------------------------
+            */
+
+            $telegram->send(
+                $message
             );
 
 
-        $amount =
-            number_format(
-                (float) $transaction->amount,
-                2
+            Log::info(
+                'Telegram Cash Masuk Kas Inventory dikirim.',
+                [
+                    'cash_transaction_id' =>
+                        $transaction->id,
+
+                    'category' =>
+                        $transaction->category,
+
+                    'amount' =>
+                        (float) $transaction->amount,
+
+                    'balance' =>
+                        CashTransaction::currentBalance(),
+                ]
             );
 
+        } catch (\Throwable $e) {
+            Log::error(
+                'Gagal mengirim Telegram Cash Masuk Kas Inventory.',
+                [
+                    'cash_transaction_id' =>
+                        $transaction->id,
 
-        $balance =
-            number_format(
-                CashTransaction::currentBalance(),
-                2
+                    'category' =>
+                        $transaction->category,
+
+                    'amount' =>
+                        (float) $transaction->amount,
+
+                    'error' =>
+                        $e->getMessage(),
+                ]
             );
 
-
-        $category =
-            e(
-                $transaction->category
-                ?: '-'
-            );
-
-
-        $telegram->send(
-            "<b>💰 CASH MASUK</b>\n\n"
-            . "<b>Kategori:</b> {$category}\n"
-            . "<b>Jumlah:</b> +\${$amount}\n"
-            . "<b>Saldo Kas:</b> \${$balance}\n\n"
-            . "✅ Cash berhasil dicatat."
-        );
+            report($e);
+        }
     }
 }

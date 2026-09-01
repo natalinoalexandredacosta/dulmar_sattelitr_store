@@ -18,6 +18,7 @@ class CashTransaction extends Model
         'approval_status',
         'approved_by',
         'approved_at',
+        'rejection_reason',
         'transaction_date',
         'created_by',
     ];
@@ -28,41 +29,30 @@ class CashTransaction extends Model
         'approved_at' => 'datetime',
     ];
 
+
     /**
-     * Total semua cash masuk.
-     *
-     * Hanya transaksi yang approved yang dihitung.
+     * Total semua cash masuk approved.
      */
     public static function totalIncome(): float
     {
-        return (float) static::where(
-            'type',
-            'income'
-        )
-            ->where(
-                'approval_status',
-                'approved'
-            )
+        return (float) static::query()
+            ->where('type', 'income')
+            ->where('approval_status', 'approved')
             ->sum('amount');
     }
 
+
     /**
-     * Total semua cash keluar.
-     *
-     * Hanya transaksi yang approved yang dihitung.
+     * Total semua cash keluar approved.
      */
     public static function totalExpense(): float
     {
-        return (float) static::where(
-            'type',
-            'expense'
-        )
-            ->where(
-                'approval_status',
-                'approved'
-            )
+        return (float) static::query()
+            ->where('type', 'expense')
+            ->where('approval_status', 'approved')
             ->sum('amount');
     }
+
 
     /**
      * Saldo cash saat ini.
@@ -77,106 +67,96 @@ class CashTransaction extends Model
             static::totalExpense();
     }
 
+
     /**
-     * Total cash keluar yang masih pending.
+     * Total cash keluar pending.
      */
     public static function totalPendingExpense(): float
     {
-        return (float) static::where(
-            'type',
-            'expense'
-        )
-            ->where(
-                'approval_status',
-                'pending'
-            )
+        return (float) static::query()
+            ->where('type', 'expense')
+            ->where('approval_status', 'pending')
             ->sum('amount');
     }
 
+
     /**
-     * Total cash masuk yang masih pending.
-     *
-     * Contoh:
-     * pengembalian pinjaman yang belum disetujui.
+     * Total cash masuk pending.
      */
     public static function totalPendingIncome(): float
     {
-        return (float) static::where(
-            'type',
-            'income'
-        )
-            ->where(
-                'approval_status',
-                'pending'
-            )
+        return (float) static::query()
+            ->where('type', 'income')
+            ->where('approval_status', 'pending')
             ->sum('amount');
     }
 
+
     /**
-     * Cek apakah transaksi cash masuk.
+     * Cash masuk.
      */
     public function isIncome(): bool
     {
-        return
-            $this->type === 'income';
+        return $this->type === 'income';
     }
 
+
     /**
-     * Cek apakah transaksi cash keluar.
+     * Cash keluar.
      */
     public function isExpense(): bool
     {
-        return
-            $this->type === 'expense';
+        return $this->type === 'expense';
     }
 
+
     /**
-     * Status pending.
+     * Pending.
      */
     public function isPending(): bool
     {
-        return
-            $this->approval_status === 'pending';
+        return $this->approval_status === 'pending';
     }
 
+
     /**
-     * Status approved.
+     * Approved.
      */
     public function isApproved(): bool
     {
-        return
-            $this->approval_status === 'approved';
+        return $this->approval_status === 'approved';
     }
 
+
     /**
-     * Status rejected.
+     * Rejected.
      */
     public function isRejected(): bool
     {
-        return
-            $this->approval_status === 'rejected';
+        return $this->approval_status === 'rejected';
     }
 
+
     /**
-     * Cek apakah transaksi merupakan pinjaman keluar.
+     * Pinjaman keluar.
      */
     public function isLoan(): bool
     {
-        return
-            $this->category === 'Pinjaman Keluar';
+        return $this->category === 'Pinjaman Keluar';
     }
 
+
     /**
-     * Cek apakah transaksi merupakan pengembalian pinjaman.
+     * Pengembalian pinjaman.
      */
     public function isLoanRepayment(): bool
     {
-        return
-            $this->category === 'Pengembalian Pinjaman';
+        return $this->category === 'Pengembalian Pinjaman';
     }
 
+
     /**
-     * Cek apakah transaksi berkaitan dengan pinjaman.
+     * Transaksi pinjaman.
      */
     public function isLoanTransaction(): bool
     {
@@ -186,11 +166,12 @@ class CashTransaction extends Model
             $this->isLoanRepayment();
     }
 
+
     /**
-     * Transaksi yang dibuat manual.
+     * Transaksi manual.
      *
-     * Transaksi otomatis dari penjualan / stok
-     * nanti tidak boleh diedit atau dihapus langsung.
+     * Hanya source berikut yang dianggap dibuat manual
+     * dari halaman Kas Inventory.
      */
     public function isManual(): bool
     {
@@ -207,11 +188,50 @@ class CashTransaction extends Model
         );
     }
 
+
     /**
-     * Transaksi yang masih pending boleh diedit.
+     * Cash masuk manual yang boleh dikoreksi.
      *
-     * Jika sudah approved atau rejected,
-     * sebaiknya tidak diedit lagi.
+     * Contoh:
+     * - Saldo Awal
+     * - Modal Tambahan
+     * - Pendapatan Lain
+     * - Pengembalian Dana
+     *
+     * Transaksi otomatis dari penjualan tidak termasuk
+     * karena source-nya bukan manual_cash_in.
+     */
+    public function isEditableManualIncome(): bool
+    {
+        return in_array(
+            $this->source,
+            [
+                'opening_balance',
+                'manual_cash_in',
+            ],
+            true
+        )
+        &&
+        $this->type === 'income';
+    }
+
+
+    /**
+     * Apakah transaksi boleh diedit.
+     *
+     * Aturan:
+     *
+     * 1. Transaksi otomatis tidak boleh diedit.
+     *
+     * 2. Opening Balance boleh diedit.
+     *
+     * 3. Cash Masuk manual boleh diedit
+     *    meskipun sudah approved.
+     *
+     * 4. Cash Keluar manual / Pinjaman hanya
+     *    boleh diedit selama masih pending.
+     *
+     * 5. Transaksi rejected tidak boleh diedit.
      */
     public function canEdit(): bool
     {
@@ -219,17 +239,54 @@ class CashTransaction extends Model
             return false;
         }
 
-        if ($this->source === 'opening_balance') {
+
+        if ($this->isRejected()) {
+            return false;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CASH MASUK MANUAL
+        |--------------------------------------------------------------------------
+        |
+        | Cash masuk manual langsung approved.
+        | Tetap boleh dikoreksi apabila terjadi salah input.
+        |
+        */
+
+        if ($this->isEditableManualIncome()) {
             return true;
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CASH KELUAR / PINJAMAN
+        |--------------------------------------------------------------------------
+        |
+        | Hanya boleh diedit sebelum proses approval.
+        |
+        */
 
         return $this->isPending();
     }
 
+
     /**
-     * Transaksi manual yang masih pending boleh dihapus.
+     * Apakah transaksi boleh dihapus.
      *
-     * Opening balance tetap boleh dikoreksi.
+     * Untuk keamanan saldo:
+     *
+     * - Transaksi otomatis tidak boleh dihapus.
+     * - Opening balance boleh dihapus,
+     *   tetapi controller tetap mengecek agar
+     *   saldo tidak menjadi negatif.
+     * - Cash masuk manual approved tidak kita
+     *   izinkan hapus langsung.
+     *   Gunakan Edit bila salah jumlah.
+     * - Cash keluar/pinjaman hanya bisa dihapus
+     *   selama masih pending.
      */
     public function canDelete(): bool
     {
@@ -237,9 +294,45 @@ class CashTransaction extends Model
             return false;
         }
 
-        if ($this->source === 'opening_balance') {
+
+        if ($this->isRejected()) {
+            return false;
+        }
+
+
+        if (
+            $this->source === 'opening_balance'
+            &&
+            $this->type === 'income'
+        ) {
             return true;
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CASH MASUK MANUAL APPROVED
+        |--------------------------------------------------------------------------
+        |
+        | Jangan hapus langsung.
+        | Gunakan tombol Edit untuk koreksi.
+        |
+        */
+
+        if (
+            $this->source === 'manual_cash_in'
+            &&
+            $this->type === 'income'
+        ) {
+            return false;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CASH KELUAR / PINJAMAN
+        |--------------------------------------------------------------------------
+        */
 
         return $this->isPending();
     }
