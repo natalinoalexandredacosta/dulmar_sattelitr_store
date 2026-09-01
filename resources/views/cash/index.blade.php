@@ -701,8 +701,94 @@
         }
 
         .pagination-wrapper {
+            width: 100%;
+            max-width: 100%;
             padding: 18px 20px;
             border-top: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        /* =========================================================
+           FIX LARAVEL PAGINATION
+        ========================================================= */
+
+        .pagination-wrapper nav {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .pagination-wrapper nav > div {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /*
+        Laravel pagination menggunakan SVG untuk Previous / Next.
+        Karena halaman ini tidak menggunakan Tailwind,
+        ukuran SVG harus kita atur manual.
+        */
+        .pagination-wrapper svg {
+            display: inline-block !important;
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            min-height: 18px !important;
+            max-width: 18px !important;
+            max-height: 18px !important;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+
+        .pagination-wrapper a,
+        .pagination-wrapper span {
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .pagination-wrapper a {
+            text-decoration: none;
+        }
+
+        .pagination-wrapper p {
+            margin: 0;
+        }
+
+        .pagination-wrapper * {
+            box-sizing: border-box;
+        }
+
+        /* =========================================================
+           FIX PAGE OVERFLOW
+        ========================================================= */
+
+        html,
+        body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .main-content {
+            position: relative;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: visible;
         }
 
 
