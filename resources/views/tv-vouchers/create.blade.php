@@ -510,40 +510,104 @@
             <h1>Dulmar Satellite Store</h1>
 
             <nav class="sidebar-menu">
-                <a href="{{ route('dashboard') }}">
-                    Dashboard
-                </a>
+                @can('dashboard.view')
+                    <a
+                        href="{{ route('dashboard') }}"
+                        class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                    >
+                        Dashboard
+                    </a>
+                @endcan
 
-                <a href="{{ route('products.index') }}">
-                    Daftar Barang
-                </a>
+                @can('products.view')
+                    <a
+                        href="{{ route('products.index') }}"
+                        class="{{ request()->routeIs('products.*') ? 'active' : '' }}"
+                    >
+                        Daftar Barang
+                    </a>
+                @endcan
 
-                <a href="{{ route('stock-ins.index') }}">
-                    Stok Masuk
-                </a>
+                @can('promo-campaigns.view')
+                    <a
+                        href="{{ route('promo-campaigns.index') }}"
+                        class="{{ request()->routeIs('promo-campaigns.*') ? 'active' : '' }}"
+                    >
+                        Promo Campaign
+                    </a>
+                @endcan
 
-                <a href="{{ route('stock-outs.index') }}">
-                    Stok Keluar
-                </a>
+                @can('stock-ins.view')
+                    <a
+                        href="{{ route('stock-ins.index') }}"
+                        class="{{ request()->routeIs('stock-ins.*') ? 'active' : '' }}"
+                    >
+                        Stok Masuk
+                    </a>
+                @endcan
 
-                <a
-                    href="{{ route('tv-vouchers.index') }}"
-                    class="active"
-                >
-                    TV Voucher
-                </a>
+                @can('stock-outs.view')
+                    <a
+                        href="{{ route('stock-outs.index') }}"
+                        class="{{ request()->routeIs('stock-outs.*') ? 'active' : '' }}"
+                    >
+                        Stok Keluar
+                    </a>
+                @endcan
 
-                <a href="{{ route('suppliers.index') }}">
-                    Supplier Barang
-                </a>
+                @can('tv-vouchers.view')
+                    <a
+                        href="{{ route('tv-vouchers.index') }}"
+                        class="{{ request()->routeIs('tv-vouchers.*') ? 'active' : '' }}"
+                    >
+                        TV Voucher
+                    </a>
+                @endcan
 
-                <a href="{{ route('customers.index') }}">
-                    Pelanggan
-                </a>
+                @can('cash-admin.view')
+                    <a
+                        href="{{ route('cash-accounts.index') }}"
+                        class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
+                    >
+                        Kas Admin
+                    </a>
+                @endcan
 
-                <a href="{{ route('reports.index') }}">
-                    Laporan
-                </a>
+                @can('suppliers.view')
+                    <a
+                        href="{{ route('suppliers.index') }}"
+                        class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}"
+                    >
+                        Supplier Barang
+                    </a>
+                @endcan
+
+                @can('customers.view')
+                    <a
+                        href="{{ route('customers.index') }}"
+                        class="{{ request()->routeIs('customers.*') ? 'active' : '' }}"
+                    >
+                        Pelanggan
+                    </a>
+                @endcan
+
+                @can('reports.view')
+                    <a
+                        href="{{ route('reports.index') }}"
+                        class="{{ request()->routeIs('reports.*') ? 'active' : '' }}"
+                    >
+                        Laporan
+                    </a>
+                @endcan
+
+                @can('users.view')
+                    <a
+                        href="{{ route('users.index') }}"
+                        class="{{ request()->routeIs('users.*') ? 'active' : '' }}"
+                    >
+                        User Management
+                    </a>
+                @endcan
             </nav>
 
             <form
@@ -568,7 +632,7 @@
                 <h2>Tambah TV Voucher</h2>
 
                 <p>
-                    Catat transaksi isi ulang receiver pelanggan.
+                    Catat transaksi isi ulang TV Voucher pelanggan.
                 </p>
             </div>
 
@@ -584,7 +648,9 @@
                 @endif
 
                 <div class="information">
-                    Nama pelanggan, nomor HP, dan tempat tinggal dapat diisi manual.
+                    Nama pelanggan diisi manual oleh petugas pada saat melakukan
+                    isi saldo. Nomor receiver tidak perlu dicatat pada form karena
+                    bukti transaksi akan diunggah setelah proses isi ulang.
                     Pembayaran customer dan setoran petugas tetap dicatat terpisah.
                 </div>
 
@@ -630,7 +696,7 @@
                             >
 
                             <span class="help-text">
-                                Nama pelanggan diisi manual.
+                                Isi manual nama pelanggan pada saat melakukan isi saldo.
                             </span>
                         </div>
 
@@ -650,6 +716,10 @@
                                 maxlength="255"
                                 required
                             >
+
+                            <span class="help-text">
+                                Isi nama petugas yang melakukan pengisian saldo.
+                            </span>
                         </div>
 
                         <div class="form-group">
@@ -692,23 +762,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="receiver_number">
-                                Nomor Receiver
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                id="receiver_number"
-                                name="receiver_number"
-                                class="form-control"
-                                value="{{ old('receiver_number') }}"
-                                maxlength="100"
-                                required
-                            >
-                        </div>
-
-                        <div class="form-group">
                             <label for="package_name">
                                 Nama Paket
                                 <span class="required">*</span>
@@ -720,6 +773,7 @@
                                 name="package_name"
                                 class="form-control"
                                 value="{{ old('package_name') }}"
+                                placeholder="Masukkan nama paket"
                                 maxlength="255"
                                 required
                             >
@@ -1115,7 +1169,7 @@
                             >
 
                             <span class="help-text">
-                                Bukti wajib diunggah jika status isi ulang Berhasil.
+                                Upload bukti hasil isi saldo. Bukti wajib diunggah jika status isi ulang Berhasil.
                             </span>
 
                             <img

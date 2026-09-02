@@ -108,11 +108,6 @@ class TvVoucherTransactionController extends Controller
                             '%' . $search . '%'
                         )
                         ->orWhere(
-                            'receiver_number',
-                            'like',
-                            '%' . $search . '%'
-                        )
-                        ->orWhere(
                             'package_name',
                             'like',
                             '%' . $search . '%'
@@ -805,6 +800,21 @@ class TvVoucherTransactionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | NOMOR RECEIVER TIDAK DIGUNAKAN LAGI
+        |--------------------------------------------------------------------------
+        |
+        | Nomor receiver tidak diinput dari form.
+        | String kosong dipakai agar tetap kompatibel dengan database lama
+        | apabila kolom receiver_number masih NOT NULL.
+        |
+        */
+
+        $validatedData[
+            'receiver_number'
+        ] = '';
+
+        /*
+        |--------------------------------------------------------------------------
         | DEFAULT METODE
         |--------------------------------------------------------------------------
         |
@@ -987,6 +997,16 @@ class TvVoucherTransactionController extends Controller
             ]
             ?? $tvVoucher
                 ->customer_id;
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOMOR RECEIVER TIDAK DIGUNAKAN LAGI
+        |--------------------------------------------------------------------------
+        */
+
+        $validatedData[
+            'receiver_number'
+        ] = '';
 
         /*
         |--------------------------------------------------------------------------
@@ -1522,13 +1542,6 @@ class TvVoucherTransactionController extends Controller
                 ?: '-'
             );
 
-        $receiverNumber =
-            e(
-                $tvVoucher
-                    ->receiver_number
-                ?: '-'
-            );
-
         $paymentFormatted =
             number_format(
                 $paymentAmount,
@@ -1579,7 +1592,6 @@ class TvVoucherTransactionController extends Controller
             . "<b>Tempat Tinggal:</b> {$customerAddress}\n"
             . "<b>Diisi Oleh:</b> {$filledBy}\n"
             . "<b>Provider:</b> {$provider}\n"
-            . "<b>No Receiver:</b> {$receiverNumber}\n\n"
 
             . "<b>Pembayaran Baru:</b> \${$paymentFormatted}\n"
             . "<b>Metode:</b> {$methodText}\n";
@@ -2001,13 +2013,6 @@ class TvVoucherTransactionController extends Controller
                 ?: '-'
             );
 
-        $receiverNumber =
-            e(
-                $tvVoucher
-                    ->receiver_number
-                ?: '-'
-            );
-
         $received =
             number_format(
                 (float) $tvVoucher
@@ -2048,7 +2053,6 @@ class TvVoucherTransactionController extends Controller
             . "<b>Pelanggan:</b> {$customerName}\n"
             . "<b>Diisi Oleh:</b> {$filledBy}\n"
             . "<b>Provider:</b> {$provider}\n"
-            . "<b>No Receiver:</b> {$receiverNumber}\n\n"
 
             . "<b>Uang Cash Diterima:</b> \${$received}\n"
             . "<b>Sudah Disetor:</b> \${$deposited}\n"
@@ -2169,12 +2173,6 @@ class TvVoucherTransactionController extends Controller
             'provider' => [
                 'required',
                 'in:K-Vision,Nex Parabola,Nusantara HD',
-            ],
-
-            'receiver_number' => [
-                'required',
-                'string',
-                'max:100',
             ],
 
             'package_name' => [
@@ -2965,13 +2963,6 @@ class TvVoucherTransactionController extends Controller
                 ?: '-'
             );
 
-        $receiverNumber =
-            e(
-                $tvVoucher
-                    ->receiver_number
-                ?: '-'
-            );
-
         $packageName =
             e(
                 $tvVoucher
@@ -3129,7 +3120,6 @@ class TvVoucherTransactionController extends Controller
             . "<b>Diisi Oleh:</b> {$filledBy}\n\n"
 
             . "<b>Provider:</b> {$provider}\n"
-            . "<b>No Receiver:</b> {$receiverNumber}\n"
             . "<b>Paket:</b> {$packageName}\n"
             . "<b>Masa Aktif:</b> {$subscriptionText}\n"
             . "<b>Jumlah:</b> {$quantity}\n"

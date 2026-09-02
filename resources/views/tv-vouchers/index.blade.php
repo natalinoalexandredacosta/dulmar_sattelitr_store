@@ -1275,6 +1275,18 @@
             @endcan
 
 
+            @can('cash-admin.view')
+
+                <a
+                    href="{{ route('cash-accounts.index') }}"
+                    class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
+                >
+                    Kas Admin
+                </a>
+
+            @endcan
+
+
             @can('suppliers.view')
 
                 <a
@@ -1442,7 +1454,7 @@
                             name="search"
                             class="form-control"
                             value="{{ $search }}"
-                            placeholder="Pelanggan, receiver, bank..."
+                            placeholder="Pelanggan, paket, petugas, bank..."
                         >
 
                     </div>
@@ -1697,7 +1709,6 @@
                         <th>Pelanggan</th>
                         <th>Diisi Oleh</th>
                         <th>Provider</th>
-                        <th>Receiver</th>
                         <th>Paket</th>
 
                         <th>Total</th>
@@ -1800,11 +1811,6 @@
 
                             <td>
                                 {{ $tvVoucher->provider }}
-                            </td>
-
-
-                            <td>
-                                {{ $tvVoucher->receiver_number }}
                             </td>
 
 
@@ -2334,7 +2340,7 @@
                         <tr>
 
                             <td
-                                colspan="20"
+                                colspan="19"
                                 class="empty-data"
                             >
                                 Belum ada transaksi TV Voucher.
