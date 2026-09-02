@@ -318,6 +318,10 @@
             border-left: 4px solid #16a34a;
         }
 
+        .permission-group-cash-admin {
+            border-left: 4px solid #7c3aed;
+        }
+
         .permission-group-users {
             border-left: 4px solid #dc2626;
         }
@@ -345,6 +349,20 @@
             border-radius: 7px;
 
             background-color: #fef2f2;
+        }
+
+        .permission-cash-warning {
+            margin-top: 15px;
+
+            padding: 12px;
+
+            border-radius: 7px;
+
+            background-color: #f5f3ff;
+            color: #5b21b6;
+
+            font-size: 12px;
+            line-height: 1.5;
         }
 
         .permission-note {
@@ -570,6 +588,15 @@
                 </a>
             @endcan
 
+            @can('cash-admin.view')
+                <a
+                    href="{{ route('cash-accounts.index') }}"
+                    class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
+                >
+                    Kas Admin
+                </a>
+            @endcan
+
             @can('suppliers.view')
                 <a href="{{ route('suppliers.index') }}">
                     Supplier Barang
@@ -663,6 +690,13 @@
                     <strong>Verifikasi Setoran</strong>
                     hanya diberikan kepada Administrator atau petugas
                     yang bertanggung jawab memegang dan memeriksa uang setoran.
+
+                    <br><br>
+
+                    <strong>Kas Admin</strong>
+                    hanya diberikan kepada Administrator atau user
+                    yang dipercaya untuk melihat dan mengelola
+                    informasi uang Admin dan Bank.
                 </div>
 
             @endif
@@ -1116,6 +1150,62 @@
                                     </span>
 
                                 </label>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- KAS ADMIN --}}
+                        <div class="permission-group permission-group-cash-admin">
+
+                            <h3>
+                                Kas Admin
+                            </h3>
+
+                            <label class="permission-item">
+
+                                <input
+                                    type="checkbox"
+                                    name="permissions[]"
+                                    value="cash-admin.view"
+                                    {{ in_array(
+                                        'cash-admin.view',
+                                        old(
+                                            'permissions',
+                                            $selectedPermissions
+                                        )
+                                    ) ? 'checked' : '' }}
+                                >
+
+                                <span>
+
+                                    <strong>
+                                        Akses Kas Admin
+                                    </strong>
+
+                                    <small class="permission-note">
+                                        User dapat membuka halaman Kas Admin,
+                                        melihat uang di Admin, uang di Bank,
+                                        dan histori pergerakan uang.
+                                    </small>
+
+                                </span>
+
+                            </label>
+
+
+                            <div class="permission-cash-warning">
+
+                                <strong>
+                                    ⚠ Permission Keuangan
+                                </strong>
+
+                                <br><br>
+
+                                Berikan permission ini hanya kepada
+                                Administrator atau user yang dipercaya
+                                untuk mengelola dan memantau uang.
 
                             </div>
 

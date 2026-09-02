@@ -40,9 +40,9 @@ class UserManagementController extends Controller
 
     public function create()
     {
-        $permissions = Permission::orderBy(
-            'name'
-        )->get();
+        $permissions = Permission::query()
+            ->orderBy('name')
+            ->get();
 
         return view(
             'users.create',
@@ -74,12 +74,6 @@ class UserManagementController extends Controller
                 'unique:users,email',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Password hanya dibutuhkan saat membuat akun
-            |--------------------------------------------------------------------------
-            */
-
             'password' => [
                 'required',
                 'string',
@@ -101,7 +95,7 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Buat User
+        | BUAT USER
         |--------------------------------------------------------------------------
         */
 
@@ -121,12 +115,23 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Simpan Direct Permission
+        | SIMPAN DIRECT PERMISSION
         |--------------------------------------------------------------------------
+        |
+        | Termasuk permission baru:
+        |
+        | cash-admin.view
+        |
+        | selama permission tersebut sudah ada di tabel permissions.
+        |
         */
 
+        $permissions =
+            $validated['permissions']
+            ?? [];
+
         $user->syncPermissions(
-            $validated['permissions'] ?? []
+            $permissions
         );
 
 
@@ -148,21 +153,26 @@ class UserManagementController extends Controller
     public function edit(
         User $user
     ) {
-        $permissions = Permission::orderBy(
-            'name'
-        )->get();
+        $permissions = Permission::query()
+            ->orderBy('name')
+            ->get();
 
 
         /*
         |--------------------------------------------------------------------------
-        | Ambil hanya permission langsung milik user
+        | AMBIL DIRECT PERMISSION USER
         |--------------------------------------------------------------------------
+        |
+        | Permission dari checkbox User Management disimpan sebagai
+        | direct permission.
+        |
         */
 
-        $selectedPermissions = $user
-            ->getDirectPermissions()
-            ->pluck('name')
-            ->toArray();
+        $selectedPermissions =
+            $user
+                ->getDirectPermissions()
+                ->pluck('name')
+                ->toArray();
 
 
         return view(
@@ -181,14 +191,17 @@ class UserManagementController extends Controller
     | UPDATE USER
     |--------------------------------------------------------------------------
     |
-    | Tidak ada perubahan password dari User Management.
+    | Password tidak diubah dari User Management.
     |
-    | Administrator hanya dapat mengubah:
-    | - Nama
-    | - Email
-    | - Hak akses
+    | Administrator:
+    | - Nama dapat diubah
+    | - Email dapat diubah
+    | - Permission tidak dikurangi dari halaman ini
     |
-    | Password diubah sendiri oleh user melalui Reset Password.
+    | User biasa:
+    | - Nama dapat diubah
+    | - Email dapat diubah
+    | - Permission dapat ditambah / dicabut
     |
     */
 
@@ -200,7 +213,7 @@ class UserManagementController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Nama
+            | NAMA
             |--------------------------------------------------------------------------
             */
 
@@ -213,7 +226,7 @@ class UserManagementController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Email
+            | EMAIL
             |--------------------------------------------------------------------------
             */
 
@@ -233,7 +246,7 @@ class UserManagementController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Permission
+            | PERMISSION
             |--------------------------------------------------------------------------
             */
 
@@ -251,11 +264,8 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Proteksi Administrator
+        | CEK ADMINISTRATOR
         |--------------------------------------------------------------------------
-        |
-        | Permission Administrator tidak boleh dikurangi.
-        |
         */
 
         $isAdministrator =
@@ -266,11 +276,8 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Update Data Dasar User
+        | UPDATE DATA DASAR USER
         |--------------------------------------------------------------------------
-        |
-        | PASSWORD TIDAK DISENTUH.
-        |
         */
 
         $user->name =
@@ -284,15 +291,35 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Update Permission User Biasa
+        | UPDATE PERMISSION USER BIASA
         |--------------------------------------------------------------------------
+        |
+        | Semua permission checkbox yang dicentang akan disimpan.
+        |
+        | Contoh:
+        | dashboard.view
+        | products.view
+        | stock-ins.view
+        | stock-outs.view
+        | tv-vouchers.view
+        | cash-admin.view
+        | suppliers.view
+        | customers.view
+        | reports.view
+        | users.view
+        |
+        | Permission yang tidak dicentang akan dicabut.
+        |
         */
 
         if (!$isAdministrator) {
 
-            $user->syncPermissions(
+            $permissions =
                 $validated['permissions']
-                    ?? []
+                ?? [];
+
+            $user->syncPermissions(
+                $permissions
             );
 
         }
@@ -302,7 +329,9 @@ class UserManagementController extends Controller
             ->route('users.index')
             ->with(
                 'success',
-                'Data dan hak akses user berhasil diperbarui.'
+                $isAdministrator
+                    ? 'Data Administrator berhasil diperbarui.'
+                    : 'Data dan hak akses user berhasil diperbarui.'
             );
     }
 
@@ -318,7 +347,7 @@ class UserManagementController extends Controller
     ) {
         /*
         |--------------------------------------------------------------------------
-        | Tidak boleh hapus akun sendiri
+        | TIDAK BOLEH HAPUS AKUN SENDIRI
         |--------------------------------------------------------------------------
         */
 
@@ -337,7 +366,7 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Administrator Tidak Boleh Dihapus
+        | ADMINISTRATOR TIDAK BOLEH DIHAPUS
         |--------------------------------------------------------------------------
         */
 
@@ -357,7 +386,16 @@ class UserManagementController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Hapus User
+        | CABUT PERMISSION SEBELUM HAPUS
+        |--------------------------------------------------------------------------
+        */
+
+        $user->syncPermissions([]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HAPUS USER
         |--------------------------------------------------------------------------
         */
 

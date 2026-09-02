@@ -186,6 +186,7 @@
 
         .security-info {
             margin-top: 15px;
+            margin-bottom: 25px;
             padding: 14px 16px;
 
             border-left: 4px solid #dc2626;
@@ -278,6 +279,10 @@
             border-left: 4px solid #16a34a;
         }
 
+        .permission-group-cash-admin {
+            border-left: 4px solid #7c3aed;
+        }
+
         .permission-group-users {
             border-left: 4px solid #dc2626;
         }
@@ -290,16 +295,27 @@
 
         .permission-special {
             padding: 12px;
-
             border-radius: 7px;
             background-color: #fff7ed;
         }
 
         .permission-special-admin {
             padding: 12px;
-
             border-radius: 7px;
             background-color: #fef2f2;
+        }
+
+        .permission-cash-warning {
+            margin-top: 15px;
+            padding: 12px;
+
+            border-radius: 7px;
+
+            background-color: #f5f3ff;
+            color: #5b21b6;
+
+            font-size: 12px;
+            line-height: 1.5;
         }
 
         .permission-note {
@@ -396,7 +412,6 @@
                 z-index: 1000;
 
                 display: block;
-
                 visibility: hidden;
 
                 background-color: rgba(0, 0, 0, 0.5);
@@ -520,6 +535,12 @@
                 </a>
             @endcan
 
+            @can('cash-admin.view')
+                <a href="{{ route('cash-accounts.index') }}">
+                    Kas Admin
+                </a>
+            @endcan
+
             @can('suppliers.view')
                 <a href="{{ route('suppliers.index') }}">
                     Supplier Barang
@@ -590,12 +611,30 @@
             </div>
 
             <div class="security-info">
+
                 <strong>Perhatian:</strong>
-                permission <strong>Verifikasi Pembayaran</strong>
+
+                <br><br>
+
+                Permission
+                <strong>Verifikasi Pembayaran</strong>
                 digunakan oleh petugas yang menerima uang dari customer.
-                Permission <strong>Verifikasi Setoran</strong>
+
+                <br><br>
+
+                Permission
+                <strong>Verifikasi Setoran</strong>
                 hanya diberikan kepada Administrator atau petugas yang
                 bertanggung jawab memegang dan memeriksa uang setoran.
+
+                <br><br>
+
+                Permission
+                <strong>Kas Admin</strong>
+                hanya diberikan kepada Administrator atau user
+                yang dipercaya untuk melihat dan mengelola uang
+                di Admin dan Bank.
+
             </div>
 
 
@@ -715,6 +754,7 @@
                         </h3>
 
                         <label class="permission-item">
+
                             <input
                                 type="checkbox"
                                 name="permissions[]"
@@ -728,6 +768,7 @@
                             <span>
                                 Lihat Dashboard
                             </span>
+
                         </label>
 
                     </div>
@@ -897,6 +938,7 @@
                                 >
 
                                 <span>
+
                                     <strong>
                                         Verifikasi Pembayaran Customer
                                     </strong>
@@ -905,6 +947,7 @@
                                         Petugas mengonfirmasi bahwa uang dari customer
                                         sudah diterima.
                                     </small>
+
                                 </span>
 
                             </label>
@@ -930,6 +973,7 @@
                                 >
 
                                 <span>
+
                                     <strong>
                                         Verifikasi Setoran
                                     </strong>
@@ -939,6 +983,7 @@
                                     >
                                         Khusus Admin / Penanggung Jawab Uang.
                                     </small>
+
                                 </span>
 
                             </label>
@@ -1001,6 +1046,7 @@
                                 >
 
                                 <span>
+
                                     <strong>
                                         Verifikasi Pembayaran Customer
                                     </strong>
@@ -1009,6 +1055,7 @@
                                         Petugas yang isi paket mengonfirmasi
                                         uang customer sudah diterima.
                                     </small>
+
                                 </span>
 
                             </label>
@@ -1034,6 +1081,7 @@
                                 >
 
                                 <span>
+
                                     <strong>
                                         Verifikasi Setoran
                                     </strong>
@@ -1043,9 +1091,63 @@
                                     >
                                         Khusus Admin / Penanggung Jawab Uang.
                                     </small>
+
                                 </span>
 
                             </label>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- KAS ADMIN --}}
+                    <div class="permission-group permission-group-cash-admin">
+
+                        <h3>
+                            Kas Admin
+                        </h3>
+
+                        <label class="permission-item">
+
+                            <input
+                                type="checkbox"
+                                name="permissions[]"
+                                value="cash-admin.view"
+                                {{ in_array(
+                                    'cash-admin.view',
+                                    old('permissions', [])
+                                ) ? 'checked' : '' }}
+                            >
+
+                            <span>
+
+                                <strong>
+                                    Akses Kas Admin
+                                </strong>
+
+                                <small class="permission-note">
+                                    User dapat membuka halaman Kas Admin,
+                                    melihat uang di Admin, uang di Bank,
+                                    dan histori pergerakan uang.
+                                </small>
+
+                            </span>
+
+                        </label>
+
+
+                        <div class="permission-cash-warning">
+
+                            <strong>
+                                ⚠ Permission Keuangan
+                            </strong>
+
+                            <br><br>
+
+                            Berikan permission ini hanya kepada
+                            Administrator atau user yang dipercaya
+                            untuk mengelola dan memantau uang.
 
                         </div>
 
