@@ -14,6 +14,7 @@ use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TvVoucherTransactionController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\VisitorLogController;
 
 use App\Models\HomepageBanner;
 use App\Models\Product;
@@ -395,6 +396,19 @@ Route::middleware([
 
     /*
     |--------------------------------------------------------------------------
+    | VISITOR LOG
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/visitor-logs', [
+        VisitorLogController::class,
+        'index',
+    ])
+        ->name('visitor-logs.index');
+
+
+    /*
+    |--------------------------------------------------------------------------
     | HOMEPAGE BANNER
     |--------------------------------------------------------------------------
     */
@@ -438,26 +452,6 @@ Route::middleware([
     |--------------------------------------------------------------------------
     | KAS INVENTORY
     |--------------------------------------------------------------------------
-    |
-    | Kas khusus bisnis barang / inventory.
-    |
-    | Fitur:
-    | - Cash masuk manual
-    | - Cash keluar dengan approval
-    | - Pinjaman dengan approval
-    | - Pengembalian pinjaman dengan approval
-    | - Approve transaksi
-    | - Reject transaksi
-    | - Edit transaksi manual yang masih diperbolehkan
-    | - Hapus transaksi manual yang masih diperbolehkan
-    |
-    */
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | HALAMAN KAS
-    |--------------------------------------------------------------------------
     */
 
     Route::get('/cash', [
@@ -467,12 +461,6 @@ Route::middleware([
         ->name('cash.index');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | TAMBAH TRANSAKSI KAS
-    |--------------------------------------------------------------------------
-    */
-
     Route::post('/cash', [
         CashController::class,
         'store',
@@ -480,24 +468,12 @@ Route::middleware([
         ->name('cash.store');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT TRANSAKSI KAS
-    |--------------------------------------------------------------------------
-    */
-
     Route::patch('/cash/{cashTransaction}', [
         CashController::class,
         'update',
     ])
         ->name('cash.update');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | APPROVE TRANSAKSI KAS
-    |--------------------------------------------------------------------------
-    */
 
     Route::patch(
         '/cash/{cashTransaction}/approve',
@@ -509,12 +485,6 @@ Route::middleware([
         ->name('cash.approve');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | REJECT TRANSAKSI KAS
-    |--------------------------------------------------------------------------
-    */
-
     Route::patch(
         '/cash/{cashTransaction}/reject',
         [
@@ -524,12 +494,6 @@ Route::middleware([
     )
         ->name('cash.reject');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | HAPUS TRANSAKSI KAS
-    |--------------------------------------------------------------------------
-    */
 
     Route::delete('/cash/{cashTransaction}', [
         CashController::class,
@@ -551,24 +515,12 @@ Route::middleware([
         ->name('cash-accounts.index');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | TAMBAH UANG DI ADMIN
-    |--------------------------------------------------------------------------
-    */
-
     Route::post('/cash-accounts/admin/add', [
         CashAccountController::class,
         'addAdmin',
     ])
         ->name('cash-accounts.admin.add');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | TAMBAH UANG LANGSUNG KE BANK
-    |--------------------------------------------------------------------------
-    */
 
     Route::post('/cash-accounts/bank/add', [
         CashAccountController::class,
@@ -577,12 +529,6 @@ Route::middleware([
         ->name('cash-accounts.bank.add');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SETOR UANG ADMIN KE BANK
-    |--------------------------------------------------------------------------
-    */
-
     Route::post('/cash-accounts/transfer-to-bank', [
         CashAccountController::class,
         'transferToBank',
@@ -590,24 +536,12 @@ Route::middleware([
         ->name('cash-accounts.transfer-to-bank');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT SALDO UANG DI ADMIN
-    |--------------------------------------------------------------------------
-    */
-
     Route::patch('/cash-accounts/admin', [
         CashAccountController::class,
         'updateAdmin',
     ])
         ->name('cash-accounts.admin.update');
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT SALDO UANG DI BANK
-    |--------------------------------------------------------------------------
-    */
 
     Route::patch('/cash-accounts/bank', [
         CashAccountController::class,
@@ -945,12 +879,6 @@ Route::middleware([
         ->name('stock-outs.update');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFIKASI PEMBAYARAN CUSTOMER
-    |--------------------------------------------------------------------------
-    */
-
     Route::patch(
         '/stock-outs/{stockOut}/verify-payment',
         [
@@ -965,12 +893,6 @@ Route::middleware([
             'stock-outs.verify-payment'
         );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | KONFIRMASI SETORAN
-    |--------------------------------------------------------------------------
-    */
 
     Route::patch(
         '/stock-outs/{stockOut}/confirm-deposit',
@@ -1145,12 +1067,6 @@ Route::middleware([
         ->name('tv-vouchers.index');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LAPORAN TV VOUCHER
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/tv-vouchers/report', [
         TvVoucherTransactionController::class,
         'report',
@@ -1181,12 +1097,6 @@ Route::middleware([
         ->name('tv-vouchers.store');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFIKASI PEMBAYARAN CUSTOMER - TV VOUCHER
-    |--------------------------------------------------------------------------
-    */
-
     Route::patch(
         '/tv-vouchers/{tvVoucher}/verify-payment',
         [
@@ -1201,12 +1111,6 @@ Route::middleware([
             'tv-vouchers.verify-payment'
         );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | ATUR METODE CASH / BANK - TRANSAKSI LAMA
-    |--------------------------------------------------------------------------
-    */
 
     Route::patch(
         '/tv-vouchers/{tvVoucher}/payment-method',
@@ -1223,12 +1127,6 @@ Route::middleware([
         );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | KONFIRMASI SETORAN CASH - TV VOUCHER
-    |--------------------------------------------------------------------------
-    */
-
     Route::patch(
         '/tv-vouchers/{tvVoucher}/confirm-deposit',
         [
@@ -1243,12 +1141,6 @@ Route::middleware([
             'tv-vouchers.confirm-deposit'
         );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | ROUTE DINAMIS TV VOUCHER
-    |--------------------------------------------------------------------------
-    */
 
     Route::get('/tv-vouchers/{tvVoucher}', [
         TvVoucherTransactionController::class,

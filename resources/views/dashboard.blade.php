@@ -673,6 +673,19 @@
                 @endcan
 
 
+                {{-- VISITOR LOG --}}
+                @can('visitor-logs.view')
+
+                    <a
+                        href="{{ route('visitor-logs.index') }}"
+                        class="{{ request()->routeIs('visitor-logs.*') ? 'active' : '' }}"
+                    >
+                        Visitor Log
+                    </a>
+
+                @endcan
+
+
                 @can('users.view')
 
                     <a
