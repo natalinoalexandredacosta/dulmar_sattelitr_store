@@ -254,17 +254,10 @@ class StockOutController extends Controller
                 )
                 ->get();
 
-        $customers =
-            Customer::orderBy(
-                'customer_name'
-            )
-                ->get();
-
         return view(
             'stock-outs.create',
             compact(
-                'products',
-                'customers'
+                'products'
             )
         );
     }
@@ -324,16 +317,87 @@ class StockOutController extends Controller
                         (float) $product
                             ->selling_price;
 
-                    $subtotal =
+                    /*
+                    |--------------------------------------------------------------------------
+                    | HARGA NORMAL + DISKON PELANGGAN
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $normalSubtotal =
                         $hargaJual
                         * $quantity;
 
-                    $totalProfit =
-                        (
-                            $hargaJual
-                            - $hargaBeli
-                        )
+                    $customerDiscountAmount =
+                        (float) (
+                            $validated[
+                                'customer_discount_amount'
+                            ]
+                            ?? 0
+                        );
+
+                    if (
+                        $customerDiscountAmount
+                        > $normalSubtotal
+                    ) {
+                        throw ValidationException::withMessages([
+                            'customer_discount_amount' =>
+                                'Diskon pelanggan tidak boleh melebihi total harga normal $'
+                                . number_format(
+                                    $normalSubtotal,
+                                    2
+                                )
+                                . '.',
+                        ]);
+                    }
+
+                    $subtotal =
+                        max(
+                            $normalSubtotal
+                            - $customerDiscountAmount,
+                            0
+                        );
+
+                    $totalModal =
+                        $hargaBeli
                         * $quantity;
+
+                    $totalProfit =
+                        $subtotal
+                        - $totalModal;
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | POTONGAN PETUGAS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $deductionAmount =
+                        (float) (
+                            $validated[
+                                'deduction_amount'
+                            ]
+                            ?? 0
+                        );
+
+                    if (
+                        $deductionAmount
+                        > $subtotal
+                    ) {
+                        throw ValidationException::withMessages([
+                            'deduction_amount' =>
+                                'Biaya/potongan petugas tidak boleh melebihi total setelah diskon $'
+                                . number_format(
+                                    $subtotal,
+                                    2
+                                )
+                                . '.',
+                        ]);
+                    }
+
+                    $customerId =
+                        $this->resolveCustomerId(
+                            $validated
+                        );
 
                     $stockOut =
                         StockOut::create([
@@ -341,10 +405,7 @@ class StockOutController extends Controller
                                 $product->id,
 
                             'customer_id' =>
-                                $validated[
-                                    'customer_id'
-                                ]
-                                ?? null,
+                                $customerId,
 
                             'quantity' =>
                                 $quantity,
@@ -360,6 +421,24 @@ class StockOutController extends Controller
 
                             'total_profit' =>
                                 $totalProfit,
+
+                            'customer_discount_amount' =>
+                                $customerDiscountAmount,
+
+                            'customer_discount_note' =>
+                                $validated[
+                                    'customer_discount_note'
+                                ]
+                                ?? null,
+
+                            'deduction_amount' =>
+                                $deductionAmount,
+
+                            'deduction_note' =>
+                                $validated[
+                                    'deduction_note'
+                                ]
+                                ?? null,
 
                             'transaction_date' =>
                                 $validated[
@@ -481,6 +560,25 @@ class StockOutController extends Controller
                     2
                 );
 
+            $normalSubtotal =
+                number_format(
+                    (float) $stockOut
+                        ->unit_selling_price
+                    * (int) $stockOut
+                        ->quantity,
+                    2
+                );
+
+            $customerDiscount =
+                number_format(
+                    (float) (
+                        $stockOut
+                            ->customer_discount_amount
+                        ?? 0
+                    ),
+                    2
+                );
+
             $subtotal =
                 number_format(
                     (float) $stockOut
@@ -513,9 +611,11 @@ class StockOutController extends Controller
                 . "<b>Produk:</b> {$productName}\n"
                 . "<b>Kategori:</b> {$category}\n"
                 . "<b>Jumlah Keluar:</b> -{$quantity} unit\n"
-                . "<b>Harga Satuan:</b> \${$unitPrice}\n"
-                . "<b>Total Penjualan:</b> \${$subtotal}\n"
-                . "<b>Profit:</b> \${$profit}\n"
+                . "<b>Harga Normal / Unit:</b> \${$unitPrice}\n"
+                . "<b>Total Harga Normal:</b> \${$normalSubtotal}\n"
+                . "<b>Diskon Pelanggan:</b> \${$customerDiscount}\n"
+                . "<b>Total Setelah Diskon:</b> \${$subtotal}\n"
+                . "<b>Profit Setelah Diskon:</b> \${$profit}\n"
                 . "<b>Customer:</b> {$customerName}\n"
                 . "<b>Petugas:</b> {$soldBy}\n"
                 . "<b>Tanggal:</b> {$transactionDate}\n"
@@ -757,16 +857,88 @@ class StockOutController extends Controller
                     (float) $newProduct
                         ->selling_price;
 
-                $newSubtotal =
+                $newNormalSubtotal =
                     $hargaJual
                     * $newQuantity;
 
-                $newProfit =
-                    (
-                        $hargaJual
-                        - $hargaBeli
+                $customerDiscountAmount =
+                    array_key_exists(
+                        'customer_discount_amount',
+                        $validated
                     )
+                        ? (float) (
+                            $validated[
+                                'customer_discount_amount'
+                            ]
+                            ?? 0
+                        )
+                        : (float) (
+                            $stockOut
+                                ->customer_discount_amount
+                            ?? 0
+                        );
+
+                if (
+                    $customerDiscountAmount
+                    > $newNormalSubtotal
+                ) {
+                    throw ValidationException::withMessages([
+                        'customer_discount_amount' =>
+                            'Diskon pelanggan tidak boleh melebihi total harga normal $'
+                            . number_format(
+                                $newNormalSubtotal,
+                                2
+                            )
+                            . '.',
+                    ]);
+                }
+
+                $newSubtotal =
+                    max(
+                        $newNormalSubtotal
+                        - $customerDiscountAmount,
+                        0
+                    );
+
+                $newTotalModal =
+                    $hargaBeli
                     * $newQuantity;
+
+                $newProfit =
+                    $newSubtotal
+                    - $newTotalModal;
+
+                $deductionAmount =
+                    array_key_exists(
+                        'deduction_amount',
+                        $validated
+                    )
+                        ? (float) (
+                            $validated[
+                                'deduction_amount'
+                            ]
+                            ?? 0
+                        )
+                        : (float) (
+                            $stockOut
+                                ->deduction_amount
+                            ?? 0
+                        );
+
+                if (
+                    $deductionAmount
+                    > $newSubtotal
+                ) {
+                    throw ValidationException::withMessages([
+                        'deduction_amount' =>
+                            'Biaya/potongan petugas tidak boleh melebihi total setelah diskon $'
+                            . number_format(
+                                $newSubtotal,
+                                2
+                            )
+                            . '.',
+                    ]);
+                }
 
 
                 $customerPaid =
@@ -828,16 +1000,23 @@ class StockOutController extends Controller
                 $staffReceived =
                     $customerPaid;
 
+                $netDepositTarget =
+                    max(
+                        $staffReceived
+                        - $deductionAmount,
+                        0
+                    );
+
                 $staffDeposited =
                     min(
                         (float) $stockOut
                             ->staff_deposited_amount,
-                        $staffReceived
+                        $netDepositTarget
                     );
 
                 $staffBalance =
                     max(
-                        $staffReceived
+                        $netDepositTarget
                         - $staffDeposited,
                         0
                     );
@@ -902,14 +1081,16 @@ class StockOutController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
+                $customerId =
+                    $this->resolveCustomerId(
+                        $validated
+                    );
+
                 $stockOut->product_id =
                     $newProduct->id;
 
                 $stockOut->customer_id =
-                    $validated[
-                        'customer_id'
-                    ]
-                    ?? null;
+                    $customerId;
 
                 $stockOut->quantity =
                     $newQuantity;
@@ -927,6 +1108,40 @@ class StockOutController extends Controller
 
                 $stockOut->total_profit =
                     $newProfit;
+
+                $stockOut
+                    ->customer_discount_amount =
+                    $customerDiscountAmount;
+
+                if (
+                    array_key_exists(
+                        'customer_discount_note',
+                        $validated
+                    )
+                ) {
+                    $stockOut
+                        ->customer_discount_note =
+                        $validated[
+                            'customer_discount_note'
+                        ]
+                        ?? null;
+                }
+
+                $stockOut->deduction_amount =
+                    $deductionAmount;
+
+                if (
+                    array_key_exists(
+                        'deduction_note',
+                        $validated
+                    )
+                ) {
+                    $stockOut->deduction_note =
+                        $validated[
+                            'deduction_note'
+                        ]
+                        ?? null;
+                }
 
                 $stockOut
                     ->transaction_date =
@@ -1025,6 +1240,18 @@ class StockOutController extends Controller
                     'numeric',
                     'min:0.01',
                 ],
+
+                'deduction_amount' => [
+                    'nullable',
+                    'numeric',
+                    'min:0',
+                ],
+
+                'deduction_note' => [
+                    'nullable',
+                    'string',
+                    'max:255',
+                ],
             ], [
                 'payment_amount.required' =>
                     'Jumlah pembayaran wajib diisi.',
@@ -1034,6 +1261,15 @@ class StockOutController extends Controller
 
                 'payment_amount.min' =>
                     'Jumlah pembayaran harus lebih dari 0.',
+
+                'deduction_amount.numeric' =>
+                    'Biaya/potongan harus berupa angka.',
+
+                'deduction_amount.min' =>
+                    'Biaya/potongan tidak boleh kurang dari 0.',
+
+                'deduction_note.max' =>
+                    'Keterangan potongan maksimal 255 karakter.',
             ]);
 
 
@@ -1041,6 +1277,48 @@ class StockOutController extends Controller
             (float) $validated[
                 'payment_amount'
             ];
+
+
+        $deductionAmount =
+            (float) (
+                $validated[
+                    'deduction_amount'
+                ]
+                ?? 0
+            );
+
+
+        $deductionNote =
+            trim(
+                (string) (
+                    $validated[
+                        'deduction_note'
+                    ]
+                    ?? ''
+                )
+            );
+
+
+        if (
+            $deductionAmount
+            > $paymentAmount
+        ) {
+            throw ValidationException::withMessages([
+                'deduction_amount' =>
+                    'Biaya/potongan tidak boleh melebihi jumlah pembayaran customer.',
+            ]);
+        }
+
+
+        if (
+            $deductionAmount > 0
+            && $deductionNote === ''
+        ) {
+            throw ValidationException::withMessages([
+                'deduction_note' =>
+                    'Keterangan potongan wajib diisi jika ada biaya/potongan.',
+            ]);
+        }
 
 
         /*
@@ -1053,7 +1331,9 @@ class StockOutController extends Controller
             DB::transaction(
                 function () use (
                     $stockOut,
-                    $paymentAmount
+                    $paymentAmount,
+                    $deductionAmount,
+                    $deductionNote
                 ) {
                     $lockedStockOut =
                         StockOut::query()
@@ -1180,17 +1460,49 @@ class StockOutController extends Controller
                         $newPaid;
 
 
+                    $existingDeduction =
+                        (float) (
+                            $lockedStockOut
+                                ->deduction_amount
+                            ?? 0
+                        );
+
+
+                    $newDeductionTotal =
+                        $existingDeduction
+                        + $deductionAmount;
+
+
+                    if (
+                        $newDeductionTotal
+                        > $newPaid
+                    ) {
+                        throw ValidationException::withMessages([
+                            'deduction_amount' =>
+                                'Total biaya/potongan tidak boleh melebihi total pembayaran customer.',
+                        ]);
+                    }
+
+
+                    $netDepositTarget =
+                        max(
+                            $staffReceived
+                            - $newDeductionTotal,
+                            0
+                        );
+
+
                     $staffDeposited =
                         min(
                             (float) $lockedStockOut
                                 ->staff_deposited_amount,
-                            $staffReceived
+                            $netDepositTarget
                         );
 
 
                     $staffBalance =
                         max(
-                            $staffReceived
+                            $netDepositTarget
                             - $staffDeposited,
                             0
                         );
@@ -1268,6 +1580,20 @@ class StockOutController extends Controller
                         $staffDepositStatus;
 
 
+                    $lockedStockOut
+                        ->deduction_amount =
+                        $newDeductionTotal;
+
+
+                    if (
+                        $deductionAmount > 0
+                    ) {
+                        $lockedStockOut
+                            ->deduction_note =
+                            $deductionNote;
+                    }
+
+
                     $lockedStockOut->save();
 
 
@@ -1283,6 +1609,9 @@ class StockOutController extends Controller
 
                         'staff_balance' =>
                             $staffBalance,
+
+                        'deduction_total' =>
+                            $newDeductionTotal,
                     ];
                 }
             );
@@ -1309,6 +1638,12 @@ class StockOutController extends Controller
         $staffBalance =
             (float) $result[
                 'staff_balance'
+            ];
+
+
+        $deductionTotal =
+            (float) $result[
+                'deduction_total'
             ];
 
 
@@ -1381,6 +1716,35 @@ class StockOutController extends Controller
                 );
 
 
+            $discountFormatted =
+                number_format(
+                    (float) (
+                        $stockOutFresh
+                            ->customer_discount_amount
+                        ?? 0
+                    ),
+                    2
+                );
+
+
+            $deductionFormatted =
+                number_format(
+                    $deductionTotal,
+                    2
+                );
+
+
+            $netDepositFormatted =
+                number_format(
+                    max(
+                        $newPaid
+                        - $deductionTotal,
+                        0
+                    ),
+                    2
+                );
+
+
             $statusText =
                 $newCustomerBalance <= 0
                     ? 'LUNAS'
@@ -1400,7 +1764,10 @@ class StockOutController extends Controller
                 . "<b>Total Sudah Bayar:</b> \${$totalPaidFormatted}\n"
                 . "<b>Sisa Tagihan:</b> \${$remainingFormatted}\n"
                 . "<b>Status Customer:</b> {$statusText}\n"
-                . "<b>Uang di Tangan Petugas:</b> \${$staffBalanceFormatted}\n"
+                . "<b>Diskon Pelanggan:</b> \${$discountFormatted}\n"
+                . "<b>Total Biaya/Potongan Petugas:</b> \${$deductionFormatted}\n"
+                . "<b>Setoran Bersih:</b> \${$netDepositFormatted}\n"
+                . "<b>Uang Belum Disetor:</b> \${$staffBalanceFormatted}\n"
                 . "<b>Diverifikasi Oleh:</b> {$verifiedBy}\n\n"
                 . "⏳ Uang belum masuk Kas Inventory.\n"
                 . "Kas baru bertambah setelah setoran petugas dikonfirmasi Admin."
@@ -1494,6 +1861,22 @@ class StockOutController extends Controller
                             ->staff_received_amount;
 
 
+                    $deductionAmount =
+                        (float) (
+                            $lockedStockOut
+                                ->deduction_amount
+                            ?? 0
+                        );
+
+
+                    $netDepositTarget =
+                        max(
+                            $staffReceived
+                            - $deductionAmount,
+                            0
+                        );
+
+
                     /*
                     |--------------------------------------------------------------------------
                     | BELUM ADA UANG
@@ -1548,7 +1931,7 @@ class StockOutController extends Controller
 
                     $cashToAdd =
                         max(
-                            $staffReceived
+                            $netDepositTarget
                             - $alreadyRecordedCash,
                             0
                         );
@@ -1592,7 +1975,7 @@ class StockOutController extends Controller
 
                     $lockedStockOut
                         ->staff_deposited_amount =
-                        $staffReceived;
+                        $netDepositTarget;
 
 
                     $lockedStockOut
@@ -1699,10 +2082,39 @@ class StockOutController extends Controller
                                     $cashToAdd,
 
                                 'description' =>
-                                    'Setoran penjualan '
+                                    'Setoran bersih penjualan '
                                     . $productName
                                     . ' - Customer '
                                     . $customerName
+                                    . ' - Harga normal $'
+                                    . number_format(
+                                        (float) $lockedStockOut->unit_selling_price
+                                        * (int) $lockedStockOut->quantity,
+                                        2
+                                    )
+                                    . ' - Diskon pelanggan $'
+                                    . number_format(
+                                        (float) (
+                                            $lockedStockOut->customer_discount_amount
+                                            ?? 0
+                                        ),
+                                        2
+                                    )
+                                    . ' - Total setelah diskon $'
+                                    . number_format(
+                                        (float) $lockedStockOut->subtotal,
+                                        2
+                                    )
+                                    . ' - Potongan petugas $'
+                                    . number_format(
+                                        $deductionAmount,
+                                        2
+                                    )
+                                    . (
+                                        $lockedStockOut->deduction_note
+                                            ? ' (' . $lockedStockOut->deduction_note . ')'
+                                            : ''
+                                    )
                                     . ' - Transaksi #'
                                     . $lockedStockOut->id,
 
@@ -1873,6 +2285,68 @@ class StockOutController extends Controller
                 );
 
 
+            $normalSaleTotalFormatted =
+                number_format(
+                    (float) $stockOutFresh
+                        ->unit_selling_price
+                    * (int) $stockOutFresh
+                        ->quantity,
+                    2
+                );
+
+
+            $customerDiscountFormatted =
+                number_format(
+                    (float) (
+                        $stockOutFresh
+                            ->customer_discount_amount
+                        ?? 0
+                    ),
+                    2
+                );
+
+
+            $saleTotalFormatted =
+                number_format(
+                    (float) $stockOutFresh
+                        ->subtotal,
+                    2
+                );
+
+
+            $deductionAmountFormatted =
+                number_format(
+                    (float) (
+                        $stockOutFresh
+                            ->deduction_amount
+                        ?? 0
+                    ),
+                    2
+                );
+
+
+            $deductionNote =
+                $stockOutFresh
+                    ->deduction_note
+                ?: '-';
+
+
+            $netDepositFormatted =
+                number_format(
+                    max(
+                        (float) $stockOutFresh
+                            ->staff_received_amount
+                        - (float) (
+                            $stockOutFresh
+                                ->deduction_amount
+                            ?? 0
+                        ),
+                        0
+                    ),
+                    2
+                );
+
+
             $cashBalance =
                 CashTransaction::currentBalance();
 
@@ -1908,7 +2382,13 @@ class StockOutController extends Controller
                 . "<b>Produk:</b> {$productName}\n"
                 . "<b>Customer:</b> {$customerName}\n"
                 . "<b>Petugas Penjualan:</b> {$soldBy}\n"
+                . "<b>Total Harga Normal:</b> \${$normalSaleTotalFormatted}\n"
+                . "<b>Diskon Pelanggan:</b> \${$customerDiscountFormatted}\n"
+                . "<b>Total Setelah Diskon:</b> \${$saleTotalFormatted}\n"
                 . "<b>Uang Diterima Petugas:</b> \${$received}\n"
+                . "<b>Biaya/Potongan Petugas:</b> \${$deductionAmountFormatted}\n"
+                . "<b>Keterangan Potongan:</b> {$deductionNote}\n"
+                . "<b>Setoran Bersih:</b> \${$netDepositFormatted}\n"
                 . "<b>Sudah Disetor:</b> \${$deposited}\n"
                 . "<b>Belum Disetor:</b> \${$balance}\n"
                 . "<b>Cash Baru Masuk:</b> +\${$cashAddedFormatted}\n"
@@ -1933,9 +2413,13 @@ class StockOutController extends Controller
                 $stockTelegram->send(
                     "<b>💰 CASH INVENTORY BERTAMBAH</b>\n\n"
                     . "<b>Cash ID:</b> #{$cashId}\n"
-                    . "<b>Sumber:</b> Setoran Penjualan\n"
+                    . "<b>Sumber:</b> Setoran Bersih Penjualan\n"
                     . "<b>Produk:</b> {$productName}\n"
                     . "<b>Customer:</b> {$customerName}\n"
+                    . "<b>Total Harga Normal:</b> \${$normalSaleTotalFormatted}\n"
+                    . "<b>Diskon Pelanggan:</b> \${$customerDiscountFormatted}\n"
+                    . "<b>Total Setelah Diskon:</b> \${$saleTotalFormatted}\n"
+                    . "<b>Biaya/Potongan Petugas:</b> \${$deductionAmountFormatted}\n"
                     . "<b>Cash Masuk:</b> +\${$cashAddedFormatted}\n"
                     . "<b>Saldo Kas Sekarang:</b> \${$cashBalanceFormatted}\n"
                     . "<b>Diverifikasi Oleh:</b> {$verifiedBy}\n\n"
@@ -2192,6 +2676,48 @@ class StockOutController extends Controller
                 'exists:customers,id',
             ],
 
+            'customer_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'customer_phone' => [
+                'nullable',
+                'string',
+                'max:50',
+            ],
+
+            'customer_address' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'customer_discount_amount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+
+            'customer_discount_note' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'deduction_amount' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+
+            'deduction_note' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
             'quantity' => [
                 'required',
                 'integer',
@@ -2218,6 +2744,45 @@ class StockOutController extends Controller
             'customer_id.exists' =>
                 'Pelanggan yang dipilih tidak ditemukan.',
 
+            'customer_name.required' =>
+                'Nama pelanggan wajib diisi.',
+
+            'customer_name.string' =>
+                'Nama pelanggan harus berupa teks.',
+
+            'customer_name.max' =>
+                'Nama pelanggan maksimal 255 karakter.',
+
+            'customer_phone.max' =>
+                'Nomor telepon maksimal 50 karakter.',
+
+            'customer_address.max' =>
+                'Alamat pelanggan maksimal 255 karakter.',
+
+            'customer_name.string' =>
+                'Nama pelanggan harus berupa teks.',
+
+            'customer_name.max' =>
+                'Nama pelanggan maksimal 255 karakter.',
+
+            'customer_discount_amount.numeric' =>
+                'Diskon pelanggan harus berupa angka.',
+
+            'customer_discount_amount.min' =>
+                'Diskon pelanggan tidak boleh kurang dari 0.',
+
+            'customer_discount_note.max' =>
+                'Keterangan diskon pelanggan maksimal 255 karakter.',
+
+            'deduction_amount.numeric' =>
+                'Biaya/potongan petugas harus berupa angka.',
+
+            'deduction_amount.min' =>
+                'Biaya/potongan petugas tidak boleh kurang dari 0.',
+
+            'deduction_note.max' =>
+                'Keterangan potongan petugas maksimal 255 karakter.',
+
             'quantity.required' =>
                 'Jumlah barang wajib diisi.',
 
@@ -2236,6 +2801,93 @@ class StockOutController extends Controller
             'notes.max' =>
                 'Catatan maksimal 1.000 karakter.',
         ]);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESOLVE CUSTOMER
+    |--------------------------------------------------------------------------
+    |
+    | Nama pelanggan diinput manual dari transaksi Stok Keluar.
+    |
+    | - Jika pelanggan sudah ada, data telepon/alamat diperbarui bila diisi.
+    | - Jika belum ada, pelanggan baru dibuat otomatis.
+    | - customer_id dikembalikan untuk dihubungkan ke transaksi stock_outs.
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    private function resolveCustomerId(
+        array $validated
+    ): ?int {
+        $customerName =
+            trim(
+                (string) (
+                    $validated[
+                        'customer_name'
+                    ]
+                    ?? ''
+                )
+            );
+
+        if ($customerName === '') {
+            return
+                !empty(
+                    $validated[
+                        'customer_id'
+                    ]
+                    ?? null
+                )
+                    ? (int) $validated[
+                        'customer_id'
+                    ]
+                    : null;
+        }
+
+        $customer =
+            Customer::firstOrNew([
+                'customer_name' =>
+                    $customerName,
+            ]);
+
+        $customer->customer_name =
+            $customerName;
+
+        $customerPhone =
+            trim(
+                (string) (
+                    $validated[
+                        'customer_phone'
+                    ]
+                    ?? ''
+                )
+            );
+
+        $customerAddress =
+            trim(
+                (string) (
+                    $validated[
+                        'customer_address'
+                    ]
+                    ?? ''
+                )
+            );
+
+        if ($customerPhone !== '') {
+            $customer->phone =
+                $customerPhone;
+        }
+
+        if ($customerAddress !== '') {
+            $customer->address =
+                $customerAddress;
+        }
+
+        $customer->save();
+
+        return
+            (int) $customer->id;
     }
 
 

@@ -505,7 +505,7 @@
 
         table {
             width: 100%;
-            min-width: 2450px;
+            min-width: 2850px;
 
             border-collapse: collapse;
 
@@ -549,6 +549,20 @@
             font-weight: bold;
         }
 
+        .discount-amount {
+            color: #7c3aed;
+            font-weight: bold;
+        }
+
+        .discount-note {
+            display: block;
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 11px;
+            white-space: normal;
+            max-width: 220px;
+        }
+
         .profit {
             color: #16a34a;
             font-weight: bold;
@@ -562,6 +576,20 @@
         .amount-red {
             color: #dc2626;
             font-weight: bold;
+        }
+
+        .amount-orange {
+            color: #ea580c;
+            font-weight: bold;
+        }
+
+        .deduction-note {
+            display: block;
+            margin-top: 4px;
+            color: #6b7280;
+            font-size: 11px;
+            white-space: normal;
+            max-width: 220px;
         }
 
         .seller {
@@ -728,6 +756,176 @@
             color: #6b7280;
 
             text-align: center;
+        }
+
+
+        /* =========================================================
+           PAYMENT MODAL
+        ========================================================= */
+
+        .payment-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.65);
+        }
+
+        .payment-modal.show {
+            display: flex;
+        }
+
+        .payment-modal-card {
+            width: 100%;
+            max-width: 560px;
+            overflow: hidden;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .payment-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 22px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .payment-modal-header h3 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .payment-modal-close {
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 7px;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .payment-modal-body {
+            padding: 22px;
+        }
+
+        .payment-customer-info {
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .payment-field {
+            margin-bottom: 17px;
+        }
+
+        .payment-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .payment-field input {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .payment-field input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .payment-net-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .payment-net-item {
+            padding: 13px;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .payment-net-item span {
+            display: block;
+            margin-bottom: 5px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .payment-net-item strong {
+            font-size: 18px;
+        }
+
+        .payment-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .payment-modal-actions button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .payment-cancel {
+            background: #6b7280;
+        }
+
+        .payment-submit {
+            background: #2563eb;
+        }
+
+        .payment-error {
+            display: none;
+            margin-bottom: 15px;
+            padding: 11px 13px;
+            border: 1px solid #fca5a5;
+            border-radius: 7px;
+            background: #fee2e2;
+            color: #991b1b;
+            font-size: 13px;
+        }
+
+        .payment-error.show {
+            display: block;
+        }
+
+        @media (max-width: 700px) {
+            .payment-net-box {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-modal-actions {
+                flex-direction: column;
+            }
+
+            .payment-modal-actions button {
+                width: 100%;
+            }
         }
 
         /* =========================================================
@@ -1166,6 +1364,15 @@
 
             @endcan
 
+            @can('cash-admin.view')
+                <a
+                    href="{{ route('cash-accounts.index') }}"
+                    class="{{ request()->routeIs('cash-accounts.*') ? 'active' : '' }}"
+                >
+                    Kas Admin
+                </a>
+            @endcan
+
             @can('suppliers.view')
                 <a
                     href="{{ route('suppliers.index') }}"
@@ -1518,8 +1725,10 @@
                         <th>Pelanggan</th>
                         <th>Petugas Jual</th>
                         <th>Jumlah</th>
-                        <th>Harga/Unit</th>
-                        <th>Total</th>
+                        <th>Harga Normal/Unit</th>
+                        <th>Total Harga Normal</th>
+                        <th>Diskon Pelanggan</th>
+                        <th>Total Setelah Diskon</th>
                         <th>Keuntungan</th>
 
                         <th>Customer Bayar</th>
@@ -1527,6 +1736,8 @@
                         <th>Status Customer</th>
 
                         <th>Petugas Terima</th>
+                        <th>Potongan Petugas</th>
+                        <th>Setoran Bersih</th>
                         <th>Sudah Setor</th>
                         <th>Belum Setor</th>
                         <th>Status Setoran</th>
@@ -1545,6 +1756,16 @@
                     @forelse ($stockOuts as $stockOut)
 
                         @php
+                            $normalSubtotal =
+                                (float) $stockOut->unit_selling_price
+                                * (int) $stockOut->quantity;
+
+                            $customerDiscountAmount =
+                                (float) (
+                                    $stockOut->customer_discount_amount
+                                    ?? 0
+                                );
+
                             $subtotal =
                                 (float) $stockOut->subtotal;
 
@@ -1562,6 +1783,19 @@
 
                             $staffBalance =
                                 (float) $stockOut->staff_balance;
+
+                            $deductionAmount =
+                                (float) (
+                                    $stockOut->deduction_amount
+                                    ?? 0
+                                );
+
+                            $netDeposit =
+                                max(
+                                    $staffReceived
+                                    - $deductionAmount,
+                                    0
+                                );
 
                             $sellerName =
                                 $stockOut->sold_by
@@ -1615,6 +1849,30 @@
                                     $stockOut->unit_selling_price,
                                     2
                                 ) }}
+                            </td>
+
+                            <td class="selling-price">
+                                ${{ number_format(
+                                    $normalSubtotal,
+                                    2
+                                ) }}
+                            </td>
+
+                            <td class="discount-amount">
+
+                                ${{ number_format(
+                                    $customerDiscountAmount,
+                                    2
+                                ) }}
+
+                                @if ($stockOut->customer_discount_note)
+
+                                    <span class="discount-note">
+                                        {{ $stockOut->customer_discount_note }}
+                                    </span>
+
+                                @endif
+
                             </td>
 
                             <td class="subtotal">
@@ -1686,6 +1944,34 @@
                             <td class="amount-green">
                                 ${{ number_format(
                                     $staffReceived,
+                                    2
+                                ) }}
+                            </td>
+
+
+                            {{-- BIAYA / POTONGAN --}}
+                            <td class="amount-orange">
+
+                                ${{ number_format(
+                                    $deductionAmount,
+                                    2
+                                ) }}
+
+                                @if ($stockOut->deduction_note)
+
+                                    <span class="deduction-note">
+                                        {{ $stockOut->deduction_note }}
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- SETORAN BERSIH --}}
+                            <td class="amount-green">
+                                ${{ number_format(
+                                    $netDeposit,
                                     2
                                 ) }}
                             </td>
@@ -1806,6 +2092,18 @@
                                                 <input
                                                     type="hidden"
                                                     name="payment_amount"
+                                                    value=""
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="deduction_amount"
+                                                    value=""
+                                                >
+
+                                                <input
+                                                    type="hidden"
+                                                    name="deduction_note"
                                                     value=""
                                                 >
 
@@ -2030,7 +2328,7 @@
                         <tr>
 
                             <td
-                                colspan="20"
+                                colspan="24"
                                 class="empty-data"
                             >
                                 Belum ada transaksi stok keluar.
@@ -2150,6 +2448,151 @@
 
     </main>
 
+</div>
+
+
+
+<div
+    id="paymentModal"
+    class="payment-modal"
+    aria-hidden="true"
+>
+    <div class="payment-modal-card">
+
+        <div class="payment-modal-header">
+
+            <h3>
+                Verifikasi Pembayaran Customer
+            </h3>
+
+            <button
+                type="button"
+                id="paymentModalClose"
+                class="payment-modal-close"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="payment-modal-body">
+
+            <div
+                id="paymentModalError"
+                class="payment-error"
+            ></div>
+
+            <div class="payment-customer-info">
+
+                <div>
+                    <strong>Customer:</strong>
+                    <span id="paymentCustomerName">-</span>
+                </div>
+
+                <div>
+                    <strong>Sisa Tagihan:</strong>
+                    $<span id="paymentRemaining">0.00</span>
+                </div>
+
+            </div>
+
+            <div class="payment-field">
+
+                <label for="modalPaymentAmount">
+                    Jumlah Dibayar Customer
+                </label>
+
+                <input
+                    type="number"
+                    id="modalPaymentAmount"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Contoh: 175.00"
+                >
+
+            </div>
+
+            <div class="payment-field">
+
+                <label for="modalDeductionAmount">
+                    Biaya / Potongan Petugas
+                </label>
+
+                <input
+                    type="number"
+                    id="modalDeductionAmount"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                    placeholder="Contoh: 25.00"
+                >
+
+            </div>
+
+            <div class="payment-field">
+
+                <label for="modalDeductionNote">
+                    Keterangan Potongan Petugas
+                </label>
+
+                <input
+                    type="text"
+                    id="modalDeductionNote"
+                    maxlength="255"
+                    placeholder="Contoh: Bensin / Komisi petugas"
+                >
+
+            </div>
+
+            <div class="payment-net-box">
+
+                <div class="payment-net-item">
+                    <span>Customer Bayar</span>
+                    <strong>
+                        $<span id="modalPaymentPreview">0.00</span>
+                    </strong>
+                </div>
+
+                <div class="payment-net-item">
+                    <span>Potongan Petugas</span>
+                    <strong style="color:#ea580c;">
+                        $<span id="modalDeductionPreview">0.00</span>
+                    </strong>
+                </div>
+
+                <div class="payment-net-item">
+                    <span>Setoran Bersih</span>
+                    <strong style="color:#15803d;">
+                        $<span id="modalNetPreview">0.00</span>
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="payment-modal-actions">
+
+                <button
+                    type="button"
+                    id="paymentModalCancel"
+                    class="payment-cancel"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="button"
+                    id="paymentModalSubmit"
+                    class="payment-submit"
+                >
+                    Simpan Verifikasi
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
 
@@ -2278,9 +2721,219 @@
 
     /*
     |--------------------------------------------------------------------------
-    | VERIFIKASI PEMBAYARAN CUSTOMER
+    | VERIFIKASI PEMBAYARAN CUSTOMER - MODAL
     |--------------------------------------------------------------------------
     */
+
+    const paymentModal =
+        document.getElementById(
+            'paymentModal'
+        );
+
+    const paymentModalClose =
+        document.getElementById(
+            'paymentModalClose'
+        );
+
+    const paymentModalCancel =
+        document.getElementById(
+            'paymentModalCancel'
+        );
+
+    const paymentModalSubmit =
+        document.getElementById(
+            'paymentModalSubmit'
+        );
+
+    const paymentModalError =
+        document.getElementById(
+            'paymentModalError'
+        );
+
+    const paymentCustomerName =
+        document.getElementById(
+            'paymentCustomerName'
+        );
+
+    const paymentRemaining =
+        document.getElementById(
+            'paymentRemaining'
+        );
+
+    const modalPaymentAmount =
+        document.getElementById(
+            'modalPaymentAmount'
+        );
+
+    const modalDeductionAmount =
+        document.getElementById(
+            'modalDeductionAmount'
+        );
+
+    const modalDeductionNote =
+        document.getElementById(
+            'modalDeductionNote'
+        );
+
+    const modalPaymentPreview =
+        document.getElementById(
+            'modalPaymentPreview'
+        );
+
+    const modalDeductionPreview =
+        document.getElementById(
+            'modalDeductionPreview'
+        );
+
+    const modalNetPreview =
+        document.getElementById(
+            'modalNetPreview'
+        );
+
+
+    let activePaymentForm =
+        null;
+
+    let activePaymentRemaining =
+        0;
+
+
+    function updatePaymentPreview() {
+
+        const payment =
+            Number(
+                modalPaymentAmount.value
+                || 0
+            );
+
+        const deduction =
+            Number(
+                modalDeductionAmount.value
+                || 0
+            );
+
+        const net =
+            Math.max(
+                payment
+                - deduction,
+                0
+            );
+
+        modalPaymentPreview.textContent =
+            payment.toFixed(2);
+
+        modalDeductionPreview.textContent =
+            deduction.toFixed(2);
+
+        modalNetPreview.textContent =
+            net.toFixed(2);
+    }
+
+
+    function showPaymentError(
+        message
+    ) {
+
+        paymentModalError.textContent =
+            message;
+
+        paymentModalError.classList.add(
+            'show'
+        );
+    }
+
+
+    function clearPaymentError() {
+
+        paymentModalError.textContent =
+            '';
+
+        paymentModalError.classList.remove(
+            'show'
+        );
+    }
+
+
+    function openPaymentModal(
+        form
+    ) {
+
+        activePaymentForm =
+            form;
+
+        activePaymentRemaining =
+            Number(
+                form.dataset.remaining
+                || 0
+            );
+
+        const customer =
+            form.dataset.customer
+            || 'Customer';
+
+        paymentCustomerName.textContent =
+            customer;
+
+        paymentRemaining.textContent =
+            activePaymentRemaining.toFixed(2);
+
+        modalPaymentAmount.value =
+            activePaymentRemaining.toFixed(2);
+
+        modalDeductionAmount.value =
+            '0';
+
+        modalDeductionNote.value =
+            '';
+
+        clearPaymentError();
+
+        updatePaymentPreview();
+
+        paymentModal.classList.add(
+            'show'
+        );
+
+        paymentModal.setAttribute(
+            'aria-hidden',
+            'false'
+        );
+
+        document.body.classList.add(
+            'menu-open'
+        );
+
+        setTimeout(
+            function () {
+                modalPaymentAmount.focus();
+                modalPaymentAmount.select();
+            },
+            50
+        );
+    }
+
+
+    function closePaymentModal() {
+
+        paymentModal.classList.remove(
+            'show'
+        );
+
+        paymentModal.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        document.body.classList.remove(
+            'menu-open'
+        );
+
+        activePaymentForm =
+            null;
+
+        clearPaymentError();
+    }
+
 
     document
         .querySelectorAll(
@@ -2294,89 +2947,200 @@
 
                     event.preventDefault();
 
-                    const customer =
-                        form.dataset.customer
-                        || 'Customer';
-
-                    const remaining =
-                        Number(
-                            form.dataset.remaining
-                            || 0
-                        );
-
-                    const input =
-                        form.querySelector(
-                            'input[name="payment_amount"]'
-                        );
-
-                    const answer =
-                        prompt(
-                            'Customer: '
-                            + customer
-                            + '\n'
-                            + 'Sisa tagihan: $'
-                            + remaining.toFixed(2)
-                            + '\n\n'
-                            + 'Masukkan jumlah yang dibayar:'
-                        );
-
-                    if (
-                        answer === null
-                    ) {
-                        return;
-                    }
-
-                    const payment =
-                        Number(answer);
-
-                    if (
-                        !Number.isFinite(payment)
-                        || payment <= 0
-                    ) {
-
-                        alert(
-                            'Jumlah pembayaran tidak valid.'
-                        );
-
-                        return;
-                    }
-
-                    if (
-                        payment > remaining
-                    ) {
-
-                        alert(
-                            'Jumlah pembayaran melebihi sisa tagihan $'
-                            + remaining.toFixed(2)
-                            + '.'
-                        );
-
-                        return;
-                    }
-
-                    const confirmed =
-                        confirm(
-                            'Verifikasi pembayaran '
-                            + customer
-                            + ' sebesar $'
-                            + payment.toFixed(2)
-                            + '?'
-                        );
-
-                    if (
-                        !confirmed
-                    ) {
-                        return;
-                    }
-
-                    input.value =
-                        payment.toFixed(2);
-
-                    form.submit();
+                    openPaymentModal(
+                        form
+                    );
                 }
             );
 
         });
+
+
+    modalPaymentAmount.addEventListener(
+        'input',
+        updatePaymentPreview
+    );
+
+    modalDeductionAmount.addEventListener(
+        'input',
+        updatePaymentPreview
+    );
+
+
+    paymentModalClose.addEventListener(
+        'click',
+        closePaymentModal
+    );
+
+    paymentModalCancel.addEventListener(
+        'click',
+        closePaymentModal
+    );
+
+
+    paymentModal.addEventListener(
+        'click',
+        function (event) {
+
+            if (
+                event.target
+                === paymentModal
+            ) {
+                closePaymentModal();
+            }
+        }
+    );
+
+
+    paymentModalSubmit.addEventListener(
+        'click',
+        function () {
+
+            if (
+                !activePaymentForm
+            ) {
+                return;
+            }
+
+
+            clearPaymentError();
+
+
+            const payment =
+                Number(
+                    modalPaymentAmount.value
+                    || 0
+                );
+
+
+            const deduction =
+                Number(
+                    modalDeductionAmount.value
+                    || 0
+                );
+
+
+            const deductionNote =
+                modalDeductionNote.value
+                    .trim();
+
+
+            if (
+                !Number.isFinite(payment)
+                || payment <= 0
+            ) {
+
+                showPaymentError(
+                    'Jumlah pembayaran customer wajib diisi dan harus lebih dari 0.'
+                );
+
+                return;
+            }
+
+
+            if (
+                payment
+                > activePaymentRemaining
+            ) {
+
+                showPaymentError(
+                    'Jumlah pembayaran tidak boleh melebihi sisa tagihan $'
+                    + activePaymentRemaining.toFixed(2)
+                    + '.'
+                );
+
+                return;
+            }
+
+
+            if (
+                !Number.isFinite(deduction)
+                || deduction < 0
+            ) {
+
+                showPaymentError(
+                    'Biaya/potongan petugas tidak valid.'
+                );
+
+                return;
+            }
+
+
+            if (
+                deduction > payment
+            ) {
+
+                showPaymentError(
+                    'Biaya/potongan petugas tidak boleh melebihi pembayaran customer.'
+                );
+
+                return;
+            }
+
+
+            if (
+                deduction > 0
+                && deductionNote === ''
+            ) {
+
+                showPaymentError(
+                    'Keterangan potongan petugas wajib diisi jika ada biaya/potongan.'
+                );
+
+                return;
+            }
+
+
+            const paymentInput =
+                activePaymentForm
+                    .querySelector(
+                        'input[name="payment_amount"]'
+                    );
+
+            const deductionInput =
+                activePaymentForm
+                    .querySelector(
+                        'input[name="deduction_amount"]'
+                    );
+
+            const deductionNoteInput =
+                activePaymentForm
+                    .querySelector(
+                        'input[name="deduction_note"]'
+                    );
+
+
+            paymentInput.value =
+                payment.toFixed(2);
+
+            deductionInput.value =
+                deduction.toFixed(2);
+
+            deductionNoteInput.value =
+                deductionNote;
+
+
+            const formToSubmit =
+                activePaymentForm;
+
+
+            paymentModal.classList.remove(
+                'show'
+            );
+
+            paymentModal.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            document.body.classList.remove(
+                'menu-open'
+            );
+
+
+            formToSubmit.submit();
+        }
+    );
 
 
     /*
@@ -2411,7 +3175,7 @@
                         confirm(
                             'Konfirmasi bahwa '
                             + staff
-                            + ' sudah menyerahkan uang sebesar $'
+                            + ' sudah menyerahkan setoran bersih sebesar $'
                             + balance.toFixed(2)
                             + ' kepada Admin?'
                         );
