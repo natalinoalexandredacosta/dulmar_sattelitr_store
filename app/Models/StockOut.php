@@ -24,6 +24,12 @@ class StockOut extends Model
         'subtotal',
         'total_profit',
 
+        'customer_discount_amount',
+        'customer_discount_note',
+
+        'deduction_amount',
+        'deduction_note',
+
         'customer_paid_amount',
         'customer_balance',
         'customer_payment_status',
@@ -55,6 +61,12 @@ class StockOut extends Model
             'decimal:2',
 
         'total_profit' =>
+            'decimal:2',
+
+        'customer_discount_amount' =>
+            'decimal:2',
+
+        'deduction_amount' =>
             'decimal:2',
 
         'customer_paid_amount' =>

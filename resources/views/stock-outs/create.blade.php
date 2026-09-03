@@ -927,7 +927,7 @@
 
                             value="{{ old('customer_phone') }}"
 
-                            placeholder="Contoh: 77234567"
+                            placeholder="77234567"
 
                             maxlength="50"
                         >
@@ -956,7 +956,7 @@
 
                             value="{{ old('customer_address') }}"
 
-                            placeholder="Contoh: Comoro, Dili"
+                            placeholder="Comoro, Dili"
 
                             maxlength="255"
                         >
@@ -1112,7 +1112,7 @@
                                 >
 
                                 <span class="help-text">
-                                    Contoh: harga normal $65 dan Anda beri diskon $5, maka isi 5.
+                                    Masukkan nominal diskon yang diberikan kepada pelanggan.
                                 </span>
 
                             </div>
@@ -1131,11 +1131,11 @@
                                     class="form-control"
                                     value="{{ old('customer_discount_note') }}"
                                     maxlength="255"
-                                    placeholder="Contoh: Diskon pelanggan / Promo khusus"
+                                    placeholder="Diskon pelanggan / Promo khusus"
                                 >
 
                                 <span class="help-text">
-                                    Opsional. Isi jika ingin mencatat alasan diskon.
+                                    Opsional. Isi alasan atau jenis diskon jika diperlukan.
                                 </span>
 
                             </div>
@@ -1157,7 +1157,7 @@
                             <div class="calculation-item after-discount-item">
 
                                 <span>
-                                    Total Setelah Diskon / Tagihan Customer
+                        
                                 </span>
 
                                 <strong id="totalAfterDiscount">
@@ -1165,7 +1165,7 @@
                                 </strong>
 
                                 <span class="help-text" style="margin-top:8px;">
-                                    Rumus: Total Harga Normal - Diskon Pelanggan.
+                    
                                 </span>
 
                             </div>
@@ -1174,7 +1174,7 @@
                             <div class="calculation-item profit-item">
 
                                 <span>
-                                    Keuntungan Setelah Diskon
+                        
                                 </span>
 
                                 <strong id="totalKeuntungan">
@@ -1182,7 +1182,7 @@
                                 </strong>
 
                                 <span class="help-text" style="margin-top:8px;">
-                                    Rumus: Total Setelah Diskon - Total Modal.
+                        
                                 </span>
 
                             </div>
@@ -1199,7 +1199,7 @@
                     <div class="calculation-card" style="background:#fff7ed; border-color:#fdba74;">
 
                         <h3 style="color:#9a3412;">
-                            Potongan Petugas dan Setoran Bersih
+    
                         </h3>
 
                         <div class="calculation-grid">
@@ -1222,8 +1222,7 @@
                                 >
 
                                 <span class="help-text">
-                                    Isi hanya jika sebagian uang penjualan dipakai untuk bensin, komisi, atau biaya petugas.
-                                    Jika tidak ada, isi 0.
+                    
                                 </span>
 
                             </div>
@@ -1232,7 +1231,7 @@
                             <div class="form-group" style="margin-bottom:0;">
 
                                 <label for="deduction_note">
-                                    Keterangan Potongan Petugas
+                            
                                 </label>
 
                                 <input
@@ -1242,11 +1241,11 @@
                                     class="form-control"
                                     value="{{ old('deduction_note') }}"
                                     maxlength="255"
-                                    placeholder="Contoh: Bensin / Komisi petugas"
+                                    placeholder="Bensin / Komisi petugas"
                                 >
 
                                 <span class="help-text">
-                                    Wajib diisi jika Biaya/Potongan Petugas lebih dari 0.
+                        
                                 </span>
 
                             </div>
@@ -1263,7 +1262,7 @@
                                 </strong>
 
                                 <span class="help-text" style="margin-top:8px;">
-                                    Rumus: Total Setelah Diskon - Potongan Petugas.
+                        
                                 </span>
 
                             </div>
@@ -1622,7 +1621,7 @@
 
                 customerDiscountInput
                     .setCustomValidity(
-                        'Diskon pelanggan tidak boleh melebihi total harga normal.'
+                        
                     );
 
             } else if (
@@ -1642,7 +1641,7 @@
 
                 deductionInput
                     .setCustomValidity(
-                        'Potongan petugas tidak boleh melebihi total setelah diskon.'
+                    
                     );
 
             } else if (
