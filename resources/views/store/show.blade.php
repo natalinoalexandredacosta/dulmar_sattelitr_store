@@ -9,15 +9,259 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        {{ $product->product_name }} - Dulmar Satellite Store
-    </title>
+    {{-- ============================================================
+         SEO PRODUK
+    ============================================================ --}}
+
+    @php
+        $seoProductName =
+            trim(
+                (string) (
+                    $product->product_name
+                    ?? 'Produtu'
+                )
+            );
+
+        $seoCategory =
+            trim(
+                (string) (
+                    $product->category
+                    ?? 'Satellite & Electronics'
+                )
+            );
+
+        $seoDescriptionRaw =
+            trim(
+                strip_tags(
+                    (string) (
+                        $product->description
+                        ?? ''
+                    )
+                )
+            );
+
+        $seoDescription =
+            $seoDescriptionRaw !== ''
+                ? mb_substr(
+                    $seoDescriptionRaw,
+                    0,
+                    155,
+                    'UTF-8'
+                )
+                : (
+                    $seoProductName
+                    . ' disponivel iha Dulmar Satellite Store Timor-Leste. '
+                    . 'Haree presu, stok, detallu produtu no halo order via WhatsApp.'
+                );
+
+        $seoCanonical =
+            route(
+                'store.product.show',
+                $product
+            );
+
+        $seoImage =
+            !empty($product->image)
+                ? asset(
+                    'storage/'
+                    . $product->image
+                )
+                : asset(
+                    'images/logo-dulmar.jpg'
+                );
+
+        $seoPrice =
+            (float) (
+                $product->selling_price
+                ?? 0
+            );
+
+        $seoPromoActive =
+            isset($activePromoCampaign)
+            && $activePromoCampaign !== null
+            && isset($campaignPromoProduct)
+            && $campaignPromoProduct !== null;
+
+        if ($seoPromoActive) {
+
+            $seoDiscountType =
+                $campaignPromoProduct
+                    ->pivot
+                    ->discount_type
+                ?? null;
+
+            $seoDiscountValue =
+                (float) (
+                    $campaignPromoProduct
+                        ->pivot
+                        ->discount_value
+                    ?? 0
+                );
+
+            if (
+                $seoDiscountType
+                === 'percent'
+            ) {
+
+                $seoPrice =
+                    $seoPrice
+                    - (
+                        $seoPrice
+                        * $seoDiscountValue
+                        / 100
+                    );
+
+            } elseif (
+                $seoDiscountValue > 0
+            ) {
+
+                $seoPrice =
+                    $seoPrice
+                    - $seoDiscountValue;
+            }
+
+            if ($seoPrice < 0) {
+                $seoPrice = 0;
+            }
+        }
+
+        $seoAvailability =
+            ((int) ($product->stock ?? 0)) > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock';
+
+        $seoStructuredData = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $seoProductName,
+            'image' => [
+                $seoImage,
+            ],
+            'description' => $seoDescription,
+            'sku' => (string) ($product->id ?? ''),
+            'category' => $seoCategory,
+            'url' => $seoCanonical,
+            'brand' => [
+                '@type' => 'Brand',
+                'name' => !empty($product->brand)
+                    ? (string) $product->brand
+                    : 'Dulmar Satellite Store',
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => $seoCanonical,
+                'priceCurrency' => 'USD',
+                'price' => number_format(
+                    $seoPrice,
+                    2,
+                    '.',
+                    ''
+                ),
+                'availability' => $seoAvailability,
+                'itemCondition' => 'https://schema.org/NewCondition',
+                'seller' => [
+                    '@type' => 'Organization',
+                    'name' => 'Dulmar Satellite Store',
+                ],
+            ],
+        ];
+    @endphp
+
+    <title>{{ $seoProductName }} | Dulmar Satellite Store Timor-Leste</title>
+
+    <meta
+        name="description"
+        content="{{ $seoDescription }}"
+    >
+
+    <meta
+        name="robots"
+        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    >
+
+    <link
+        rel="canonical"
+        href="{{ $seoCanonical }}"
+    >
+
+    <meta
+        property="og:type"
+        content="product"
+    >
+
+    <meta
+        property="og:site_name"
+        content="Dulmar Satellite Store"
+    >
+
+    <meta
+        property="og:title"
+        content="{{ $seoProductName }} | Dulmar Satellite Store Timor-Leste"
+    >
+
+    <meta
+        property="og:description"
+        content="{{ $seoDescription }}"
+    >
+
+    <meta
+        property="og:url"
+        content="{{ $seoCanonical }}"
+    >
+
+    <meta
+        property="og:image"
+        content="{{ $seoImage }}"
+    >
+
+    <meta
+        property="og:image:alt"
+        content="{{ $seoProductName }} - Dulmar Satellite Store"
+    >
+
+    <meta
+        property="product:price:amount"
+        content="{{ number_format($seoPrice, 2, '.', '') }}"
+    >
+
+    <meta
+        property="product:price:currency"
+        content="USD"
+    >
+
+    <meta
+        name="twitter:card"
+        content="summary_large_image"
+    >
+
+    <meta
+        name="twitter:title"
+        content="{{ $seoProductName }} | Dulmar Satellite Store Timor-Leste"
+    >
+
+    <meta
+        name="twitter:description"
+        content="{{ $seoDescription }}"
+    >
+
+    <meta
+        name="twitter:image"
+        content="{{ $seoImage }}"
+    >
 
     <link
         rel="icon"
         type="image/jpeg"
         href="{{ asset('images/logo-dulmar.jpg') }}"
     >
+
+    <script type="application/ld+json">
+    {!! json_encode(
+        $seoStructuredData,
+        JSON_UNESCAPED_SLASHES
+        | JSON_UNESCAPED_UNICODE
+    ) !!}
+    </script>
 
     <style>
         :root {
@@ -1554,7 +1798,7 @@
 
                 <img
                     src="{{ asset('images/logo-dulmar.jpg') }}"
-                    alt="Dulmar Satellite Store"
+                    alt="Logo Dulmar Satellite Store Timor-Leste"
                 >
 
             </span>
@@ -1770,7 +2014,7 @@
                             'storage/'
                             . $product->image
                         ) }}"
-                        alt="{{ $productName }}"
+                        alt="{{ $productName }} - {{ $category }} | Dulmar Satellite Store Timor-Leste"
                     >
 
                 @else
