@@ -9,13 +9,126 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Dulmar Satellite Store</title>
+    {{-- ============================================================
+         SEO HOMEPAGE
+    ============================================================ --}}
+
+    <title>Dulmar Satellite Store | K-Vision, Nex Parabola & Elektronik Timor-Leste</title>
+
+    <meta
+        name="description"
+        content="Dulmar Satellite Store menyediakan receiver K-Vision, Nex Parabola, TV, kabel, RCA, speaker dan perlengkapan satellite & elektronik di Timor-Leste. Lihat stok, harga dan promo terbaru."
+    >
+
+    <meta
+        name="robots"
+        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    >
+
+    <meta
+        name="author"
+        content="Dulmar Satellite Store"
+    >
+
+    <meta
+        name="theme-color"
+        content="#111111"
+    >
+
+    <link
+        rel="canonical"
+        href="{{ route('store.index') }}"
+    >
 
     <link
         rel="icon"
         type="image/jpeg"
         href="{{ asset('images/logo-dulmar.jpg') }}"
     >
+
+    {{-- Open Graph --}}
+    <meta
+        property="og:type"
+        content="website"
+    >
+
+    <meta
+        property="og:site_name"
+        content="Dulmar Satellite Store"
+    >
+
+    <meta
+        property="og:title"
+        content="Dulmar Satellite Store | K-Vision, Nex Parabola & Elektronik Timor-Leste"
+    >
+
+    <meta
+        property="og:description"
+        content="Receiver K-Vision, Nex Parabola, TV, kabel, RCA, speaker dan perlengkapan satellite & elektronik di Timor-Leste."
+    >
+
+    <meta
+        property="og:url"
+        content="{{ route('store.index') }}"
+    >
+
+    <meta
+        property="og:image"
+        content="{{ asset('images/logo-dulmar.jpg') }}"
+    >
+
+    <meta
+        property="og:image:alt"
+        content="Dulmar Satellite Store"
+    >
+
+    {{-- Twitter / social preview --}}
+    <meta
+        name="twitter:card"
+        content="summary"
+    >
+
+    <meta
+        name="twitter:title"
+        content="Dulmar Satellite Store | K-Vision, Nex Parabola & Elektronik Timor-Leste"
+    >
+
+    <meta
+        name="twitter:description"
+        content="Receiver, TV, kabel, speaker dan perlengkapan satellite & elektronik di Timor-Leste."
+    >
+
+    <meta
+        name="twitter:image"
+        content="{{ asset('images/logo-dulmar.jpg') }}"
+    >
+
+    @php
+    $seoStructuredData = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => 'Dulmar Satellite Store',
+        'url' => route('store.index'),
+        'logo' => asset('images/logo-dulmar.jpg'),
+        'description' => 'Dulmar Satellite Store menyediakan receiver K-Vision, Nex Parabola, TV, kabel, RCA, speaker dan perlengkapan satellite & elektronik di Timor-Leste.',
+        'contactPoint' => [
+            '@type' => 'ContactPoint',
+            'telephone' => '+67076732586',
+            'contactType' => 'customer service',
+            'availableLanguage' => [
+                'Tetum',
+                'Indonesian',
+            ],
+        ],
+    ];
+@endphp
+
+<script type="application/ld+json">
+{!! json_encode(
+    $seoStructuredData,
+    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+) !!}
+</script>
 
     <style>
         :root {
@@ -4652,7 +4765,7 @@
 
                 <img
                     src="{{ asset('images/logo-dulmar.jpg') }}"
-                    alt="Dulmar Satellite Store"
+                    alt="Logo Dulmar Satellite Store Timor-Leste"
                 >
 
             </div>
@@ -4828,7 +4941,14 @@
         <div class="hero-copy">
 
             <h1>
-                {{ $heroTitle }}
+                @if (
+                    $hasActivePromo
+                    && $heroTitle !== 'Dulmar Satellite Store'
+                )
+                    Dulmar Satellite Store — {{ $heroTitle }}
+                @else
+                    Dulmar Satellite Store - Satellite & Electronics Timor-Leste
+                @endif
             </h1>
 
             <p>
