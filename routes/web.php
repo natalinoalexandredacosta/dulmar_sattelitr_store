@@ -275,6 +275,41 @@ Route::get(
 
 /*
 |--------------------------------------------------------------------------
+| SITEMAP - GOOGLE SEO
+|--------------------------------------------------------------------------
+|
+| URL:
+| https://dulmar.my.id/sitemap.xml
+|
+| Berisi homepage dan seluruh detail produk publik.
+|
+*/
+
+Route::get('/sitemap.xml', function () {
+
+    $products = Product::query()
+        ->select([
+            'id',
+            'updated_at',
+        ])
+        ->orderBy('id')
+        ->get();
+
+    return response()
+        ->view(
+            'sitemap',
+            compact('products')
+        )
+        ->header(
+            'Content-Type',
+            'application/xml; charset=UTF-8'
+        );
+
+})->name('sitemap');
+
+
+/*
+|--------------------------------------------------------------------------
 | LOGIN, OTP, DAN LUPA PASSWORD
 |--------------------------------------------------------------------------
 */
