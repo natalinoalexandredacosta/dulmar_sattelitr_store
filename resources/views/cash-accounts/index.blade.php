@@ -1376,14 +1376,19 @@
                     </label>
 
                     <input
-                        type="number"
+                        type="text"
                         name="amount"
-                        class="form-control"
-                        min="0.01"
-                        step="0.01"
+                        class="form-control js-money-input"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        data-min="0.01"
                         required
-                        placeholder="Contoh: 100.00"
+                        placeholder="Contoh: 234150 atau 234,150.00"
                     >
+
+                    <div class="form-help">
+                        Ketik 234150 untuk $234,150.00. Pemisah ribuan boleh digunakan.
+                    </div>
 
                 </div>
 
@@ -1477,11 +1482,12 @@
                     </label>
 
                     <input
-                        type="number"
+                        type="text"
                         name="balance"
-                        class="form-control"
-                        min="0"
-                        step="0.01"
+                        class="form-control js-money-input"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        data-min="0"
                         required
                         value="{{ number_format(
                             (float) $adminAccount->balance,
@@ -1490,6 +1496,10 @@
                             ''
                         ) }}"
                     >
+
+                    <div class="form-help">
+                        Ketik 234150 untuk $234,150.00. Nilai akan dirapikan otomatis.
+                    </div>
 
                 </div>
 
@@ -1584,13 +1594,19 @@
                     </label>
 
                     <input
-                        type="number"
+                        type="text"
                         name="amount"
-                        class="form-control"
-                        min="0.01"
-                        step="0.01"
+                        class="form-control js-money-input"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        data-min="0.01"
                         required
+                        placeholder="Contoh: 234150 atau 234,150.00"
                     >
+
+                    <div class="form-help">
+                        Ketik 234150 untuk $234,150.00. Pemisah ribuan boleh digunakan.
+                    </div>
 
                 </div>
 
@@ -1721,11 +1737,12 @@
                     </label>
 
                     <input
-                        type="number"
+                        type="text"
                         name="balance"
-                        class="form-control"
-                        min="0"
-                        step="0.01"
+                        class="form-control js-money-input"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        data-min="0"
                         required
                         value="{{ number_format(
                             (float) $bankAccount->balance,
@@ -1734,6 +1751,10 @@
                             ''
                         ) }}"
                     >
+
+                    <div class="form-help">
+                        Ketik 234150 untuk $234,150.00. Nilai akan dirapikan otomatis.
+                    </div>
 
                 </div>
 
@@ -1868,14 +1889,20 @@
                     </label>
 
                     <input
-                        type="number"
+                        type="text"
                         name="amount"
-                        class="form-control"
-                        min="0.01"
-                        step="0.01"
-                        max="{{ (float) $adminAccount->balance }}"
+                        class="form-control js-money-input"
+                        inputmode="decimal"
+                        autocomplete="off"
+                        data-min="0.01"
+                        data-max="{{ (float) $adminAccount->balance }}"
                         required
+                        placeholder="Contoh: 234150 atau 234,150.00"
                     >
+
+                    <div class="form-help">
+                        Ketik nominal tanpa simbol $. Sistem akan memformat otomatis.
+                    </div>
 
                 </div>
 
@@ -2163,6 +2190,184 @@
     );
 
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | INPUT NOMINAL UANG
+    |--------------------------------------------------------------------------
+    */
+
+    function parseMoneyValue(value) {
+        let raw = String(value ?? '')
+            .trim()
+            .replace(/\$/g, '')
+            .replace(/\s+/g, '');
+
+        if (raw === '') {
+            return null;
+        }
+
+        raw = raw.replace(/[^\d.,-]/g, '');
+
+        const hasComma = raw.includes(',');
+        const hasDot = raw.includes('.');
+
+        if (hasComma && hasDot) {
+            const lastComma = raw.lastIndexOf(',');
+            const lastDot = raw.lastIndexOf('.');
+
+            if (lastComma > lastDot) {
+                raw = raw.replace(/\./g, '');
+                raw = raw.replace(',', '.');
+            } else {
+                raw = raw.replace(/,/g, '');
+            }
+        } else if (hasComma) {
+            const parts = raw.split(',');
+
+            if (
+                (parts.length > 2 && parts.slice(1).every(part => part.length === 3))
+                || (parts.length === 2 && parts[1].length === 3)
+            ) {
+                raw = parts.join('');
+            } else {
+                raw = raw.replace(',', '.');
+            }
+        } else if (hasDot) {
+            const parts = raw.split('.');
+
+            if (
+                (parts.length > 2 && parts.slice(1).every(part => part.length === 3))
+                || (parts.length === 2 && parts[1].length === 3)
+            ) {
+                raw = parts.join('');
+            }
+        }
+
+        const number = Number(raw);
+
+        if (!Number.isFinite(number)) {
+            return null;
+        }
+
+        return Math.round((number + Number.EPSILON) * 100) / 100;
+    }
+
+    function formatMoneyValue(number) {
+        return Number(number).toLocaleString(
+            'en-US',
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+    }
+
+    document
+        .querySelectorAll('.js-money-input')
+        .forEach(function (input) {
+
+            input.addEventListener(
+                'focus',
+                function () {
+                    const parsed = parseMoneyValue(input.value);
+
+                    if (parsed !== null) {
+                        input.value = parsed.toFixed(2);
+                    }
+                }
+            );
+
+            input.addEventListener(
+                'blur',
+                function () {
+                    if (input.value.trim() === '') {
+                        return;
+                    }
+
+                    const parsed = parseMoneyValue(input.value);
+
+                    if (parsed !== null) {
+                        input.value = formatMoneyValue(parsed);
+                    }
+                }
+            );
+        });
+
+    document
+        .querySelectorAll('form')
+        .forEach(function (form) {
+
+            form.addEventListener(
+                'submit',
+                function (event) {
+
+                    const moneyInputs =
+                        form.querySelectorAll('.js-money-input');
+
+                    for (const input of moneyInputs) {
+
+                        const value = parseMoneyValue(input.value);
+
+                        const min =
+                            input.dataset.min !== undefined
+                                ? Number(input.dataset.min)
+                                : null;
+
+                        const max =
+                            input.dataset.max !== undefined
+                                ? Number(input.dataset.max)
+                                : null;
+
+                        if (value === null) {
+                            event.preventDefault();
+
+                            alert(
+                                'Nominal uang tidak valid. '
+                                + 'Contoh: 234150 atau 234,150.00'
+                            );
+
+                            input.focus();
+                            return;
+                        }
+
+                        if (min !== null && value < min) {
+                            event.preventDefault();
+
+                            alert(
+                                'Nominal minimal adalah $'
+                                + min.toFixed(2)
+                            );
+
+                            input.focus();
+                            return;
+                        }
+
+                        if (max !== null && value > max) {
+                            event.preventDefault();
+
+                            alert(
+                                'Nominal melebihi saldo yang tersedia. Maksimal $'
+                                + max.toLocaleString(
+                                    'en-US',
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )
+                            );
+
+                            input.focus();
+                            return;
+                        }
+
+                        input.value = value.toFixed(2);
+                    }
+                }
+            );
+        });
+
+
     /*
     |--------------------------------------------------------------------------
     | KONFIRMASI SETOR KE BANK
@@ -2194,10 +2399,9 @@
 
 
                 const amount =
-                    Number(
+                    parseMoneyValue(
                         amountInput.value
-                        || 0
-                    );
+                    ) ?? 0;
 
 
                 const bank =
