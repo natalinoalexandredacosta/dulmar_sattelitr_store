@@ -554,15 +554,26 @@
                 @endcan
 
 
-                @if(Route::has('homepage-banners.index'))
+              @if(Route::has('homepage-banners.index'))
 
-                    <a
-                        href="{{ route('homepage-banners.index') }}"
-                        class="{{ request()->routeIs('homepage-banners.*') ? 'active' : '' }}"
-                    >
-                        Homepage Banner
-                    </a>
+    <a
+        href="{{ route('homepage-banners.index') }}"
+        class="{{ request()->routeIs('homepage-banners.*') ? 'active' : '' }}"
+    >
+        Homepage Banner
+    </a>
 
+@endif
+
+
+@if(Route::has('testimonials.index'))
+
+    <a
+        href="{{ route('testimonials.index') }}"
+        class="{{ request()->routeIs('testimonials.*') ? 'active' : '' }}"
+    >
+        Testimoni
+    </a>
                 @endif
 
 
