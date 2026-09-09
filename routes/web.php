@@ -12,6 +12,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockInController;
 use App\Http\Controllers\StockOutController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\TvVoucherTransactionController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\VisitorLogController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\VisitorLogController;
 use App\Models\HomepageBanner;
 use App\Models\Product;
 use App\Models\PromoCampaign;
+use App\Models\Testimonial;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,26 +34,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function (Request $request) {
 
-    $search = trim(
-        (string) $request->query(
-            'search',
-            ''
-        )
-    );
-
-    $category = trim(
-        (string) $request->query(
-            'category',
-            ''
-        )
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | HOMEPAGE BANNER
-    |--------------------------------------------------------------------------
-    */
+    $search = trim((string) $request->query('search', ''));
+    $category = trim((string) $request->query('category', ''));
 
     $homepageBanners = HomepageBanner::query()
         ->where('is_active', true)
@@ -59,20 +43,12 @@ Route::get('/', function (Request $request) {
         ->orderBy('id')
         ->get();
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | KATEGORI PRODUK
-    |--------------------------------------------------------------------------
-    */
-
     $categories = Product::query()
         ->whereNotNull('category')
         ->where('category', '!=', '')
         ->select('category')
         ->distinct()
         ->pluck('category');
-
 
     $categoryPriority = [
         'Receiver' => 1,
@@ -82,41 +58,19 @@ Route::get('/', function (Request $request) {
         'Speaker' => 5,
     ];
 
-
     $categories = $categories
         ->sortBy(function ($category) use ($categoryPriority) {
-
-            if (
-                isset(
-                    $categoryPriority[
-                        $category
-                    ]
-                )
-            ) {
+            if (isset($categoryPriority[$category])) {
                 return sprintf(
                     '%03d-%s',
-                    $categoryPriority[
-                        $category
-                    ],
+                    $categoryPriority[$category],
                     $category
                 );
             }
 
-            return
-                '999-'
-                . mb_strtolower(
-                    $category,
-                    'UTF-8'
-                );
+            return '999-' . mb_strtolower($category, 'UTF-8');
         })
         ->values();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PRODUK
-    |--------------------------------------------------------------------------
-    */
 
     $productQuery = Product::query();
 
@@ -139,13 +93,6 @@ Route::get('/', function (Request $request) {
         ->orderBy('product_name')
         ->get();
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | PROMO CAMPAIGN AKTIF
-    |--------------------------------------------------------------------------
-    */
-
     $activePromoCampaign = PromoCampaign::query()
         ->with([
             'products' => function ($query) {
@@ -153,37 +100,35 @@ Route::get('/', function (Request $request) {
             },
         ])
         ->where('is_active', true)
-        ->whereDate(
-            'start_date',
-            '<=',
-            now()->toDateString()
-        )
-        ->whereDate(
-            'end_date',
-            '>=',
-            now()->toDateString()
-        )
+        ->whereDate('start_date', '<=', now()->toDateString())
+        ->whereDate('end_date', '>=', now()->toDateString())
         ->orderByDesc('start_date')
         ->orderByDesc('id')
         ->first();
 
-
     $campaignPromoProducts = collect();
 
-
     if ($activePromoCampaign) {
-        $campaignPromoProducts =
-            $activePromoCampaign
-                ->products
-                ->keyBy('id');
+        $campaignPromoProducts = $activePromoCampaign
+            ->products
+            ->keyBy('id');
     }
-
 
     /*
     |--------------------------------------------------------------------------
-    | TAMPILKAN HOMEPAGE
+    | TESTIMONI APPROVED UNTUK HOMEPAGE
     |--------------------------------------------------------------------------
     */
+
+    $approvedTestimonials = Testimonial::query()
+        ->with([
+            'product',
+            'proofs',
+        ])
+        ->where('status', 'approved')
+        ->latest()
+        ->take(6)
+        ->get();
 
     return view(
         'store.index',
@@ -194,7 +139,8 @@ Route::get('/', function (Request $request) {
             'category',
             'homepageBanners',
             'activePromoCampaign',
-            'campaignPromoProducts'
+            'campaignPromoProducts',
+            'approvedTestimonials'
         )
     );
 
@@ -213,52 +159,30 @@ Route::get(
 
         $activePromoCampaign = PromoCampaign::query()
             ->where('is_active', true)
-            ->whereDate(
-                'start_date',
-                '<=',
-                now()->toDateString()
-            )
-            ->whereDate(
-                'end_date',
-                '>=',
-                now()->toDateString()
-            )
+            ->whereDate('start_date', '<=', now()->toDateString())
+            ->whereDate('end_date', '>=', now()->toDateString())
             ->whereHas(
                 'products',
                 function ($query) use ($product) {
-
-                    $query->where(
-                        'products.id',
-                        $product->id
-                    );
-
+                    $query->where('products.id', $product->id);
                 }
             )
             ->with([
                 'products' => function ($query) use ($product) {
-
-                    $query->where(
-                        'products.id',
-                        $product->id
-                    );
-
+                    $query->where('products.id', $product->id);
                 },
             ])
             ->orderByDesc('start_date')
             ->orderByDesc('id')
             ->first();
 
-
         $campaignPromoProduct = null;
 
-
         if ($activePromoCampaign) {
-            $campaignPromoProduct =
-                $activePromoCampaign
-                    ->products
-                    ->first();
+            $campaignPromoProduct = $activePromoCampaign
+                ->products
+                ->first();
         }
-
 
         return view(
             'store.show',
@@ -268,7 +192,6 @@ Route::get(
                 'campaignPromoProduct'
             )
         );
-
     }
 )->name('store.product.show');
 
@@ -277,12 +200,6 @@ Route::get(
 |--------------------------------------------------------------------------
 | SITEMAP - GOOGLE SEO
 |--------------------------------------------------------------------------
-|
-| URL:
-| https://dulmar.my.id/sitemap.xml
-|
-| Berisi homepage dan seluruh detail produk publik.
-|
 */
 
 Route::get('/sitemap.xml', function () {
@@ -319,72 +236,52 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [
         AuthController::class,
         'showLogin',
-    ])
-        ->name('login');
-
+    ])->name('login');
 
     Route::post('/login', [
         AuthController::class,
         'login',
-    ])
-        ->name('login.process');
-
+    ])->name('login.process');
 
     Route::get('/verify-otp', [
         AuthController::class,
         'showOtpForm',
-    ])
-        ->name('otp.form');
-
+    ])->name('otp.form');
 
     Route::post('/verify-otp', [
         AuthController::class,
         'verifyOtp',
-    ])
-        ->name('otp.verify');
-
+    ])->name('otp.verify');
 
     Route::get('/forgot-password', [
         AuthController::class,
         'showForgotPassword',
-    ])
-        ->name('password.request');
-
+    ])->name('password.request');
 
     Route::post('/forgot-password', [
         AuthController::class,
         'sendResetOtp',
-    ])
-        ->name('password.email');
-
+    ])->name('password.email');
 
     Route::get('/forgot-password/verify-otp', [
         AuthController::class,
         'showResetOtpForm',
-    ])
-        ->name('password.otp.form');
-
+    ])->name('password.otp.form');
 
     Route::post('/forgot-password/verify-otp', [
         AuthController::class,
         'verifyResetOtp',
-    ])
-        ->name('password.otp.verify');
-
+    ])->name('password.otp.verify');
 
     Route::get('/reset-password', [
         AuthController::class,
         'showResetPasswordForm',
-    ])
-        ->name('password.reset.form');
-
+    ])->name('password.reset.form');
 
     Route::post('/reset-password', [
         AuthController::class,
         'resetPassword',
-    ])
-        ->name('password.update');
-
+    ])->name('password.update');
 });
 
 
@@ -399,47 +296,84 @@ Route::middleware([
     'idle.timeout',
 ])->group(function () {
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGOUT
-    |--------------------------------------------------------------------------
-    */
-
     Route::post('/logout', [
         AuthController::class,
         'logout',
-    ])
-        ->name('logout');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD
-    |--------------------------------------------------------------------------
-    */
+    ])->name('logout');
 
     Route::get('/dashboard', [
         DashboardController::class,
         'index',
     ])
-        ->middleware(
-            'permission:dashboard.view'
-        )
+        ->middleware('permission:dashboard.view')
         ->name('dashboard');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | VISITOR LOG
-    |--------------------------------------------------------------------------
-    */
 
     Route::get('/visitor-logs', [
         VisitorLogController::class,
         'index',
-    ])
-        ->name('visitor-logs.index');
+    ])->name('visitor-logs.index');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TESTIMONI PEMBELI
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/testimonials', [
+        TestimonialController::class,
+        'index',
+    ])->name('testimonials.index');
+
+    Route::get('/testimonials/create', [
+        TestimonialController::class,
+        'create',
+    ])->name('testimonials.create');
+
+    Route::post('/testimonials', [
+        TestimonialController::class,
+        'store',
+    ])->name('testimonials.store');
+
+    Route::get('/testimonials/{testimonial}', [
+        TestimonialController::class,
+        'show',
+    ])->name('testimonials.show');
+
+    Route::get('/testimonials/{testimonial}/edit', [
+        TestimonialController::class,
+        'edit',
+    ])->name('testimonials.edit');
+
+    Route::put('/testimonials/{testimonial}', [
+        TestimonialController::class,
+        'update',
+    ])->name('testimonials.update');
+
+    Route::patch('/testimonials/{testimonial}/approve', [
+        TestimonialController::class,
+        'approve',
+    ])->name('testimonials.approve');
+
+    Route::patch('/testimonials/{testimonial}/reject', [
+        TestimonialController::class,
+        'reject',
+    ])->name('testimonials.reject');
+
+    Route::patch('/testimonials/{testimonial}/pending', [
+        TestimonialController::class,
+        'pending',
+    ])->name('testimonials.pending');
+
+    Route::delete('/testimonial-proofs/{proof}', [
+        TestimonialController::class,
+        'destroyProof',
+    ])->name('testimonials.proofs.destroy');
+
+    Route::delete('/testimonials/{testimonial}', [
+        TestimonialController::class,
+        'destroy',
+    ])->name('testimonials.destroy');
 
 
     /*
@@ -451,36 +385,27 @@ Route::middleware([
     Route::get('/homepage-banners', [
         HomepageBannerController::class,
         'index',
-    ])
-        ->name('homepage-banners.index');
-
+    ])->name('homepage-banners.index');
 
     Route::post('/homepage-banners', [
         HomepageBannerController::class,
         'store',
-    ])
-        ->name('homepage-banners.store');
-
+    ])->name('homepage-banners.store');
 
     Route::put('/homepage-banners/{homepageBanner}', [
         HomepageBannerController::class,
         'update',
-    ])
-        ->name('homepage-banners.update');
-
+    ])->name('homepage-banners.update');
 
     Route::patch('/homepage-banners/{homepageBanner}/toggle', [
         HomepageBannerController::class,
         'toggle',
-    ])
-        ->name('homepage-banners.toggle');
-
+    ])->name('homepage-banners.toggle');
 
     Route::delete('/homepage-banners/{homepageBanner}', [
         HomepageBannerController::class,
         'destroy',
-    ])
-        ->name('homepage-banners.destroy');
+    ])->name('homepage-banners.destroy');
 
 
     /*
@@ -492,49 +417,32 @@ Route::middleware([
     Route::get('/cash', [
         CashController::class,
         'index',
-    ])
-        ->name('cash.index');
-
+    ])->name('cash.index');
 
     Route::post('/cash', [
         CashController::class,
         'store',
-    ])
-        ->name('cash.store');
-
+    ])->name('cash.store');
 
     Route::patch('/cash/{cashTransaction}', [
         CashController::class,
         'update',
-    ])
-        ->name('cash.update');
+    ])->name('cash.update');
 
+    Route::patch('/cash/{cashTransaction}/approve', [
+        CashController::class,
+        'approve',
+    ])->name('cash.approve');
 
-    Route::patch(
-        '/cash/{cashTransaction}/approve',
-        [
-            CashController::class,
-            'approve',
-        ]
-    )
-        ->name('cash.approve');
-
-
-    Route::patch(
-        '/cash/{cashTransaction}/reject',
-        [
-            CashController::class,
-            'reject',
-        ]
-    )
-        ->name('cash.reject');
-
+    Route::patch('/cash/{cashTransaction}/reject', [
+        CashController::class,
+        'reject',
+    ])->name('cash.reject');
 
     Route::delete('/cash/{cashTransaction}', [
         CashController::class,
         'destroy',
-    ])
-        ->name('cash.destroy');
+    ])->name('cash.destroy');
 
 
     /*
@@ -546,43 +454,32 @@ Route::middleware([
     Route::get('/cash-accounts', [
         CashAccountController::class,
         'index',
-    ])
-        ->name('cash-accounts.index');
-
+    ])->name('cash-accounts.index');
 
     Route::post('/cash-accounts/admin/add', [
         CashAccountController::class,
         'addAdmin',
-    ])
-        ->name('cash-accounts.admin.add');
-
+    ])->name('cash-accounts.admin.add');
 
     Route::post('/cash-accounts/bank/add', [
         CashAccountController::class,
         'addBank',
-    ])
-        ->name('cash-accounts.bank.add');
-
+    ])->name('cash-accounts.bank.add');
 
     Route::post('/cash-accounts/transfer-to-bank', [
         CashAccountController::class,
         'transferToBank',
-    ])
-        ->name('cash-accounts.transfer-to-bank');
-
+    ])->name('cash-accounts.transfer-to-bank');
 
     Route::patch('/cash-accounts/admin', [
         CashAccountController::class,
         'updateAdmin',
-    ])
-        ->name('cash-accounts.admin.update');
-
+    ])->name('cash-accounts.admin.update');
 
     Route::patch('/cash-accounts/bank', [
         CashAccountController::class,
         'updateBank',
-    ])
-        ->name('cash-accounts.bank.update');
+    ])->name('cash-accounts.bank.update');
 
 
     /*
@@ -595,68 +492,47 @@ Route::middleware([
         UserManagementController::class,
         'index',
     ])
-        ->middleware(
-            'permission:users.view'
-        )
+        ->middleware('permission:users.view')
         ->name('users.index');
-
 
     Route::get('/users/create', [
         UserManagementController::class,
         'create',
     ])
-        ->middleware(
-            'permission:users.create'
-        )
+        ->middleware('permission:users.create')
         ->name('users.create');
-
 
     Route::post('/users', [
         UserManagementController::class,
         'store',
     ])
-        ->middleware(
-            'permission:users.create'
-        )
+        ->middleware('permission:users.create')
         ->name('users.store');
-
 
     Route::get('/users/{user}/edit', [
         UserManagementController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:users.edit'
-        )
+        ->middleware('permission:users.edit')
         ->name('users.edit');
-
 
     Route::put('/users/{user}', [
         UserManagementController::class,
         'update',
     ])
-        ->middleware(
-            'permission:users.edit'
-        )
+        ->middleware('permission:users.edit')
         ->name('users.update');
-
 
     Route::patch('/users/{user}', [
         UserManagementController::class,
         'update',
-    ])
-        ->middleware(
-            'permission:users.edit'
-        );
-
+    ])->middleware('permission:users.edit');
 
     Route::delete('/users/{user}', [
         UserManagementController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:users.delete'
-        )
+        ->middleware('permission:users.delete')
         ->name('users.destroy');
 
 
@@ -670,59 +546,42 @@ Route::middleware([
         ProductController::class,
         'index',
     ])
-        ->middleware(
-            'permission:products.view'
-        )
+        ->middleware('permission:products.view')
         ->name('products.index');
-
 
     Route::get('/products/create', [
         ProductController::class,
         'create',
     ])
-        ->middleware(
-            'permission:products.create'
-        )
+        ->middleware('permission:products.create')
         ->name('products.create');
-
 
     Route::post('/products', [
         ProductController::class,
         'store',
     ])
-        ->middleware(
-            'permission:products.create'
-        )
+        ->middleware('permission:products.create')
         ->name('products.store');
-
 
     Route::get('/products/{product}/edit', [
         ProductController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:products.edit'
-        )
+        ->middleware('permission:products.edit')
         ->name('products.edit');
-
 
     Route::put('/products/{product}', [
         ProductController::class,
         'update',
     ])
-        ->middleware(
-            'permission:products.edit'
-        )
+        ->middleware('permission:products.edit')
         ->name('products.update');
-
 
     Route::delete('/products/{product}', [
         ProductController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:products.delete'
-        )
+        ->middleware('permission:products.delete')
         ->name('products.destroy');
 
 
@@ -736,59 +595,42 @@ Route::middleware([
         PromoCampaignController::class,
         'index',
     ])
-        ->middleware(
-            'permission:promo-campaigns.view'
-        )
+        ->middleware('permission:promo-campaigns.view')
         ->name('promo-campaigns.index');
-
 
     Route::get('/promo-campaigns/create', [
         PromoCampaignController::class,
         'create',
     ])
-        ->middleware(
-            'permission:promo-campaigns.create'
-        )
+        ->middleware('permission:promo-campaigns.create')
         ->name('promo-campaigns.create');
-
 
     Route::post('/promo-campaigns', [
         PromoCampaignController::class,
         'store',
     ])
-        ->middleware(
-            'permission:promo-campaigns.create'
-        )
+        ->middleware('permission:promo-campaigns.create')
         ->name('promo-campaigns.store');
-
 
     Route::get('/promo-campaigns/{promoCampaign}/edit', [
         PromoCampaignController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:promo-campaigns.edit'
-        )
+        ->middleware('permission:promo-campaigns.edit')
         ->name('promo-campaigns.edit');
-
 
     Route::put('/promo-campaigns/{promoCampaign}', [
         PromoCampaignController::class,
         'update',
     ])
-        ->middleware(
-            'permission:promo-campaigns.edit'
-        )
+        ->middleware('permission:promo-campaigns.edit')
         ->name('promo-campaigns.update');
-
 
     Route::delete('/promo-campaigns/{promoCampaign}', [
         PromoCampaignController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:promo-campaigns.delete'
-        )
+        ->middleware('permission:promo-campaigns.delete')
         ->name('promo-campaigns.destroy');
 
 
@@ -802,59 +644,42 @@ Route::middleware([
         StockInController::class,
         'index',
     ])
-        ->middleware(
-            'permission:stock-ins.view'
-        )
+        ->middleware('permission:stock-ins.view')
         ->name('stock-ins.index');
-
 
     Route::get('/stock-ins/create', [
         StockInController::class,
         'create',
     ])
-        ->middleware(
-            'permission:stock-ins.create'
-        )
+        ->middleware('permission:stock-ins.create')
         ->name('stock-ins.create');
-
 
     Route::post('/stock-ins', [
         StockInController::class,
         'store',
     ])
-        ->middleware(
-            'permission:stock-ins.create'
-        )
+        ->middleware('permission:stock-ins.create')
         ->name('stock-ins.store');
-
 
     Route::get('/stock-ins/{stockIn}/edit', [
         StockInController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:stock-ins.edit'
-        )
+        ->middleware('permission:stock-ins.edit')
         ->name('stock-ins.edit');
-
 
     Route::put('/stock-ins/{stockIn}', [
         StockInController::class,
         'update',
     ])
-        ->middleware(
-            'permission:stock-ins.edit'
-        )
+        ->middleware('permission:stock-ins.edit')
         ->name('stock-ins.update');
-
 
     Route::delete('/stock-ins/{stockIn}', [
         StockInController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:stock-ins.delete'
-        )
+        ->middleware('permission:stock-ins.delete')
         ->name('stock-ins.destroy');
 
 
@@ -868,89 +693,56 @@ Route::middleware([
         StockOutController::class,
         'index',
     ])
-        ->middleware(
-            'permission:stock-outs.view'
-        )
+        ->middleware('permission:stock-outs.view')
         ->name('stock-outs.index');
-
 
     Route::get('/stock-outs/create', [
         StockOutController::class,
         'create',
     ])
-        ->middleware(
-            'permission:stock-outs.create'
-        )
+        ->middleware('permission:stock-outs.create')
         ->name('stock-outs.create');
-
 
     Route::post('/stock-outs', [
         StockOutController::class,
         'store',
     ])
-        ->middleware(
-            'permission:stock-outs.create'
-        )
+        ->middleware('permission:stock-outs.create')
         ->name('stock-outs.store');
-
 
     Route::get('/stock-outs/{stockOut}/edit', [
         StockOutController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:stock-outs.edit'
-        )
+        ->middleware('permission:stock-outs.edit')
         ->name('stock-outs.edit');
-
 
     Route::put('/stock-outs/{stockOut}', [
         StockOutController::class,
         'update',
     ])
-        ->middleware(
-            'permission:stock-outs.edit'
-        )
+        ->middleware('permission:stock-outs.edit')
         ->name('stock-outs.update');
 
+    Route::patch('/stock-outs/{stockOut}/verify-payment', [
+        StockOutController::class,
+        'verifyCustomerPayment',
+    ])
+        ->middleware('permission:stock-outs.verify-payment')
+        ->name('stock-outs.verify-payment');
 
-    Route::patch(
-        '/stock-outs/{stockOut}/verify-payment',
-        [
-            StockOutController::class,
-            'verifyCustomerPayment',
-        ]
-    )
-        ->middleware(
-            'permission:stock-outs.verify-payment'
-        )
-        ->name(
-            'stock-outs.verify-payment'
-        );
-
-
-    Route::patch(
-        '/stock-outs/{stockOut}/confirm-deposit',
-        [
-            StockOutController::class,
-            'confirmDeposit',
-        ]
-    )
-        ->middleware(
-            'permission:stock-outs.confirm-deposit'
-        )
-        ->name(
-            'stock-outs.confirm-deposit'
-        );
-
+    Route::patch('/stock-outs/{stockOut}/confirm-deposit', [
+        StockOutController::class,
+        'confirmDeposit',
+    ])
+        ->middleware('permission:stock-outs.confirm-deposit')
+        ->name('stock-outs.confirm-deposit');
 
     Route::delete('/stock-outs/{stockOut}', [
         StockOutController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:stock-outs.delete'
-        )
+        ->middleware('permission:stock-outs.delete')
         ->name('stock-outs.destroy');
 
 
@@ -964,59 +756,42 @@ Route::middleware([
         SupplierController::class,
         'index',
     ])
-        ->middleware(
-            'permission:suppliers.view'
-        )
+        ->middleware('permission:suppliers.view')
         ->name('suppliers.index');
-
 
     Route::get('/suppliers/create', [
         SupplierController::class,
         'create',
     ])
-        ->middleware(
-            'permission:suppliers.create'
-        )
+        ->middleware('permission:suppliers.create')
         ->name('suppliers.create');
-
 
     Route::post('/suppliers', [
         SupplierController::class,
         'store',
     ])
-        ->middleware(
-            'permission:suppliers.create'
-        )
+        ->middleware('permission:suppliers.create')
         ->name('suppliers.store');
-
 
     Route::get('/suppliers/{supplier}/edit', [
         SupplierController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:suppliers.edit'
-        )
+        ->middleware('permission:suppliers.edit')
         ->name('suppliers.edit');
-
 
     Route::put('/suppliers/{supplier}', [
         SupplierController::class,
         'update',
     ])
-        ->middleware(
-            'permission:suppliers.edit'
-        )
+        ->middleware('permission:suppliers.edit')
         ->name('suppliers.update');
-
 
     Route::delete('/suppliers/{supplier}', [
         SupplierController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:suppliers.delete'
-        )
+        ->middleware('permission:suppliers.delete')
         ->name('suppliers.destroy');
 
 
@@ -1030,59 +805,42 @@ Route::middleware([
         CustomerController::class,
         'index',
     ])
-        ->middleware(
-            'permission:customers.view'
-        )
+        ->middleware('permission:customers.view')
         ->name('customers.index');
-
 
     Route::get('/customers/create', [
         CustomerController::class,
         'create',
     ])
-        ->middleware(
-            'permission:customers.create'
-        )
+        ->middleware('permission:customers.create')
         ->name('customers.create');
-
 
     Route::post('/customers', [
         CustomerController::class,
         'store',
     ])
-        ->middleware(
-            'permission:customers.create'
-        )
+        ->middleware('permission:customers.create')
         ->name('customers.store');
-
 
     Route::get('/customers/{customer}/edit', [
         CustomerController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:customers.edit'
-        )
+        ->middleware('permission:customers.edit')
         ->name('customers.edit');
-
 
     Route::put('/customers/{customer}', [
         CustomerController::class,
         'update',
     ])
-        ->middleware(
-            'permission:customers.edit'
-        )
+        ->middleware('permission:customers.edit')
         ->name('customers.update');
-
 
     Route::delete('/customers/{customer}', [
         CustomerController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:customers.delete'
-        )
+        ->middleware('permission:customers.delete')
         ->name('customers.destroy');
 
 
@@ -1096,133 +854,82 @@ Route::middleware([
         TvVoucherTransactionController::class,
         'index',
     ])
-        ->middleware(
-            'permission:tv-vouchers.view'
-        )
+        ->middleware('permission:tv-vouchers.view')
         ->name('tv-vouchers.index');
-
 
     Route::get('/tv-vouchers/report', [
         TvVoucherTransactionController::class,
         'report',
     ])
-        ->middleware(
-            'permission:tv-vouchers.view'
-        )
+        ->middleware('permission:tv-vouchers.view')
         ->name('tv-vouchers.report');
-
 
     Route::get('/tv-vouchers/create', [
         TvVoucherTransactionController::class,
         'create',
     ])
-        ->middleware(
-            'permission:tv-vouchers.create'
-        )
+        ->middleware('permission:tv-vouchers.create')
         ->name('tv-vouchers.create');
-
 
     Route::post('/tv-vouchers', [
         TvVoucherTransactionController::class,
         'store',
     ])
-        ->middleware(
-            'permission:tv-vouchers.create'
-        )
+        ->middleware('permission:tv-vouchers.create')
         ->name('tv-vouchers.store');
 
+    Route::patch('/tv-vouchers/{tvVoucher}/verify-payment', [
+        TvVoucherTransactionController::class,
+        'verifyCustomerPayment',
+    ])
+        ->middleware('permission:tv-vouchers.verify-payment')
+        ->name('tv-vouchers.verify-payment');
 
-    Route::patch(
-        '/tv-vouchers/{tvVoucher}/verify-payment',
-        [
-            TvVoucherTransactionController::class,
-            'verifyCustomerPayment',
-        ]
-    )
-        ->middleware(
-            'permission:tv-vouchers.verify-payment'
-        )
-        ->name(
-            'tv-vouchers.verify-payment'
-        );
+    Route::patch('/tv-vouchers/{tvVoucher}/payment-method', [
+        TvVoucherTransactionController::class,
+        'setPaymentMethod',
+    ])
+        ->middleware('permission:tv-vouchers.confirm-deposit')
+        ->name('tv-vouchers.payment-method');
 
-
-    Route::patch(
-        '/tv-vouchers/{tvVoucher}/payment-method',
-        [
-            TvVoucherTransactionController::class,
-            'setPaymentMethod',
-        ]
-    )
-        ->middleware(
-            'permission:tv-vouchers.confirm-deposit'
-        )
-        ->name(
-            'tv-vouchers.payment-method'
-        );
-
-
-    Route::patch(
-        '/tv-vouchers/{tvVoucher}/confirm-deposit',
-        [
-            TvVoucherTransactionController::class,
-            'confirmDeposit',
-        ]
-    )
-        ->middleware(
-            'permission:tv-vouchers.confirm-deposit'
-        )
-        ->name(
-            'tv-vouchers.confirm-deposit'
-        );
-
+    Route::patch('/tv-vouchers/{tvVoucher}/confirm-deposit', [
+        TvVoucherTransactionController::class,
+        'confirmDeposit',
+    ])
+        ->middleware('permission:tv-vouchers.confirm-deposit')
+        ->name('tv-vouchers.confirm-deposit');
 
     Route::get('/tv-vouchers/{tvVoucher}', [
         TvVoucherTransactionController::class,
         'show',
     ])
-        ->middleware(
-            'permission:tv-vouchers.view'
-        )
+        ->middleware('permission:tv-vouchers.view')
         ->name('tv-vouchers.show');
-
 
     Route::get('/tv-vouchers/{tvVoucher}/edit', [
         TvVoucherTransactionController::class,
         'edit',
     ])
-        ->middleware(
-            'permission:tv-vouchers.edit'
-        )
+        ->middleware('permission:tv-vouchers.edit')
         ->name('tv-vouchers.edit');
-
 
     Route::put('/tv-vouchers/{tvVoucher}', [
         TvVoucherTransactionController::class,
         'update',
     ])
-        ->middleware(
-            'permission:tv-vouchers.edit'
-        )
+        ->middleware('permission:tv-vouchers.edit')
         ->name('tv-vouchers.update');
-
 
     Route::patch('/tv-vouchers/{tvVoucher}', [
         TvVoucherTransactionController::class,
         'update',
-    ])
-        ->middleware(
-            'permission:tv-vouchers.edit'
-        );
-
+    ])->middleware('permission:tv-vouchers.edit');
 
     Route::delete('/tv-vouchers/{tvVoucher}', [
         TvVoucherTransactionController::class,
         'destroy',
     ])
-        ->middleware(
-            'permission:tv-vouchers.delete'
-        )
+        ->middleware('permission:tv-vouchers.delete')
         ->name('tv-vouchers.destroy');
 
 
@@ -1236,19 +943,13 @@ Route::middleware([
         ReportController::class,
         'index',
     ])
-        ->middleware(
-            'permission:reports.view'
-        )
+        ->middleware('permission:reports.view')
         ->name('reports.index');
-
 
     Route::get('/reports/export-excel', [
         ReportController::class,
         'exportExcel',
     ])
-        ->middleware(
-            'permission:reports.view'
-        )
+        ->middleware('permission:reports.view')
         ->name('reports.export-excel');
-
 });

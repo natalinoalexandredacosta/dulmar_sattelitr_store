@@ -185,7 +185,8 @@
         #home,
         #produtu,
         #pagamentu,
-        #kontaktu {
+        #kontaktu,
+        #testimoni {
             scroll-margin-top: 120px;
         }
 
@@ -4266,6 +4267,7 @@
         #produtu,
         #pagamentu,
         #kontaktu,
+        #testimoni,
         .section {
             scroll-margin-top: 160px !important;
         }
@@ -4334,6 +4336,7 @@
             #produtu,
             #pagamentu,
             #kontaktu,
+            #testimoni,
             .section {
                 scroll-margin-top: 148px !important;
             }
@@ -4344,6 +4347,7 @@
             #produtu,
             #pagamentu,
             #kontaktu,
+            #testimoni,
             .section {
                 scroll-margin-top: 132px !important;
             }
@@ -4354,6 +4358,7 @@
             #produtu,
             #pagamentu,
             #kontaktu,
+            #testimoni,
             .section {
                 scroll-margin-top: 126px !important;
             }
@@ -4481,6 +4486,7 @@
             #produtu,
             #pagamentu,
             #kontaktu,
+            #testimoni,
             .section {
                 scroll-margin-top: 132px !important;
             }
@@ -4491,6 +4497,7 @@
             #produtu,
             #pagamentu,
             #kontaktu,
+            #testimoni,
             .section {
                 scroll-margin-top: 118px !important;
             }
@@ -4501,6 +4508,7 @@
             #produtu,
             #pagamentu,
             #kontaktu,
+            #testimoni,
             .section {
                 scroll-margin-top: 112px !important;
             }
@@ -4518,6 +4526,368 @@
                 overflow-x: auto !important;
             }
             .nav-inner a { flex: 0 0 auto !important; }
+        }
+
+    
+        /*
+        |--------------------------------------------------------------------------
+        | TESTIMONI PEMBELI
+        |--------------------------------------------------------------------------
+        */
+
+        .testimonial-section {
+            padding: 30px 0;
+            background: #ffffff;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .testimonial-card {
+            overflow: hidden;
+            border: 1px solid #e8e8e8;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 5px 16px rgba(0,0,0,.05);
+        }
+
+        .testimonial-body {
+            padding: 16px;
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-customer {
+            min-width: 0;
+        }
+
+        .testimonial-customer strong {
+            display: block;
+            color: #1f1f1f;
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .testimonial-customer span {
+            display: block;
+            margin-top: 3px;
+            overflow: hidden;
+            color: #777777;
+            font-size: 10px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .testimonial-rating {
+            flex-shrink: 0;
+            color: #f59e0b;
+            font-size: 14px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .testimonial-message {
+            margin-bottom: 12px;
+            padding: 11px 12px;
+            border-left: 3px solid var(--brand-red, #ef2f35);
+            border-radius: 8px;
+            background: #fff7f7;
+            color: #4b5563;
+            font-size: 10.5px;
+            line-height: 1.6;
+        }
+
+        .testimonial-proof-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 12px 0 7px;
+            color: #333333;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .testimonial-proof-count {
+            color: #888888;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .testimonial-chat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+        }
+
+        .testimonial-chat-link {
+            display: block;
+            overflow: hidden;
+            border: 1px solid #ededed;
+            border-radius: 8px;
+            background: #f8f8f8;
+        }
+
+        .testimonial-chat-link img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            transition: transform .2s ease;
+        }
+
+        .testimonial-chat-link:hover img {
+            transform: scale(1.02);
+        }
+
+        .testimonial-video {
+            display: block;
+            width: 100%;
+            max-height: 235px;
+            border-radius: 8px;
+            background: #111111;
+        }
+
+        .testimonial-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 13px;
+            padding-top: 11px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .testimonial-date {
+            color: #8a8a8a;
+            font-size: 9px;
+        }
+
+        .testimonial-product-link {
+            color: var(--brand-red, #ef2f35);
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .testimonial-empty {
+            padding: 22px;
+            border: 1px dashed #dddddd;
+            border-radius: 10px;
+            background: #fafafa;
+            color: #777777;
+            text-align: center;
+            font-size: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .testimonial-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 620px) {
+            .testimonial-section {
+                padding: 24px 0 !important;
+            }
+
+            .testimonial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonial-chat-link img {
+                height: 190px;
+            }
+        }
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HOMEPAGE BANNER SLIDER - AUTO MOVE
+        |--------------------------------------------------------------------------
+        */
+
+        .homepage-banner-section {
+            padding: 18px 0 10px;
+            background: #ffffff;
+        }
+
+        .homepage-banner-slider {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid #eeeeee;
+            border-radius: 16px;
+            background: #f7f7f7;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
+        }
+
+        .homepage-banner-track {
+            display: flex;
+            width: 100%;
+            transform: translateX(0);
+            transition: transform .65s cubic-bezier(.22, 1, .36, 1);
+            will-change: transform;
+        }
+
+        .homepage-banner-slide {
+            position: relative !important;
+            inset: auto !important;
+            flex: 0 0 100%;
+            min-width: 100%;
+            width: 100%;
+            opacity: 1 !important;
+            transform: none !important;
+            pointer-events: auto !important;
+        }
+
+        .homepage-banner-image-wrap {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 390px;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .homepage-banner-image {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .homepage-banner-caption {
+            position: absolute;
+            left: 18px;
+            bottom: 18px;
+            z-index: 5;
+            max-width: min(520px, calc(100% - 36px));
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(17, 17, 17, .78);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.35;
+            backdrop-filter: blur(7px);
+        }
+
+        .homepage-banner-arrow {
+            position: absolute;
+            top: 50%;
+            z-index: 12;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-50%);
+            border: 1px solid #e1e1e1;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .96);
+            color: #ef2f35;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .10);
+            font-size: 24px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .homepage-banner-arrow:hover {
+            background: #ef2f35;
+            color: #ffffff;
+        }
+
+        .homepage-banner-prev {
+            left: 12px;
+        }
+
+        .homepage-banner-next {
+            right: 12px;
+        }
+
+        .homepage-banner-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 12;
+            padding: 6px 10px;
+            border: 1px solid #f1d5d7;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .96);
+            color: #ef2f35;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        @media (max-width: 820px) {
+            .homepage-banner-section {
+                padding-top: 12px;
+            }
+
+            .homepage-banner-image-wrap {
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .homepage-banner-section {
+                padding-top: 10px;
+            }
+
+            .homepage-banner-slider {
+                border-radius: 12px;
+            }
+
+            .homepage-banner-image-wrap {
+                height: 190px;
+            }
+
+            .homepage-banner-caption {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-width: none;
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            .homepage-banner-arrow {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+
+            .homepage-banner-prev {
+                left: 7px;
+            }
+
+            .homepage-banner-next {
+                right: 7px;
+            }
+
+            .homepage-banner-counter {
+                top: 8px;
+                right: 8px;
+                padding: 5px 8px;
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .homepage-banner-image-wrap {
+                height: 170px;
+            }
         }
 
     </style>
@@ -4924,6 +5294,180 @@
 
 </header>
 
+
+
+
+{{-- ============================================================
+     HOMEPAGE BANNER - AUTO SLIDER
+============================================================ --}}
+
+@if ($bannerSlides->isNotEmpty())
+
+<section class="homepage-banner-section">
+
+    <div class="container">
+
+        <div
+            class="homepage-banner-slider"
+            id="homepageBannerSlider"
+        >
+
+            <div
+                class="homepage-banner-track"
+                id="homepageBannerTrack"
+            >
+
+                @foreach ($bannerSlides as $banner)
+
+                    @php
+                        $bannerImagePath =
+                            $banner->image_path
+                            ?? $banner->image
+                            ?? $banner->banner_image
+                            ?? $banner->file_path
+                            ?? null;
+
+                        $bannerTitle =
+                            trim(
+                                (string) (
+                                    $banner->title
+                                    ?? $banner->name
+                                    ?? ''
+                                )
+                            );
+
+                        $bannerTargetUrl =
+                            trim(
+                                (string) (
+                                    $banner->link
+                                    ?? $banner->url
+                                    ?? ''
+                                )
+                            );
+
+                        $normalizedBannerPath =
+                            $bannerImagePath
+                                ? ltrim((string) $bannerImagePath, '/')
+                                : null;
+
+                        if (
+                            $normalizedBannerPath
+                            && str_starts_with(
+                                $normalizedBannerPath,
+                                'storage/'
+                            )
+                        ) {
+                            $bannerImageUrl =
+                                asset($normalizedBannerPath);
+                        } elseif ($normalizedBannerPath) {
+                            $bannerImageUrl =
+                                asset(
+                                    'storage/'
+                                    . $normalizedBannerPath
+                                );
+                        } else {
+                            $bannerImageUrl = null;
+                        }
+                    @endphp
+
+                    @if ($bannerImageUrl)
+
+                        <div class="homepage-banner-slide">
+
+                            @if ($bannerTargetUrl !== '')
+
+                                <a
+                                    href="{{ $bannerTargetUrl }}"
+                                    class="homepage-banner-image-wrap"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+
+                                    <img
+                                        src="{{ $bannerImageUrl }}"
+                                        alt="{{ $bannerTitle !== '' ? $bannerTitle : 'Banner Dulmar Satellite Store' }}"
+                                        class="homepage-banner-image"
+                                        {{ $loop->first ? '' : 'loading=lazy' }}
+                                    >
+
+                                    @if ($bannerTitle !== '')
+
+                                        <div class="homepage-banner-caption">
+                                            {{ $bannerTitle }}
+                                        </div>
+
+                                    @endif
+
+                                </a>
+
+                            @else
+
+                                <div class="homepage-banner-image-wrap">
+
+                                    <img
+                                        src="{{ $bannerImageUrl }}"
+                                        alt="{{ $bannerTitle !== '' ? $bannerTitle : 'Banner Dulmar Satellite Store' }}"
+                                        class="homepage-banner-image"
+                                        {{ $loop->first ? '' : 'loading=lazy' }}
+                                    >
+
+                                    @if ($bannerTitle !== '')
+
+                                        <div class="homepage-banner-caption">
+                                            {{ $bannerTitle }}
+                                        </div>
+
+                                    @endif
+
+                                </div>
+
+                            @endif
+
+                        </div>
+
+                    @endif
+
+                @endforeach
+
+            </div>
+
+
+            @if ($bannerSlides->count() > 1)
+
+                <button
+                    type="button"
+                    class="homepage-banner-arrow homepage-banner-prev"
+                    id="homepageBannerPrev"
+                    aria-label="Banner anterior"
+                >
+                    ‹
+                </button>
+
+                <button
+                    type="button"
+                    class="homepage-banner-arrow homepage-banner-next"
+                    id="homepageBannerNext"
+                    aria-label="Banner tuirmai"
+                >
+                    ›
+                </button>
+
+                <div
+                    class="homepage-banner-counter"
+                    id="homepageBannerCounter"
+                >
+                    1 / {{ $bannerSlides->count() }}
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
+
+</section>
+
+@endif
 
 
 {{-- ============================================================
@@ -5612,6 +6156,291 @@
 
 
 
+
+{{-- ============================================================
+     TESTIMONI PEMBELI
+============================================================ --}}
+
+@if (
+    isset($approvedTestimonials)
+    && $approvedTestimonials->isNotEmpty()
+)
+
+<section
+    class="testimonial-section"
+    id="testimoni"
+>
+
+    <div class="container">
+
+        <div class="section-title-row">
+
+            <div class="section-title-left">
+
+                <span class="star">
+                    ★
+                </span>
+
+                <h2>
+                    Testimoni Pembeli
+                </h2>
+
+            </div>
+
+            <span class="section-link">
+                Bukti chat & video pelanggan
+            </span>
+
+        </div>
+
+
+        <div class="testimonial-grid">
+
+            @foreach (
+                $approvedTestimonials
+                as $testimonial
+            )
+
+                @php
+
+                    $chatProofs =
+                        $testimonial
+                            ->proofs
+                            ->where(
+                                'proof_type',
+                                \App\Models\TestimonialProof::TYPE_CHAT
+                            )
+                            ->values();
+
+                    $videoProofs =
+                        $testimonial
+                            ->proofs
+                            ->where(
+                                'proof_type',
+                                \App\Models\TestimonialProof::TYPE_VIDEO
+                            )
+                            ->values();
+
+                @endphp
+
+
+                <article class="testimonial-card">
+
+                    <div class="testimonial-body">
+
+                        <div class="testimonial-header">
+
+                            <div class="testimonial-customer">
+
+                                <strong>
+                                    {{ $testimonial->customer_name }}
+                                </strong>
+
+                                <span>
+                                    {{
+                                        $testimonial->product
+                                            ? $testimonial->product->product_name
+                                            : 'Dulmar Satellite Store'
+                                    }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="testimonial-rating">
+
+                                @for (
+                                    $i = 1;
+                                    $i <= 5;
+                                    $i++
+                                )
+
+                                    {{
+                                        $i <= $testimonial->rating
+                                            ? '★'
+                                            : '☆'
+                                    }}
+
+                                @endfor
+
+                            </div>
+
+                        </div>
+
+
+                        @if (
+                            !empty(
+                                $testimonial->testimonial
+                            )
+                        )
+
+                            <div class="testimonial-message">
+                                “{{ $testimonial->testimonial }}”
+                            </div>
+
+                        @endif
+
+
+                        @if ($chatProofs->isNotEmpty())
+
+                            <div class="testimonial-proof-title">
+
+                                <span>
+                                    💬 Bukti Chat Pemesanan
+                                </span>
+
+                                <span class="testimonial-proof-count">
+                                    {{ $chatProofs->count() }} file
+                                </span>
+
+                            </div>
+
+
+                            <div class="testimonial-chat-grid">
+
+                                @foreach (
+                                    $chatProofs->take(2)
+                                    as $proof
+                                )
+
+                                    <a
+                                        href="{{
+                                            asset(
+                                                'storage/'
+                                                . $proof->file_path
+                                            )
+                                        }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="testimonial-chat-link"
+                                    >
+
+                                        <img
+                                            src="{{
+                                                asset(
+                                                    'storage/'
+                                                    . $proof->file_path
+                                                )
+                                            }}"
+                                            alt="Bukti chat pembelian {{ $testimonial->customer_name }}"
+                                            loading="lazy"
+                                        >
+
+                                    </a>
+
+                                @endforeach
+
+                            </div>
+
+                        @endif
+
+
+                        @if ($videoProofs->isNotEmpty())
+
+                            <div class="testimonial-proof-title">
+
+                                <span>
+                                    🎥 Bukti Video
+                                </span>
+
+                                <span class="testimonial-proof-count">
+                                    {{ $videoProofs->count() }} file
+                                </span>
+
+                            </div>
+
+
+                            @foreach (
+                                $videoProofs->take(1)
+                                as $proof
+                            )
+
+                                <video
+                                    class="testimonial-video"
+                                    controls
+                                    preload="metadata"
+                                    playsinline
+                                >
+
+                                    <source
+                                        src="{{
+                                            asset(
+                                                'storage/'
+                                                . $proof->file_path
+                                            )
+                                        }}"
+                                        type="{{
+                                            $proof->mime_type
+                                            ?? 'video/mp4'
+                                        }}"
+                                    >
+
+                                    Browser tidak mendukung video.
+
+                                </video>
+
+                            @endforeach
+
+                        @endif
+
+
+                        @if (
+                            $chatProofs->isEmpty()
+                            && $videoProofs->isEmpty()
+                        )
+
+                            <div class="testimonial-empty">
+                                Testimoni ini belum memiliki bukti media.
+                            </div>
+
+                        @endif
+
+
+                        <div class="testimonial-footer">
+
+                            <span class="testimonial-date">
+                                {{
+                                    optional(
+                                        $testimonial->created_at
+                                    )
+                                    ->format('d/m/Y')
+                                }}
+                            </span>
+
+
+                            @if ($testimonial->product)
+
+                                <a
+                                    href="{{
+                                        route(
+                                            'store.product.show',
+                                            $testimonial->product
+                                        )
+                                    }}"
+                                    class="testimonial-product-link"
+                                >
+                                    Haree Produtu →
+                                </a>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            @endforeach
+
+        </div>
+
+    </div>
+
+</section>
+
+@endif
+
+
 {{-- ============================================================
      PAYMENT
 ============================================================ --}}
@@ -5827,6 +6656,241 @@
 
 
 <script>
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HOMEPAGE BANNER SLIDER - AUTO MOVE
+    |--------------------------------------------------------------------------
+    */
+
+    const homepageBannerSlider =
+        document.getElementById(
+            'homepageBannerSlider'
+        );
+
+    const homepageBannerTrack =
+        document.getElementById(
+            'homepageBannerTrack'
+        );
+
+    if (
+        homepageBannerSlider
+        && homepageBannerTrack
+    ) {
+
+        const bannerSlides =
+            Array.from(
+                homepageBannerTrack.querySelectorAll(
+                    '.homepage-banner-slide'
+                )
+            );
+
+        const bannerPrev =
+            document.getElementById(
+                'homepageBannerPrev'
+            );
+
+        const bannerNext =
+            document.getElementById(
+                'homepageBannerNext'
+            );
+
+        const bannerCounter =
+            document.getElementById(
+                'homepageBannerCounter'
+            );
+
+        let bannerCurrent = 0;
+        let bannerTimer = null;
+        let bannerTouchStart = 0;
+
+        function updateBannerSlider() {
+
+            homepageBannerTrack.style.transform =
+                'translateX(-'
+                + (bannerCurrent * 100)
+                + '%)';
+
+            if (bannerCounter) {
+
+                bannerCounter.textContent =
+                    (bannerCurrent + 1)
+                    + ' / '
+                    + bannerSlides.length;
+
+            }
+
+        }
+
+        function nextBanner() {
+
+            if (bannerSlides.length <= 1) {
+                return;
+            }
+
+            bannerCurrent =
+                (
+                    bannerCurrent + 1
+                )
+                % bannerSlides.length;
+
+            updateBannerSlider();
+
+        }
+
+        function prevBanner() {
+
+            if (bannerSlides.length <= 1) {
+                return;
+            }
+
+            bannerCurrent =
+                (
+                    bannerCurrent
+                    - 1
+                    + bannerSlides.length
+                )
+                % bannerSlides.length;
+
+            updateBannerSlider();
+
+        }
+
+        function stopBannerAuto() {
+
+            if (bannerTimer) {
+
+                clearInterval(
+                    bannerTimer
+                );
+
+                bannerTimer = null;
+
+            }
+
+        }
+
+        function startBannerAuto() {
+
+            stopBannerAuto();
+
+            if (bannerSlides.length > 1) {
+
+                bannerTimer =
+                    setInterval(
+                        nextBanner,
+                        4000
+                    );
+
+            }
+
+        }
+
+        if (bannerNext) {
+
+            bannerNext.addEventListener(
+                'click',
+                function () {
+
+                    nextBanner();
+                    startBannerAuto();
+
+                }
+            );
+
+        }
+
+        if (bannerPrev) {
+
+            bannerPrev.addEventListener(
+                'click',
+                function () {
+
+                    prevBanner();
+                    startBannerAuto();
+
+                }
+            );
+
+        }
+
+        homepageBannerSlider.addEventListener(
+            'mouseenter',
+            stopBannerAuto
+        );
+
+        homepageBannerSlider.addEventListener(
+            'mouseleave',
+            startBannerAuto
+        );
+
+        homepageBannerSlider.addEventListener(
+            'touchstart',
+            function (event) {
+
+                bannerTouchStart =
+                    event.changedTouches[0].screenX;
+
+                stopBannerAuto();
+
+            },
+            {
+                passive: true
+            }
+        );
+
+        homepageBannerSlider.addEventListener(
+            'touchend',
+            function (event) {
+
+                const bannerTouchEnd =
+                    event.changedTouches[0].screenX;
+
+                const bannerDistance =
+                    bannerTouchEnd
+                    - bannerTouchStart;
+
+                if (
+                    Math.abs(
+                        bannerDistance
+                    ) >= 50
+                ) {
+
+                    if (bannerDistance < 0) {
+                        nextBanner();
+                    } else {
+                        prevBanner();
+                    }
+
+                }
+
+                startBannerAuto();
+
+            },
+            {
+                passive: true
+            }
+        );
+
+        document.addEventListener(
+            'visibilitychange',
+            function () {
+
+                if (document.hidden) {
+                    stopBannerAuto();
+                } else {
+                    startBannerAuto();
+                }
+
+            }
+        );
+
+        updateBannerSlider();
+        startBannerAuto();
+
+    }
+
 
     /*
     |--------------------------------------------------------------------------
