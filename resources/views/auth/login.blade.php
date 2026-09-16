@@ -455,27 +455,32 @@
 
         @endif
 
+@php
+    $filteredErrors = collect($errors->all())->reject(function ($error) {
+        return $error === 'Sesi Anda berakhir karena tidak ada aktivitas selama 10 menit. Silakan login kembali.';
+    });
+@endphp
 
-        @if ($errors->any())
+@if ($filteredErrors->isNotEmpty())
 
-            <div class="alert alert-error">
+    <div class="alert alert-error">
 
-                <ul>
+        <ul>
 
-                    @foreach ($errors->all() as $error)
+            @foreach ($filteredErrors as $error)
 
-                        <li>
-                            {{ $error }}
-                        </li>
+                <li>
+                    {{ $error }}
+                </li>
 
-                    @endforeach
+            @endforeach
 
-                </ul>
+        </ul>
 
-            </div>
+    </div>
 
-        @endif
-
+@endif
+        
 
         <form
             action="{{ route('login.process') }}"
@@ -553,7 +558,7 @@
                 type="submit"
                 class="button-login"
             >
-                Login dan Kirim OTP
+                Login
             </button>
 
         </form>
