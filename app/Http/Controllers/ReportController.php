@@ -27,9 +27,10 @@ class ReportController extends Controller
         $endDate =
             $validated['end_date'] ?? null;
 
+
         /*
         |--------------------------------------------------------------------------
-        | Ringkasan kondisi produk saat ini
+        | RINGKASAN KONDISI PRODUK SAAT INI
         |--------------------------------------------------------------------------
         */
 
@@ -52,22 +53,35 @@ class ReportController extends Controller
                 0
             )->count();
 
-        /*
-         * Nilai modal seluruh stok yang masih tersedia.
-         */
-        $currentInventoryValue =
-            (float) Product::query()
-                ->selectRaw(
-                    'COALESCE(
-                        SUM(stock * purchase_price),
-                        0
-                    ) as inventory_value'
-                )
-                ->value('inventory_value');
 
         /*
         |--------------------------------------------------------------------------
-        | Ringkasan stok masuk dan stok keluar berdasarkan periode
+        | NILAI MODAL STOK SAAT INI
+        |--------------------------------------------------------------------------
+        */
+
+        $currentInventoryValue =
+            (float) Product::query()
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            stock
+                            *
+                            purchase_price
+                        ),
+                        0
+                    ) AS inventory_value
+                    '
+                )
+                ->value(
+                    'inventory_value'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RINGKASAN STOK MASUK & KELUAR
         |--------------------------------------------------------------------------
         */
 
@@ -76,6 +90,7 @@ class ReportController extends Controller
 
         $stockOutQuery =
             StockOut::query();
+
 
         $this->applyDateFilter(
             $stockInQuery,
@@ -89,6 +104,7 @@ class ReportController extends Controller
             $endDate
         );
 
+
         $totalStockIn =
             (int) (clone $stockInQuery)
                 ->sum('quantity');
@@ -97,55 +113,71 @@ class ReportController extends Controller
             (int) (clone $stockOutQuery)
                 ->sum('quantity');
 
+
         $totalStockInTransactions =
-            (clone $stockInQuery)->count();
+            (clone $stockInQuery)
+                ->count();
 
         $totalStockOutTransactions =
-            (clone $stockOutQuery)->count();
+            (clone $stockOutQuery)
+                ->count();
+
 
         /*
         |--------------------------------------------------------------------------
-        | Ringkasan produk
+        | RINGKASAN PRODUK
         |--------------------------------------------------------------------------
         */
 
-        $products = Product::query()
-            ->withSum([
-                'stockIns as total_stock_in' =>
-                    function ($query) use (
-                        $startDate,
-                        $endDate
-                    ) {
-                        $this->applyDateFilter(
-                            $query,
+        $products =
+            Product::query()
+
+                ->withSum([
+                    'stockIns as total_stock_in' =>
+                        function ($query) use (
                             $startDate,
                             $endDate
-                        );
-                    },
-            ], 'quantity')
-            ->withSum([
-                'stockOuts as total_stock_out' =>
-                    function ($query) use (
-                        $startDate,
-                        $endDate
-                    ) {
-                        $this->applyDateFilter(
-                            $query,
+                        ) {
+
+                            $this->applyDateFilter(
+                                $query,
+                                $startDate,
+                                $endDate
+                            );
+                        },
+                ], 'quantity')
+
+                ->withSum([
+                    'stockOuts as total_stock_out' =>
+                        function ($query) use (
                             $startDate,
                             $endDate
-                        );
-                    },
-            ], 'quantity')
-            ->orderBy('product_name')
-            ->get();
+                        ) {
+
+                            $this->applyDateFilter(
+                                $query,
+                                $startDate,
+                                $endDate
+                            );
+                        },
+                ], 'quantity')
+
+                ->orderBy(
+                    'product_name'
+                )
+
+                ->get();
+
 
         /*
         |--------------------------------------------------------------------------
-        | Query transaksi penjualan berdasarkan periode
+        | QUERY DASAR PENJUALAN
         |--------------------------------------------------------------------------
         */
 
-        $salesBaseQuery = StockOut::query();
+        $salesBaseQuery =
+            StockOut::query();
+
 
         $this->applyDateFilter(
             $salesBaseQuery,
@@ -153,57 +185,297 @@ class ReportController extends Controller
             $endDate
         );
 
+
         /*
         |--------------------------------------------------------------------------
-        | Total keuangan seluruh hasil filter
+        | TOTAL JUMLAH BARANG TERJUAL
         |--------------------------------------------------------------------------
+        */
+
+        $totalQuantity =
+            (int) (clone $salesBaseQuery)
+                ->sum(
+                    'quantity'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL HARGA BELI
+        |--------------------------------------------------------------------------
+        |
+        | Menjumlahkan harga beli per unit dari seluruh transaksi.
+        |
+        */
+
+        $totalPurchasePrice =
+            (float) (clone $salesBaseQuery)
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                unit_purchase_price,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS total_purchase_price
+                    '
+                )
+                ->value(
+                    'total_purchase_price'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL HARGA JUAL
+        |--------------------------------------------------------------------------
+        |
+        | Menjumlahkan harga jual per unit dari seluruh transaksi.
+        |
+        */
+
+        $totalSellingPrice =
+            (float) (clone $salesBaseQuery)
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                unit_selling_price,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS total_selling_price
+                    '
+                )
+                ->value(
+                    'total_selling_price'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL PENJUALAN
+        |--------------------------------------------------------------------------
+        |
+        | subtotal = total nilai penjualan setelah diskon customer.
+        |
         */
 
         $totalSales =
             (float) (clone $salesBaseQuery)
-                ->sum('subtotal');
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                subtotal,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS total_sales
+                    '
+                )
+                ->value(
+                    'total_sales'
+                );
 
-        $totalProfit =
-            (float) (clone $salesBaseQuery)
-                ->sum('total_profit');
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL MODAL
+        |--------------------------------------------------------------------------
+        |
+        | Modal = quantity x harga beli per unit.
+        |
+        */
 
         $totalCapital =
             (float) (clone $salesBaseQuery)
+
                 ->selectRaw(
-                    'COALESCE(
-                        SUM(quantity * unit_purchase_price),
+                    '
+                    COALESCE(
+                        SUM(
+                            quantity
+                            *
+                            unit_purchase_price
+                        ),
                         0
-                    ) as total_capital'
+                    ) AS total_capital
+                    '
                 )
-                ->value('total_capital');
 
-        /*
-         * Margin keuntungan dalam persentase.
-         */
-        $profitMargin =
-            $totalSales > 0
-                ? ($totalProfit / $totalSales) * 100
-                : 0;
+                ->value(
+                    'total_capital'
+                );
 
-        /*
-         * Nilai rata-rata setiap transaksi penjualan.
-         */
-        $averageTransaction =
-            $totalStockOutTransactions > 0
-                ? $totalSales / $totalStockOutTransactions
-                : 0;
 
         /*
         |--------------------------------------------------------------------------
-        | Daftar transaksi penjualan dengan pagination
+        | TOTAL BIAYA / POTONGAN PETUGAS
         |--------------------------------------------------------------------------
         */
 
-        $salesQuery = StockOut::query()
-            ->with([
-                'product',
-                'customer',
-            ]);
+        $totalDeduction =
+            (float) (clone $salesBaseQuery)
+
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                deduction_amount,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS total_deduction
+                    '
+                )
+
+                ->value(
+                    'total_deduction'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL KEUNTUNGAN KOTOR
+        |--------------------------------------------------------------------------
+        */
+
+        $totalGrossProfit =
+            (float) (clone $salesBaseQuery)
+
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                total_profit,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS total_gross_profit
+                    '
+                )
+
+                ->value(
+                    'total_gross_profit'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL KEUNTUNGAN BERSIH
+        |--------------------------------------------------------------------------
+        |
+        | Keuntungan Bersih
+        | = Keuntungan Kotor
+        | - Biaya Petugas
+        |
+        */
+
+        $totalProfit =
+            (float) (clone $salesBaseQuery)
+
+                ->selectRaw(
+                    '
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                total_profit,
+                                0
+                            )
+                            -
+                            COALESCE(
+                                deduction_amount,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS net_profit
+                    '
+                )
+
+                ->value(
+                    'net_profit'
+                );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MARGIN KEUNTUNGAN BERSIH
+        |--------------------------------------------------------------------------
+        */
+
+        $profitMargin =
+            $totalSales > 0
+                ? (
+                    $totalProfit
+                    /
+                    $totalSales
+                ) * 100
+                : 0;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RATA-RATA NILAI TRANSAKSI
+        |--------------------------------------------------------------------------
+        */
+
+        $averageTransaction =
+            $totalStockOutTransactions > 0
+                ? (
+                    $totalSales
+                    /
+                    $totalStockOutTransactions
+                )
+                : 0;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DAFTAR TRANSAKSI PENJUALAN
+        |--------------------------------------------------------------------------
+        */
+
+        $salesQuery =
+            StockOut::query()
+
+                ->select(
+                    'stock_outs.*'
+                )
+
+                ->selectRaw(
+                    '
+                    (
+                        COALESCE(
+                            total_profit,
+                            0
+                        )
+                        -
+                        COALESCE(
+                            deduction_amount,
+                            0
+                        )
+                    ) AS net_profit
+                    '
+                )
+
+                ->with([
+                    'product',
+                    'customer',
+                ]);
+
 
         $this->applyDateFilter(
             $salesQuery,
@@ -211,41 +483,97 @@ class ReportController extends Controller
             $endDate
         );
 
-        $sales = $salesQuery
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('id')
-            ->paginate(
-                10,
-                ['*'],
-                'sales_page'
-            );
+
+        $sales =
+            $salesQuery
+
+                ->orderByDesc(
+                    'transaction_date'
+                )
+
+                ->orderByDesc(
+                    'id'
+                )
+
+                ->paginate(
+                    10,
+                    ['*'],
+                    'sales_page'
+                );
+
 
         /*
-         * Mempertahankan filter tanggal ketika berpindah halaman.
+         * Mempertahankan filter saat pindah halaman.
          */
-        $sales->appends($request->query());
+        $sales->appends(
+            $request->query()
+        );
+
 
         /*
         |--------------------------------------------------------------------------
-        | Data grafik penjualan per tanggal
+        | DATA GRAFIK PENJUALAN PER TANGGAL
         |--------------------------------------------------------------------------
         */
 
-        $dailySalesQuery = StockOut::query()
-            ->select([
-                DB::raw(
-                    'DATE(transaction_date) as sale_date'
-                ),
-                DB::raw(
-                    'SUM(quantity) as total_quantity'
-                ),
-                DB::raw(
-                    'SUM(subtotal) as total_sales'
-                ),
-                DB::raw(
-                    'SUM(total_profit) as total_profit'
-                ),
-            ]);
+        $dailySalesQuery =
+            StockOut::query()
+
+                ->select([
+
+                    DB::raw(
+                        '
+                        DATE(
+                            transaction_date
+                        ) AS sale_date
+                        '
+                    ),
+
+                    DB::raw(
+                        '
+                        SUM(
+                            quantity
+                        ) AS total_quantity
+                        '
+                    ),
+
+                    DB::raw(
+                        '
+                        SUM(
+                            subtotal
+                        ) AS total_sales
+                        '
+                    ),
+
+                    DB::raw(
+                        '
+                        SUM(
+                            COALESCE(
+                                total_profit,
+                                0
+                            )
+                            -
+                            COALESCE(
+                                deduction_amount,
+                                0
+                            )
+                        ) AS total_profit
+                        '
+                    ),
+
+                    DB::raw(
+                        '
+                        SUM(
+                            COALESCE(
+                                deduction_amount,
+                                0
+                            )
+                        ) AS total_deduction
+                        '
+                    ),
+
+                ]);
+
 
         $this->applyDateFilter(
             $dailySalesQuery,
@@ -253,98 +581,230 @@ class ReportController extends Controller
             $endDate
         );
 
-        $dailySales = $dailySalesQuery
-            ->groupBy(
-                DB::raw('DATE(transaction_date)')
+
+        $dailySales =
+            $dailySalesQuery
+
+                ->groupBy(
+                    DB::raw(
+                        'DATE(transaction_date)'
+                    )
+                )
+
+                ->orderBy(
+                    DB::raw(
+                        'DATE(transaction_date)'
+                    )
+                )
+
+                ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LABEL GRAFIK
+        |--------------------------------------------------------------------------
+        */
+
+        $chartLabels =
+            $dailySales
+
+                ->map(
+                    function ($item) {
+
+                        return date(
+                            'd-m-Y',
+                            strtotime(
+                                $item->sale_date
+                            )
+                        );
+                    }
+                )
+
+                ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NILAI PENJUALAN GRAFIK
+        |--------------------------------------------------------------------------
+        */
+
+        $chartSalesValues =
+            $dailySales
+
+                ->pluck(
+                    'total_sales'
+                )
+
+                ->map(
+                    function ($value) {
+
+                        return (float) $value;
+                    }
+                )
+
+                ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NILAI KEUNTUNGAN BERSIH GRAFIK
+        |--------------------------------------------------------------------------
+        */
+
+        $chartProfitValues =
+            $dailySales
+
+                ->pluck(
+                    'total_profit'
+                )
+
+                ->map(
+                    function ($value) {
+
+                        return (float) $value;
+                    }
+                )
+
+                ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | JUMLAH PRODUK TERJUAL
+        |--------------------------------------------------------------------------
+        */
+
+        $chartQuantityValues =
+            $dailySales
+
+                ->pluck(
+                    'total_quantity'
+                )
+
+                ->map(
+                    function ($value) {
+
+                        return (int) $value;
+                    }
+                )
+
+                ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'reports.index',
+            compact(
+
+                'totalProducts',
+
+                'totalCurrentStock',
+
+                'lowStockProducts',
+
+                'outOfStockProducts',
+
+                'currentInventoryValue',
+
+                'totalStockIn',
+
+                'totalStockOut',
+
+                'totalStockInTransactions',
+
+                'totalStockOutTransactions',
+
+                'products',
+
+                'sales',
+
+                'totalQuantity',
+
+                'totalPurchasePrice',
+
+                'totalSellingPrice',
+
+                'totalSales',
+
+                'totalCapital',
+
+                'totalDeduction',
+
+                'totalGrossProfit',
+
+                'totalProfit',
+
+                'profitMargin',
+
+                'averageTransaction',
+
+                'chartLabels',
+
+                'chartSalesValues',
+
+                'chartProfitValues',
+
+                'chartQuantityValues',
+
+                'startDate',
+
+                'endDate'
             )
-            ->orderBy(
-                DB::raw('DATE(transaction_date)')
-            )
-            ->get();
-
-        $chartLabels = $dailySales
-            ->map(function ($item) {
-                return date(
-                    'd-m-Y',
-                    strtotime($item->sale_date)
-                );
-            })
-            ->values();
-
-        $chartSalesValues = $dailySales
-            ->pluck('total_sales')
-            ->map(function ($value) {
-                return (float) $value;
-            })
-            ->values();
-
-        $chartProfitValues = $dailySales
-            ->pluck('total_profit')
-            ->map(function ($value) {
-                return (float) $value;
-            })
-            ->values();
-
-        $chartQuantityValues = $dailySales
-            ->pluck('total_quantity')
-            ->map(function ($value) {
-                return (int) $value;
-            })
-            ->values();
-
-        return view('reports.index', compact(
-            'totalProducts',
-            'totalCurrentStock',
-            'lowStockProducts',
-            'outOfStockProducts',
-            'currentInventoryValue',
-            'totalStockIn',
-            'totalStockOut',
-            'totalStockInTransactions',
-            'totalStockOutTransactions',
-            'products',
-            'sales',
-            'totalSales',
-            'totalCapital',
-            'totalProfit',
-            'profitMargin',
-            'averageTransaction',
-            'chartLabels',
-            'chartSalesValues',
-            'chartProfitValues',
-            'chartQuantityValues',
-            'startDate',
-            'endDate'
-        ));
+        );
     }
+
 
     /**
      * Mengunduh laporan inventaris dalam format Excel.
      */
-    public function exportExcel(Request $request)
-    {
+    public function exportExcel(
+        Request $request
+    ) {
+
         $validated =
-            $this->validateDateFilter($request);
+            $this->validateDateFilter(
+                $request
+            );
+
 
         $startDate =
-            $validated['start_date'] ?? null;
+            $validated[
+                'start_date'
+            ] ?? null;
+
 
         $endDate =
-            $validated['end_date'] ?? null;
+            $validated[
+                'end_date'
+            ] ?? null;
+
 
         $fileName =
             'laporan-inventaris-'
-            . now()->format('Y-m-d-His')
+            . now()->format(
+                'Y-m-d-His'
+            )
             . '.xlsx';
 
+
         return Excel::download(
+
             new InventoryReportExport(
                 $startDate,
                 $endDate
             ),
+
             $fileName
         );
     }
+
 
     /**
      * Validasi filter tanggal laporan.
@@ -352,27 +812,37 @@ class ReportController extends Controller
     private function validateDateFilter(
         Request $request
     ): array {
-        return $request->validate([
-            'start_date' => [
-                'nullable',
-                'date',
-            ],
-            'end_date' => [
-                'nullable',
-                'date',
-                'after_or_equal:start_date',
-            ],
-        ], [
-            'start_date.date' =>
-                'Tanggal mulai tidak valid.',
 
-            'end_date.date' =>
-                'Tanggal selesai tidak valid.',
+        return $request->validate(
+            [
 
-            'end_date.after_or_equal' =>
-                'Tanggal selesai harus sama atau setelah tanggal mulai.',
-        ]);
+                'start_date' => [
+                    'nullable',
+                    'date',
+                ],
+
+                'end_date' => [
+                    'nullable',
+                    'date',
+                    'after_or_equal:start_date',
+                ],
+
+            ],
+            [
+
+                'start_date.date' =>
+                    'Tanggal mulai tidak valid.',
+
+                'end_date.date' =>
+                    'Tanggal selesai tidak valid.',
+
+                'end_date.after_or_equal' =>
+                    'Tanggal selesai harus sama atau setelah tanggal mulai.',
+
+            ]
+        );
     }
+
 
     /**
      * Menerapkan filter tanggal pada query transaksi.
@@ -382,7 +852,9 @@ class ReportController extends Controller
         ?string $startDate,
         ?string $endDate
     ): void {
+
         if ($startDate) {
+
             $query->whereDate(
                 'transaction_date',
                 '>=',
@@ -390,7 +862,9 @@ class ReportController extends Controller
             );
         }
 
+
         if ($endDate) {
+
             $query->whereDate(
                 'transaction_date',
                 '<=',

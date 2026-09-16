@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
 
@@ -8,7 +9,9 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Laporan Inventaris - Dulmar Satellite Store</title>
+    <title>
+        Laporan Inventaris - Dulmar Satellite Store
+    </title>
 
     <link
         rel="icon"
@@ -39,10 +42,13 @@
         .sidebar {
             width: 245px;
             min-height: 100vh;
+
             display: flex;
             flex-shrink: 0;
             flex-direction: column;
+
             padding: 35px 25px;
+
             background: #1f2b3a;
             color: white;
         }
@@ -58,8 +64,11 @@
 
         .sidebar-menu a {
             display: block;
+
             margin-bottom: 30px;
+
             color: white;
+
             font-size: 18px;
             text-decoration: none;
         }
@@ -70,21 +79,29 @@
 
         .sidebar-menu a.active {
             padding: 12px 14px;
+
             border-left: 4px solid #60a5fa;
             border-radius: 6px;
+
             background: rgba(37, 99, 235, 0.3);
             color: #bfdbfe;
+
             font-weight: bold;
         }
 
         .button-logout {
             width: 100%;
+
             padding: 13px 15px;
+
             border: 0;
             border-radius: 7px;
+
             background: #dc2626;
             color: white;
+
             font-size: 17px;
+
             cursor: pointer;
         }
 
@@ -100,15 +117,20 @@
         .main-content {
             flex: 1;
             min-width: 0;
+
             padding: 50px 32px;
+
             overflow-x: hidden;
         }
 
         .page-header {
             display: flex;
+
             justify-content: space-between;
             align-items: flex-start;
+
             gap: 20px;
+
             margin-bottom: 30px;
         }
 
@@ -119,27 +141,36 @@
 
         .page-header p {
             margin: 0;
+
             color: #4b5563;
+
             font-size: 18px;
         }
 
         .page-actions {
             display: flex;
             flex-wrap: wrap;
+
             gap: 12px;
         }
 
         .button-print,
         .button-export {
             display: inline-flex;
+
             align-items: center;
             justify-content: center;
+
             padding: 14px 22px;
+
             border: 0;
             border-radius: 7px;
+
             color: white;
+
             font-size: 16px;
             text-decoration: none;
+
             cursor: pointer;
         }
 
@@ -161,9 +192,12 @@
 
         .alert-error {
             margin-bottom: 25px;
+
             padding: 15px 20px;
+
             border: 1px solid #fca5a5;
             border-radius: 6px;
+
             background: #fee2e2;
             color: #991b1b;
         }
@@ -176,10 +210,16 @@
         .filter-card,
         .report-card {
             margin-bottom: 30px;
+
             padding: 25px;
+
             border-radius: 10px;
+
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.08);
         }
 
         .filter-card h3,
@@ -189,8 +229,10 @@
 
         .filter-form {
             display: flex;
+
             align-items: flex-end;
             flex-wrap: wrap;
+
             gap: 15px;
         }
 
@@ -200,7 +242,9 @@
 
         .form-group label {
             display: block;
+
             margin-bottom: 8px;
+
             font-size: 15px;
             font-weight: bold;
         }
@@ -208,30 +252,43 @@
         .form-control {
             width: 100%;
             height: 44px;
+
             padding: 10px 12px;
+
             border: 1px solid #d1d5db;
             border-radius: 6px;
+
             font-size: 15px;
         }
 
         .form-control:focus {
             border-color: #2563eb;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37, 99, 235, 0.12);
         }
 
         .button-filter,
         .button-reset {
             height: 44px;
+
             display: inline-flex;
+
             align-items: center;
             justify-content: center;
+
             padding: 0 19px;
+
             border: 0;
             border-radius: 6px;
+
             color: white;
+
             font-size: 15px;
             text-decoration: none;
+
             cursor: pointer;
         }
 
@@ -253,39 +310,69 @@
 
         .period-info {
             margin: 18px 0 0;
+
             color: #4b5563;
+
             font-size: 15px;
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(170px, 1fr));
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    minmax(170px, 1fr)
+                );
+
             gap: 18px;
+
             margin-bottom: 25px;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | FINANCIAL SUMMARY
+        |--------------------------------------------------------------------------
+        */
+
         .financial-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(170px, 1fr));
+
+            grid-template-columns:
+                repeat(
+                    6,
+                    minmax(160px, 1fr)
+                );
+
             gap: 18px;
+
             margin-bottom: 30px;
         }
 
         .summary-card {
             padding: 22px;
+
             border-radius: 9px;
+
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.07);
         }
 
         .summary-card h3 {
             margin: 0 0 12px;
+
             color: #6b7280;
+
             font-size: 15px;
         }
 
         .summary-value {
             margin: 0;
+
             font-size: 27px;
             font-weight: bold;
         }
@@ -332,6 +419,7 @@
 
         .chart-container {
             position: relative;
+
             width: 100%;
             height: 360px;
         }
@@ -339,20 +427,27 @@
         .chart-empty,
         .empty-data {
             padding: 30px;
+
             color: #6b7280;
+
             text-align: center;
         }
 
         .table-wrapper {
             width: 100%;
+
             overflow-x: auto;
+
             border-radius: 7px;
-            -webkit-overflow-scrolling: touch;
+
+            -webkit-overflow-scrolling:
+                touch;
         }
 
         table {
             width: 100%;
-            min-width: 1200px;
+            min-width: 1350px;
+
             border-collapse: collapse;
         }
 
@@ -367,9 +462,13 @@
         th,
         td {
             padding: 14px;
-            border-bottom: 1px solid #d1d5db;
+
+            border-bottom:
+                1px solid #d1d5db;
+
             font-size: 14px;
             text-align: left;
+
             white-space: nowrap;
         }
 
@@ -380,6 +479,11 @@
         }
 
         .stock-out {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .staff-cost {
             color: #dc2626;
             font-weight: bold;
         }
@@ -399,22 +503,80 @@
             font-weight: bold;
         }
 
+        .total-row {
+            background: #eff6ff;
+            border-top: 3px solid #2563eb;
+        }
+
+        .total-row td {
+            padding-top: 16px;
+            padding-bottom: 16px;
+            font-weight: bold;
+        }
+
+        .total-label {
+            color: #1e3a8a;
+            font-size: 15px;
+        }
+
+        .total-quantity {
+            color: #dc2626;
+        }
+
+        .total-purchase {
+            color: #dc2626;
+        }
+
+        .total-selling {
+            color: #2563eb;
+        }
+
+        .total-sales {
+            color: #2563eb;
+        }
+
+        .total-capital {
+            color: #111827;
+        }
+
+        .total-deduction {
+            color: #dc2626;
+        }
+
+        .total-net-profit {
+            color: #15803d;
+            font-size: 15px;
+        }
+
         .pagination {
             display: flex;
-            justify-content: space-between;
+
+            justify-content:
+                space-between;
+
             align-items: center;
+
             gap: 12px;
+
             margin-top: 18px;
+
             padding: 14px 16px;
+
             border-radius: 8px;
+
             background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+            box-shadow:
+                0 2px 8px
+                rgba(0, 0, 0, 0.06);
         }
 
         .pagination a,
         .pagination .disabled {
             padding: 9px 15px;
+
             border-radius: 6px;
+
             text-decoration: none;
         }
 
@@ -430,21 +592,35 @@
 
         .pagination-info {
             color: #4b5563;
+
             font-size: 14px;
             text-align: center;
         }
 
+        @media (max-width: 1500px) {
+            .financial-grid {
+                grid-template-columns:
+                    repeat(
+                        3,
+                        minmax(170px, 1fr)
+                    );
+            }
+        }
+
         @media (max-width: 1250px) {
             .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, 1fr);
             }
 
             .financial-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, 1fr);
             }
         }
 
         @media (max-width: 700px) {
+
             body {
                 overflow-x: hidden;
             }
@@ -455,30 +631,52 @@
 
             .sidebar-toggle {
                 position: fixed;
+
                 top: 15px;
                 left: 15px;
+
                 z-index: 1200;
+
                 display: flex;
+
                 width: 46px;
                 height: 46px;
+
                 align-items: center;
                 justify-content: center;
+
                 border: 0;
                 border-radius: 8px;
+
                 background: #1f2b3a;
                 color: white;
+
                 font-size: 25px;
+
                 cursor: pointer;
             }
 
             .sidebar-overlay {
                 position: fixed;
+
                 inset: 0;
+
                 z-index: 1000;
+
                 display: block;
+
                 visibility: hidden;
-                background: rgba(0, 0, 0, 0.5);
+
+                background:
+                    rgba(
+                        0,
+                        0,
+                        0,
+                        0.5
+                    );
+
                 opacity: 0;
+
                 transition: 0.25s;
             }
 
@@ -489,35 +687,65 @@
 
             .sidebar {
                 position: fixed;
-                inset: 0 auto 0 0;
+
+                inset:
+                    0 auto 0 0;
+
                 z-index: 1100;
-                width: min(82vw, 285px);
-                padding: 82px 25px 30px;
+
+                width:
+                    min(
+                        82vw,
+                        285px
+                    );
+
+                padding:
+                    82px 25px 30px;
+
                 overflow-y: auto;
-                transform: translateX(-105%);
-                transition: transform 0.25s ease;
+
+                transform:
+                    translateX(-105%);
+
+                transition:
+                    transform
+                    0.25s ease;
             }
 
             .sidebar.sidebar-open {
-                transform: translateX(0);
+                transform:
+                    translateX(0);
             }
 
             .sidebar h1 {
                 margin-bottom: 35px;
+
                 font-size: 24px;
             }
 
             .sidebar-menu a {
                 margin-bottom: 10px;
+
                 padding: 12px 10px;
+
                 border-radius: 6px;
-                background: rgba(255, 255, 255, 0.06);
+
+                background:
+                    rgba(
+                        255,
+                        255,
+                        255,
+                        0.06
+                    );
+
                 font-size: 16px;
             }
 
             .main-content {
                 width: 100%;
-                padding: 85px 14px 30px;
+
+                padding:
+                    85px 14px 30px;
             }
 
             .page-header {
@@ -536,7 +764,9 @@
 
             .filter-form {
                 display: grid;
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
 
             .form-group,
@@ -548,7 +778,8 @@
 
             .summary-grid,
             .financial-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns:
+                    1fr;
             }
 
             .filter-card,
@@ -562,34 +793,43 @@
 
             .pagination {
                 flex-wrap: wrap;
-                justify-content: center;
+
+                justify-content:
+                    center;
             }
 
             .pagination-info {
                 width: 100%;
+
                 order: -1;
             }
         }
 
         @media (min-width: 701px) {
+
             html,
             body {
                 width: 100%;
                 height: 100%;
+
                 overflow: hidden;
             }
 
             .container {
                 height: 100vh;
                 min-height: 0;
+
                 overflow: hidden;
             }
 
             .sidebar {
                 position: sticky;
+
                 top: 0;
+
                 height: 100vh;
                 min-height: 0;
+
                 overflow-y: auto;
             }
 
@@ -603,24 +843,45 @@
 
             .main-content {
                 height: 100vh;
+
                 padding-top: 0;
+
                 overflow-x: hidden;
                 overflow-y: auto;
             }
 
             .page-header {
                 position: sticky;
+
                 top: 0;
+
                 z-index: 100;
-                margin: 0 -32px 30px;
-                padding: 24px 32px 20px;
-                border-bottom: 1px solid #d1d5db;
-                background-color: #f4f6f9;
-                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+
+                margin:
+                    0 -32px 30px;
+
+                padding:
+                    24px 32px 20px;
+
+                border-bottom:
+                    1px solid #d1d5db;
+
+                background-color:
+                    #f4f6f9;
+
+                box-shadow:
+                    0 3px 8px
+                    rgba(
+                        0,
+                        0,
+                        0,
+                        0.05
+                    );
             }
         }
 
         @media print {
+
             @page {
                 size: A4 landscape;
                 margin: 8mm;
@@ -648,15 +909,19 @@
             .summary-card,
             .report-card {
                 box-shadow: none;
-                border: 1px solid #d1d5db;
+
+                border:
+                    1px solid #d1d5db;
             }
 
             .summary-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns:
+                    repeat(4, 1fr);
             }
 
             .financial-grid {
-                grid-template-columns: repeat(5, 1fr);
+                grid-template-columns:
+                    repeat(3, 1fr);
             }
 
             .table-wrapper {
@@ -671,7 +936,9 @@
             th,
             td {
                 padding: 4px;
-                font-size: 8px;
+
+                font-size: 7px;
+
                 white-space: normal;
             }
         }
@@ -681,871 +948,1457 @@
         rel="stylesheet"
         href="{{ asset('css/fixed-layout.css') }}"
     >
+
 </head>
+
 
 <body>
 
-    <button
-        type="button"
-        id="sidebarToggle"
-        class="sidebar-toggle"
-        aria-label="Buka menu"
-        aria-expanded="false"
+
+<button
+    type="button"
+    id="sidebarToggle"
+    class="sidebar-toggle"
+    aria-label="Buka menu"
+    aria-expanded="false"
+>
+    ☰
+</button>
+
+
+<div
+    id="sidebarOverlay"
+    class="sidebar-overlay"
+></div>
+
+
+<div class="container">
+
+
+    {{-- ============================================================
+         SIDEBAR
+    ============================================================ --}}
+
+    <aside
+        class="sidebar"
+        id="sidebar"
     >
-        ☰
-    </button>
 
-    <div
-        id="sidebarOverlay"
-        class="sidebar-overlay"
-    ></div>
+        <h1>
+            Dulmar Satellite Store
+        </h1>
 
-    <div class="container">
 
-        <aside
-            class="sidebar"
-            id="sidebar"
-        >
-            <h1>
-                Dulmar Satellite Store
-            </h1>
+        <nav class="sidebar-menu">
 
-            <nav class="sidebar-menu">
-
-                <a
-                    href="{{ route('dashboard') }}"
-                    class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                >
-                    Dashboard
-                </a>
-
-                <a
-                    href="{{ route('products.index') }}"
-                    class="{{ request()->routeIs('products.*') ? 'active' : '' }}"
-                >
-                    Daftar Barang
-                </a>
-
-                <a
-                    href="{{ route('promo-campaigns.index') }}"
-                    class="{{ request()->routeIs('promo-campaigns.*') ? 'active' : '' }}"
-                >
-                    Promo Campaign
-                </a>
-
-                <a
-                    href="{{ route('stock-ins.index') }}"
-                    class="{{ request()->routeIs('stock-ins.*') ? 'active' : '' }}"
-                >
-                    Stok Masuk
-                </a>
-
-                <a
-                    href="{{ route('stock-outs.index') }}"
-                    class="{{ request()->routeIs('stock-outs.*') ? 'active' : '' }}"
-                >
-                    Stok Keluar
-                </a>
-
-                <a
-                    href="{{ route('tv-vouchers.index') }}"
-                    class="{{ request()->routeIs('tv-vouchers.*') ? 'active' : '' }}"
-                >
-                    TV Voucher
-                </a>
-
-                <a
-                    href="{{ route('suppliers.index') }}"
-                    class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}"
-                >
-                    Supplier Barang
-                </a>
-
-                <a
-                    href="{{ route('customers.index') }}"
-                    class="{{ request()->routeIs('customers.*') ? 'active' : '' }}"
-                >
-                    Pelanggan
-                </a>
-
-                <a
-                    href="{{ route('reports.index') }}"
-                    class="{{ request()->routeIs('reports.*') ? 'active' : '' }}"
-                >
-                    Laporan
-                </a>
-
-            </nav>
-
-            <form
-                action="{{ route('logout') }}"
-                method="POST"
-                onsubmit="return confirm('Apakah Anda yakin ingin keluar?')"
+            <a
+                href="{{ route('dashboard') }}"
+                class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"
             >
-                @csrf
+                Dashboard
+            </a>
 
-                <button
-                    type="submit"
-                    class="button-logout"
-                >
-                    Keluar
-                </button>
-            </form>
 
-        </aside>
+            <a
+                href="{{ route('products.index') }}"
+                class="{{ request()->routeIs('products.*') ? 'active' : '' }}"
+            >
+                Daftar Barang
+            </a>
 
-        <main class="main-content">
 
-            <div class="page-header">
+            <a
+                href="{{ route('promo-campaigns.index') }}"
+                class="{{ request()->routeIs('promo-campaigns.*') ? 'active' : '' }}"
+            >
+                Promo Campaign
+            </a>
 
-                <div>
 
-                    <h2>
-                        Laporan Inventaris
-                    </h2>
+            <a
+                href="{{ route('stock-ins.index') }}"
+                class="{{ request()->routeIs('stock-ins.*') ? 'active' : '' }}"
+            >
+                Stok Masuk
+            </a>
 
-                    <p>
-                        Ringkasan pergerakan stok, penjualan, dan keuntungan.
-                    </p>
 
-                </div>
+            <a
+                href="{{ route('stock-outs.index') }}"
+                class="{{ request()->routeIs('stock-outs.*') ? 'active' : '' }}"
+            >
+                Stok Keluar
+            </a>
 
-                <div class="page-actions">
 
-                    <a
-                        href="{{ route('reports.export-excel', [
-                            'start_date' => $startDate,
-                            'end_date' => $endDate
-                        ]) }}"
-                        class="button-export"
-                    >
-                        Export Excel
-                    </a>
+            <a
+                href="{{ route('tv-vouchers.index') }}"
+                class="{{ request()->routeIs('tv-vouchers.*') ? 'active' : '' }}"
+            >
+                TV Voucher
+            </a>
 
-                    <button
-                        type="button"
-                        class="button-print"
-                        onclick="window.print()"
-                    >
-                        Cetak Laporan
-                    </button>
 
-                </div>
+            <a
+                href="{{ route('suppliers.index') }}"
+                class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}"
+            >
+                Supplier Barang
+            </a>
+
+
+            <a
+                href="{{ route('customers.index') }}"
+                class="{{ request()->routeIs('customers.*') ? 'active' : '' }}"
+            >
+                Pelanggan
+            </a>
+
+
+            <a
+                href="{{ route('reports.index') }}"
+                class="{{ request()->routeIs('reports.*') ? 'active' : '' }}"
+            >
+                Laporan
+            </a>
+
+        </nav>
+
+
+        <form
+            action="{{ route('logout') }}"
+            method="POST"
+            onsubmit="return confirm('Apakah Anda yakin ingin keluar?')"
+        >
+
+            @csrf
+
+            <button
+                type="submit"
+                class="button-logout"
+            >
+                Keluar
+            </button>
+
+        </form>
+
+    </aside>
+
+
+    {{-- ============================================================
+         MAIN CONTENT
+    ============================================================ --}}
+
+    <main class="main-content">
+
+
+        {{-- PAGE HEADER --}}
+
+        <div class="page-header">
+
+            <div>
+
+                <h2>
+                    Laporan Inventaris
+                </h2>
+
+                <p>
+                    Ringkasan pergerakan stok,
+                    penjualan, biaya petugas,
+                    dan keuntungan bersih.
+                </p>
 
             </div>
 
-            @if ($errors->any())
 
-                <div class="alert-error">
+            <div class="page-actions">
 
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>
-                                {{ $error }}
-                            </li>
-                        @endforeach
-                    </ul>
+                <a
+                    href="{{ route('reports.export-excel', [
+                        'start_date' => $startDate,
+                        'end_date' => $endDate
+                    ]) }}"
+                    class="button-export"
+                >
+                    Export Excel
+                </a>
+
+
+                <button
+                    type="button"
+                    class="button-print"
+                    onclick="window.print()"
+                >
+                    Cetak Laporan
+                </button>
+
+            </div>
+
+        </div>
+
+
+        {{-- ============================================================
+             ERROR
+        ============================================================ --}}
+
+        @if ($errors->any())
+
+            <div class="alert-error">
+
+                <ul>
+
+                    @foreach ($errors->all() as $error)
+
+                        <li>
+                            {{ $error }}
+                        </li>
+
+                    @endforeach
+
+                </ul>
+
+            </div>
+
+        @endif
+
+
+        {{-- ============================================================
+             FILTER
+        ============================================================ --}}
+
+        <section class="filter-card">
+
+            <h3>
+                Filter Periode Laporan
+            </h3>
+
+
+            <form
+                action="{{ route('reports.index') }}"
+                method="GET"
+                class="filter-form"
+            >
+
+
+                <div class="form-group">
+
+                    <label for="start_date">
+                        Tanggal Mulai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        class="form-control"
+                        value="{{ $startDate }}"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="end_date">
+                        Tanggal Selesai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        class="form-control"
+                        value="{{ $endDate }}"
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="button-filter"
+                >
+                    Terapkan
+                </button>
+
+
+                <a
+                    href="{{ route('reports.index') }}"
+                    class="button-reset"
+                >
+                    Reset
+                </a>
+
+            </form>
+
+
+            <p class="period-info">
+
+                Periode:
+
+                <strong>
+                    {{
+                        $startDate
+                            ? \Carbon\Carbon::parse(
+                                $startDate
+                            )->format('d-m-Y')
+                            : 'Semua tanggal'
+                    }}
+                </strong>
+
+                sampai
+
+                <strong>
+                    {{
+                        $endDate
+                            ? \Carbon\Carbon::parse(
+                                $endDate
+                            )->format('d-m-Y')
+                            : 'Hari ini'
+                    }}
+                </strong>
+
+            </p>
+
+        </section>
+
+
+        {{-- ============================================================
+             INVENTORY SUMMARY
+        ============================================================ --}}
+
+        <section class="summary-grid">
+
+
+            <article class="summary-card blue">
+
+                <h3>
+                    Total Produk
+                </h3>
+
+                <p class="summary-value">
+                    {{ $totalProducts }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card purple">
+
+                <h3>
+                    Stok Saat Ini
+                </h3>
+
+                <p class="summary-value">
+                    {{ $totalCurrentStock }} unit
+                </p>
+
+            </article>
+
+
+            <article class="summary-card orange">
+
+                <h3>
+                    Stok Rendah
+                </h3>
+
+                <p class="summary-value">
+                    {{ $lowStockProducts }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card red">
+
+                <h3>
+                    Stok Habis
+                </h3>
+
+                <p class="summary-value">
+                    {{ $outOfStockProducts }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card green">
+
+                <h3>
+                    Total Stok Masuk
+                </h3>
+
+                <p class="summary-value">
+                    {{ $totalStockIn }} unit
+                </p>
+
+            </article>
+
+
+            <article class="summary-card red">
+
+                <h3>
+                    Total Stok Keluar
+                </h3>
+
+                <p class="summary-value">
+                    {{ $totalStockOut }} unit
+                </p>
+
+            </article>
+
+
+            <article class="summary-card blue">
+
+                <h3>
+                    Transaksi Masuk
+                </h3>
+
+                <p class="summary-value">
+                    {{ $totalStockInTransactions }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card purple">
+
+                <h3>
+                    Transaksi Keluar
+                </h3>
+
+                <p class="summary-value">
+                    {{ $totalStockOutTransactions }}
+                </p>
+
+            </article>
+
+
+        </section>
+
+
+        {{-- ============================================================
+             FINANCIAL SUMMARY
+        ============================================================ --}}
+
+        <section class="financial-grid">
+
+
+            <article class="summary-card blue">
+
+                <h3>
+                    Total Penjualan
+                </h3>
+
+                <p class="summary-value">
+                    ${{ number_format(
+                        $totalSales,
+                        2
+                    ) }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card orange">
+
+                <h3>
+                    Total Modal Terjual
+                </h3>
+
+                <p class="summary-value">
+                    ${{ number_format(
+                        $totalCapital,
+                        2
+                    ) }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card red">
+
+                <h3>
+                    Biaya Petugas
+                </h3>
+
+                <p class="summary-value">
+                    ${{ number_format(
+                        $totalDeduction ?? 0,
+                        2
+                    ) }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card green">
+
+                <h3>
+                    Keuntungan Bersih
+                </h3>
+
+                <p class="summary-value">
+                    ${{ number_format(
+                        $totalProfit,
+                        2
+                    ) }}
+                </p>
+
+            </article>
+
+
+            <article class="summary-card purple">
+
+                <h3>
+                    Margin Keuntungan Bersih
+                </h3>
+
+                <p class="summary-value">
+                    {{ number_format(
+                        $profitMargin,
+                        1
+                    ) }}%
+                </p>
+
+            </article>
+
+
+            <article class="summary-card orange">
+
+                <h3>
+                    Nilai Stok Saat Ini
+                </h3>
+
+                <p class="summary-value">
+                    ${{ number_format(
+                        $currentInventoryValue,
+                        2
+                    ) }}
+                </p>
+
+            </article>
+
+
+        </section>
+
+
+        {{-- ============================================================
+             SALES CHART
+        ============================================================ --}}
+
+        <section class="report-card">
+
+            <h3>
+                Grafik Penjualan dan Keuntungan Bersih
+            </h3>
+
+
+            @if ($chartSalesValues->sum() > 0)
+
+                <div class="chart-container">
+
+                    <canvas
+                        id="salesChart"
+                    ></canvas>
+
+                </div>
+
+            @else
+
+                <div class="chart-empty">
+
+                    Belum ada data penjualan
+                    pada periode yang dipilih.
 
                 </div>
 
             @endif
 
-            <section class="filter-card">
-
-                <h3>
-                    Filter Periode Laporan
-                </h3>
-
-                <form
-                    action="{{ route('reports.index') }}"
-                    method="GET"
-                    class="filter-form"
-                >
-
-                    <div class="form-group">
-
-                        <label for="start_date">
-                            Tanggal Mulai
-                        </label>
-
-                        <input
-                            type="date"
-                            id="start_date"
-                            name="start_date"
-                            class="form-control"
-                            value="{{ $startDate }}"
-                        >
-
-                    </div>
-
-                    <div class="form-group">
-
-                        <label for="end_date">
-                            Tanggal Selesai
-                        </label>
-
-                        <input
-                            type="date"
-                            id="end_date"
-                            name="end_date"
-                            class="form-control"
-                            value="{{ $endDate }}"
-                        >
-
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="button-filter"
-                    >
-                        Terapkan
-                    </button>
-
-                    <a
-                        href="{{ route('reports.index') }}"
-                        class="button-reset"
-                    >
-                        Reset
-                    </a>
+        </section>
 
-                </form>
 
-                <p class="period-info">
+        {{-- ============================================================
+             SALES TRANSACTIONS
+        ============================================================ --}}
 
-                    Periode:
+        <section class="report-card">
 
-                    <strong>
-                        {{
-                            $startDate
-                                ? \Carbon\Carbon::parse($startDate)->format('d-m-Y')
-                                : 'Semua tanggal'
-                        }}
-                    </strong>
+            <h3>
+                Transaksi Penjualan
+            </h3>
 
-                    sampai
 
-                    <strong>
-                        {{
-                            $endDate
-                                ? \Carbon\Carbon::parse($endDate)->format('d-m-Y')
-                                : 'Hari ini'
-                        }}
-                    </strong>
+            <div class="table-wrapper">
 
-                </p>
+                <table>
 
-            </section>
+                    <thead>
 
-            <section class="summary-grid">
+                        <tr>
 
-                <article class="summary-card blue">
-                    <h3>Total Produk</h3>
+                            <th>
+                                No
+                            </th>
 
-                    <p class="summary-value">
-                        {{ $totalProducts }}
-                    </p>
-                </article>
+                            <th>
+                                Tanggal
+                            </th>
 
-                <article class="summary-card purple">
-                    <h3>Stok Saat Ini</h3>
+                            <th>
+                                Produk
+                            </th>
 
-                    <p class="summary-value">
-                        {{ $totalCurrentStock }} unit
-                    </p>
-                </article>
+                            <th>
+                                Pelanggan
+                            </th>
 
-                <article class="summary-card orange">
-                    <h3>Stok Rendah</h3>
+                            <th>
+                                Jumlah
+                            </th>
 
-                    <p class="summary-value">
-                        {{ $lowStockProducts }}
-                    </p>
-                </article>
+                            <th>
+                                Harga Beli
+                            </th>
 
-                <article class="summary-card red">
-                    <h3>Stok Habis</h3>
+                            <th>
+                                Harga Jual
+                            </th>
 
-                    <p class="summary-value">
-                        {{ $outOfStockProducts }}
-                    </p>
-                </article>
+                            <th>
+                                Total Penjualan
+                            </th>
 
-                <article class="summary-card green">
-                    <h3>Total Stok Masuk</h3>
+                            <th>
+                                Total Modal
+                            </th>
 
-                    <p class="summary-value">
-                        {{ $totalStockIn }} unit
-                    </p>
-                </article>
+                            <th>
+                                Biaya Petugas
+                            </th>
 
-                <article class="summary-card red">
-                    <h3>Total Stok Keluar</h3>
+                            <th>
+                                Keuntungan Bersih
+                            </th>
 
-                    <p class="summary-value">
-                        {{ $totalStockOut }} unit
-                    </p>
-                </article>
+                            <th>
+                                Catatan
+                            </th>
 
-                <article class="summary-card blue">
-                    <h3>Transaksi Masuk</h3>
+                        </tr>
 
-                    <p class="summary-value">
-                        {{ $totalStockInTransactions }}
-                    </p>
-                </article>
+                    </thead>
 
-                <article class="summary-card purple">
-                    <h3>Transaksi Keluar</h3>
 
-                    <p class="summary-value">
-                        {{ $totalStockOutTransactions }}
-                    </p>
-                </article>
+                    <tbody>
 
-            </section>
 
-            <section class="financial-grid">
+                        @forelse ($sales as $sale)
 
-                <article class="summary-card blue">
-                    <h3>Total Penjualan</h3>
+                            @php
 
-                    <p class="summary-value">
-                        ${{ number_format($totalSales, 2) }}
-                    </p>
-                </article>
+                                $saleCapital =
+                                    (float) $sale->unit_purchase_price
+                                    *
+                                    (int) $sale->quantity;
 
-                <article class="summary-card orange">
-                    <h3>Total Modal Terjual</h3>
+                                $staffCost =
+                                    (float) (
+                                        $sale->deduction_amount
+                                        ?? 0
+                                    );
 
-                    <p class="summary-value">
-                        ${{ number_format($totalCapital, 2) }}
-                    </p>
-                </article>
+                                /*
+                                 * net_profit berasal dari
+                                 * ReportController.
+                                 *
+                                 * Fallback disediakan supaya aman
+                                 * apabila alias belum tersedia.
+                                 */
+                                $netProfit =
+                                    isset($sale->net_profit)
+                                        ? (float) $sale->net_profit
+                                        : (
+                                            (float) $sale->total_profit
+                                            -
+                                            $staffCost
+                                        );
 
-                <article class="summary-card green">
-                    <h3>Total Keuntungan</h3>
+                            @endphp
 
-                    <p class="summary-value">
-                        ${{ number_format($totalProfit, 2) }}
-                    </p>
-                </article>
 
-                <article class="summary-card purple">
-                    <h3>Margin Keuntungan</h3>
-
-                    <p class="summary-value">
-                        {{ number_format($profitMargin, 1) }}%
-                    </p>
-                </article>
-
-                <article class="summary-card orange">
-                    <h3>Nilai Stok Saat Ini</h3>
-
-                    <p class="summary-value">
-                        ${{ number_format($currentInventoryValue, 2) }}
-                    </p>
-                </article>
-
-            </section>
-
-            <section class="report-card">
-
-                <h3>
-                    Grafik Penjualan dan Keuntungan
-                </h3>
-
-                @if ($chartSalesValues->sum() > 0)
-
-                    <div class="chart-container">
-
-                        <canvas
-                            id="salesChart"
-                        ></canvas>
-
-                    </div>
-
-                @else
-
-                    <div class="chart-empty">
-                        Belum ada data penjualan pada periode yang dipilih.
-                    </div>
-
-                @endif
-
-            </section>
-
-            <section class="report-card">
-
-                <h3>
-                    Transaksi Penjualan
-                </h3>
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Produk</th>
-                                <th>Pelanggan</th>
-                                <th>Jumlah</th>
-                                <th>Harga Beli</th>
-                                <th>Harga Jual</th>
-                                <th>Total Penjualan</th>
-                                <th>Total Modal</th>
-                                <th>Keuntungan</th>
-                                <th>Catatan</th>
+
+
+                                <td>
+                                    {{
+                                        $sales->firstItem()
+                                        +
+                                        $loop->index
+                                    }}
+                                </td>
+
+
+                                <td>
+                                    {{
+                                        $sale
+                                            ->transaction_date
+                                            ->format(
+                                                'd-m-Y'
+                                            )
+                                    }}
+                                </td>
+
+
+                                <td>
+                                    {{
+                                        $sale
+                                            ->product
+                                            ?->product_name
+                                        ??
+                                        'Produk telah dihapus'
+                                    }}
+                                </td>
+
+
+                                <td>
+                                    {{
+                                        $sale
+                                            ->customer
+                                            ?->customer_name
+                                        ??
+                                        '-'
+                                    }}
+                                </td>
+
+
+                                <td class="stock-out">
+
+                                    {{ $sale->quantity }}
+                                    unit
+
+                                </td>
+
+
+                                <td class="purchase-price">
+
+                                    ${{
+                                        number_format(
+                                            $sale
+                                                ->unit_purchase_price,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td class="selling-price">
+
+                                    ${{
+                                        number_format(
+                                            $sale
+                                                ->unit_selling_price,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td class="total-sale">
+
+                                    ${{
+                                        number_format(
+                                            $sale->subtotal,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td>
+
+                                    ${{
+                                        number_format(
+                                            $saleCapital,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td class="staff-cost">
+
+                                    ${{
+                                        number_format(
+                                            $staffCost,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td class="profit">
+
+                                    ${{
+                                        number_format(
+                                            $netProfit,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td>
+                                    {{
+                                        $sale->notes
+                                        ?: '-'
+                                    }}
+                                </td>
+
+
                             </tr>
-                        </thead>
 
-                        <tbody>
 
-                            @forelse ($sales as $sale)
+                        @empty
 
-                                @php
-                                    $saleCapital =
-                                        (float) $sale->unit_purchase_price
-                                        * (int) $sale->quantity;
-                                @endphp
 
-                                <tr>
+                            <tr>
 
-                                    <td>
-                                        {{
-                                            $sales->firstItem()
-                                            + $loop->index
-                                        }}
-                                    </td>
+                                <td
+                                    colspan="12"
+                                    class="empty-data"
+                                >
 
-                                    <td>
-                                        {{
-                                            $sale
-                                                ->transaction_date
-                                                ->format('d-m-Y')
-                                        }}
-                                    </td>
+                                    Tidak ada transaksi penjualan
+                                    pada periode ini.
 
-                                    <td>
-                                        {{
-                                            $sale
-                                                ->product
-                                                ?->product_name
-                                            ?? 'Produk telah dihapus'
-                                        }}
-                                    </td>
+                                </td>
 
-                                    <td>
-                                        {{
-                                            $sale
-                                                ->customer
-                                                ?->customer_name
-                                            ?? '-'
-                                        }}
-                                    </td>
+                            </tr>
 
-                                    <td class="stock-out">
-                                        {{ $sale->quantity }} unit
-                                    </td>
 
-                                    <td class="purchase-price">
-                                        ${{
-                                            number_format(
-                                                $sale->unit_purchase_price,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                        @endforelse
 
-                                    <td class="selling-price">
-                                        ${{
-                                            number_format(
-                                                $sale->unit_selling_price,
-                                                2
-                                            )
-                                        }}
-                                    </td>
 
-                                    <td class="total-sale">
-                                        ${{
-                                            number_format(
-                                                $sale->subtotal,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                        @if ($sales->total() > 0)
 
-                                    <td>
-                                        ${{
-                                            number_format(
-                                                $saleCapital,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                            <tr class="total-row">
 
-                                    <td class="profit">
-                                        ${{
-                                            number_format(
-                                                $sale->total_profit,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                                <td colspan="4" class="total-label">
+                                    TOTAL SEMUA TRANSAKSI
+                                </td>
 
-                                    <td>
-                                        {{ $sale->notes ?: '-' }}
-                                    </td>
+                                <td class="total-quantity">
+                                    {{ $totalQuantity }} unit
+                                </td>
 
-                                </tr>
+                                <td class="total-purchase">
+                                    ${{ number_format(
+                                        $totalPurchasePrice,
+                                        2
+                                    ) }}
+                                </td>
 
-                            @empty
+                                <td class="total-selling">
+                                    ${{ number_format(
+                                        $totalSellingPrice,
+                                        2
+                                    ) }}
+                                </td>
 
-                                <tr>
+                                <td class="total-sales">
+                                    ${{ number_format(
+                                        $totalSales,
+                                        2
+                                    ) }}
+                                </td>
 
-                                    <td
-                                        colspan="11"
-                                        class="empty-data"
-                                    >
-                                        Tidak ada transaksi penjualan pada periode ini.
-                                    </td>
+                                <td class="total-capital">
+                                    ${{ number_format(
+                                        $totalCapital,
+                                        2
+                                    ) }}
+                                </td>
 
-                                </tr>
+                                <td class="total-deduction">
+                                    ${{ number_format(
+                                        $totalDeduction,
+                                        2
+                                    ) }}
+                                </td>
 
-                            @endforelse
+                                <td class="total-net-profit">
+                                    ${{ number_format(
+                                        $totalProfit,
+                                        2
+                                    ) }}
+                                </td>
 
-                        </tbody>
+                                <td>
+                                    -
+                                </td>
 
-                    </table>
-
-                </div>
-
-                @if ($sales->hasPages())
-
-                    <nav class="pagination">
-
-                        @if ($sales->onFirstPage())
-
-                            <span class="disabled">
-                                Sebelumnya
-                            </span>
-
-                        @else
-
-                            <a href="{{ $sales->previousPageUrl() }}">
-                                Sebelumnya
-                            </a>
+                            </tr>
 
                         @endif
 
-                        <span class="pagination-info">
-                            Halaman
-                            {{ $sales->currentPage() }}
-                            dari
-                            {{ $sales->lastPage() }}
-                            - Total
-                            {{ $sales->total() }}
-                            transaksi
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            {{-- PAGINATION --}}
+
+            @if ($sales->hasPages())
+
+                <nav class="pagination">
+
+
+                    @if ($sales->onFirstPage())
+
+                        <span class="disabled">
+                            Sebelumnya
                         </span>
 
-                        @if ($sales->hasMorePages())
+                    @else
 
-                            <a href="{{ $sales->nextPageUrl() }}">
-                                Berikutnya
-                            </a>
+                        <a
+                            href="{{ $sales->previousPageUrl() }}"
+                        >
+                            Sebelumnya
+                        </a>
 
-                        @else
+                    @endif
 
-                            <span class="disabled">
-                                Berikutnya
-                            </span>
 
-                        @endif
+                    <span class="pagination-info">
 
-                    </nav>
+                        Halaman
+                        {{ $sales->currentPage() }}
 
-                @endif
+                        dari
+                        {{ $sales->lastPage() }}
 
-            </section>
+                        - Total
+                        {{ $sales->total() }}
 
-            <section class="report-card">
+                        transaksi
 
-                <h3>
-                    Ringkasan Inventaris Produk
-                </h3>
+                    </span>
 
-                <div class="table-wrapper">
 
-                    <table class="inventory-table">
+                    @if ($sales->hasMorePages())
 
-                        <thead>
+                        <a
+                            href="{{ $sales->nextPageUrl() }}"
+                        >
+                            Berikutnya
+                        </a>
+
+                    @else
+
+                        <span class="disabled">
+                            Berikutnya
+                        </span>
+
+                    @endif
+
+
+                </nav>
+
+            @endif
+
+        </section>
+
+
+        {{-- ============================================================
+             PRODUCT INVENTORY SUMMARY
+        ============================================================ --}}
+
+        <section class="report-card">
+
+            <h3>
+                Ringkasan Inventaris Produk
+            </h3>
+
+
+            <div class="table-wrapper">
+
+                <table class="inventory-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Produk
+                            </th>
+
+                            <th>
+                                Kategori
+                            </th>
+
+                            <th>
+                                Harga Beli
+                            </th>
+
+                            <th>
+                                Harga Jual
+                            </th>
+
+                            <th>
+                                Stok Masuk
+                            </th>
+
+                            <th>
+                                Stok Keluar
+                            </th>
+
+                            <th>
+                                Stok Saat Ini
+                            </th>
+
+                            <th>
+                                Nilai Stok
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        @forelse (
+                            $products
+                            as $product
+                        )
+
+
                             <tr>
-                                <th>No</th>
-                                <th>Produk</th>
-                                <th>Kategori</th>
-                                <th>Harga Beli</th>
-                                <th>Harga Jual</th>
-                                <th>Stok Masuk</th>
-                                <th>Stok Keluar</th>
-                                <th>Stok Saat Ini</th>
-                                <th>Nilai Stok</th>
+
+
+                                <td>
+                                    {{ $loop->iteration }}
+                                </td>
+
+
+                                <td>
+                                    {{ $product->product_name }}
+                                </td>
+
+
+                                <td>
+                                    {{ $product->category }}
+                                </td>
+
+
+                                <td class="purchase-price">
+
+                                    ${{
+                                        number_format(
+                                            $product->purchase_price,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td class="selling-price">
+
+                                    ${{
+                                        number_format(
+                                            $product->selling_price,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
+                                <td class="stock-in">
+
+                                    +{{
+                                        $product->total_stock_in
+                                        ?? 0
+                                    }}
+
+                                </td>
+
+
+                                <td class="stock-out">
+
+                                    -{{
+                                        $product->total_stock_out
+                                        ?? 0
+                                    }}
+
+                                </td>
+
+
+                                <td class="current-stock">
+
+                                    {{ $product->stock }}
+                                    unit
+
+                                </td>
+
+
+                                <td>
+
+                                    ${{
+                                        number_format(
+                                            $product->stock
+                                            *
+                                            $product->purchase_price,
+                                            2
+                                        )
+                                    }}
+
+                                </td>
+
+
                             </tr>
-                        </thead>
 
-                        <tbody>
 
-                            @forelse ($products as $product)
+                        @empty
 
-                                <tr>
 
-                                    <td>
-                                        {{ $loop->iteration }}
-                                    </td>
+                            <tr>
 
-                                    <td>
-                                        {{ $product->product_name }}
-                                    </td>
+                                <td
+                                    colspan="9"
+                                    class="empty-data"
+                                >
 
-                                    <td>
-                                        {{ $product->category }}
-                                    </td>
+                                    Belum ada data produk.
 
-                                    <td class="purchase-price">
-                                        ${{
-                                            number_format(
-                                                $product->purchase_price,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                                </td>
 
-                                    <td class="selling-price">
-                                        ${{
-                                            number_format(
-                                                $product->selling_price,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                            </tr>
 
-                                    <td class="stock-in">
-                                        +{{
-                                            $product->total_stock_in
-                                            ?? 0
-                                        }}
-                                    </td>
 
-                                    <td class="stock-out">
-                                        -{{
-                                            $product->total_stock_out
-                                            ?? 0
-                                        }}
-                                    </td>
+                        @endforelse
 
-                                    <td class="current-stock">
-                                        {{ $product->stock }} unit
-                                    </td>
 
-                                    <td>
-                                        ${{
-                                            number_format(
-                                                $product->stock
-                                                * $product->purchase_price,
-                                                2
-                                            )
-                                        }}
-                                    </td>
+                    </tbody>
 
-                                </tr>
+                </table>
 
-                            @empty
+            </div>
 
-                                <tr>
+        </section>
 
-                                    <td
-                                        colspan="9"
-                                        class="empty-data"
-                                    >
-                                        Belum ada data produk.
-                                    </td>
 
-                                </tr>
+    </main>
 
-                            @endforelse
+</div>
 
-                        </tbody>
 
-                    </table>
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js"
+></script>
 
-                </div>
 
-            </section>
+<script>
 
-        </main>
+    /*
+    |--------------------------------------------------------------------------
+    | MOBILE SIDEBAR
+    |--------------------------------------------------------------------------
+    */
 
-    </div>
+    const sidebar =
+        document.getElementById(
+            'sidebar'
+        );
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    const sidebarToggle =
+        document.getElementById(
+            'sidebarToggle'
+        );
 
-    <script>
-        const sidebar =
-            document.getElementById(
-                'sidebar'
+    const sidebarOverlay =
+        document.getElementById(
+            'sidebarOverlay'
+        );
+
+
+    function closeSidebar() {
+
+        sidebar.classList.remove(
+            'sidebar-open'
+        );
+
+        sidebarOverlay.classList.remove(
+            'overlay-open'
+        );
+
+        sidebarToggle.textContent =
+            '☰';
+
+        sidebarToggle.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+        document.body.classList.remove(
+            'menu-open'
+        );
+    }
+
+
+    sidebarToggle.addEventListener(
+        'click',
+        function () {
+
+            const isOpen =
+                sidebar.classList.toggle(
+                    'sidebar-open'
+                );
+
+
+            sidebarOverlay.classList.toggle(
+                'overlay-open',
+                isOpen
             );
 
-        const sidebarToggle =
-            document.getElementById(
-                'sidebarToggle'
-            );
-
-        const sidebarOverlay =
-            document.getElementById(
-                'sidebarOverlay'
-            );
-
-        function closeSidebar() {
-            sidebar.classList.remove(
-                'sidebar-open'
-            );
-
-            sidebarOverlay.classList.remove(
-                'overlay-open'
-            );
 
             sidebarToggle.textContent =
-                '☰';
+                isOpen
+                    ? '✕'
+                    : '☰';
+
 
             sidebarToggle.setAttribute(
                 'aria-expanded',
-                'false'
+                isOpen
+                    ? 'true'
+                    : 'false'
             );
 
-            document.body.classList.remove(
-                'menu-open'
+
+            document.body.classList.toggle(
+                'menu-open',
+                isOpen
             );
         }
+    );
 
-        sidebarToggle.addEventListener(
-            'click',
-            function () {
-                const isOpen =
-                    sidebar.classList.toggle(
-                        'sidebar-open'
-                    );
 
-                sidebarOverlay.classList.toggle(
-                    'overlay-open',
-                    isOpen
-                );
+    sidebarOverlay.addEventListener(
+        'click',
+        closeSidebar
+    );
 
-                sidebarToggle.textContent =
-                    isOpen
-                        ? '✕'
-                        : '☰';
 
-                sidebarToggle.setAttribute(
-                    'aria-expanded',
-                    isOpen
-                        ? 'true'
-                        : 'false'
-                );
+    document
+        .querySelectorAll(
+            '.sidebar a'
+        )
+        .forEach(
+            function (link) {
 
-                document.body.classList.toggle(
-                    'menu-open',
-                    isOpen
-                );
-            }
-        );
-
-        sidebarOverlay.addEventListener(
-            'click',
-            closeSidebar
-        );
-
-        document
-            .querySelectorAll(
-                '.sidebar a'
-            )
-            .forEach(function (link) {
                 link.addEventListener(
                     'click',
                     closeSidebar
                 );
-            });
+            }
+        );
 
-        @if ($chartSalesValues->sum() > 0)
 
-            const chartLabels =
-                {{ Illuminate\Support\Js::from($chartLabels) }};
+    /*
+    |--------------------------------------------------------------------------
+    | SALES CHART
+    |--------------------------------------------------------------------------
+    */
 
-            const chartSales =
-                {{ Illuminate\Support\Js::from($chartSalesValues) }};
+    @if ($chartSalesValues->sum() > 0)
 
-            const chartProfit =
-                {{ Illuminate\Support\Js::from($chartProfitValues) }};
+
+        const chartLabels =
+            {{ Illuminate\Support\Js::from(
+                $chartLabels
+            ) }};
+
+
+        const chartSales =
+            {{ Illuminate\Support\Js::from(
+                $chartSalesValues
+            ) }};
+
+
+        const chartProfit =
+            {{ Illuminate\Support\Js::from(
+                $chartProfitValues
+            ) }};
+
+
+        const salesChartElement =
+            document.getElementById(
+                'salesChart'
+            );
+
+
+        if (
+            salesChartElement
+            &&
+            typeof Chart !== 'undefined'
+        ) {
 
             new Chart(
-                document.getElementById(
-                    'salesChart'
-                ),
+                salesChartElement,
                 {
+
                     type: 'line',
 
                     data: {
-                        labels: chartLabels,
+
+                        labels:
+                            chartLabels,
 
                         datasets: [
+
                             {
-                                label: 'Penjualan',
-                                data: chartSales,
-                                borderColor: '#2563eb',
+                                label:
+                                    'Penjualan',
+
+                                data:
+                                    chartSales,
+
+                                borderColor:
+                                    '#2563eb',
+
                                 backgroundColor:
                                     'rgba(37, 99, 235, 0.12)',
-                                tension: 0.3,
-                                fill: true
+
+                                tension:
+                                    0.3,
+
+                                fill:
+                                    true
                             },
+
                             {
-                                label: 'Keuntungan',
-                                data: chartProfit,
-                                borderColor: '#16a34a',
+                                label:
+                                    'Keuntungan Bersih',
+
+                                data:
+                                    chartProfit,
+
+                                borderColor:
+                                    '#16a34a',
+
                                 backgroundColor:
                                     'rgba(22, 163, 74, 0.08)',
-                                tension: 0.3,
-                                fill: true
+
+                                tension:
+                                    0.3,
+
+                                fill:
+                                    true
                             }
+
                         ]
                     },
 
+
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
 
                         plugins: {
+
                             legend: {
-                                position: 'bottom'
+
+                                position:
+                                    'bottom'
+                            },
+
+                            tooltip: {
+
+                                callbacks: {
+
+                                    label:
+                                        function (
+                                            context
+                                        ) {
+
+                                            return (
+                                                context
+                                                    .dataset
+                                                    .label
+                                                +
+                                                ': $'
+                                                +
+                                                Number(
+                                                    context.raw
+                                                )
+                                                .toFixed(2)
+                                            );
+                                        }
+                                }
                             }
                         },
 
+
                         scales: {
+
                             y: {
-                                beginAtZero: true,
+
+                                beginAtZero:
+                                    true,
 
                                 ticks: {
-                                    callback: function (value) {
-                                        return '$'
-                                            + Number(value)
-                                                .toFixed(2);
-                                    }
+
+                                    callback:
+                                        function (
+                                            value
+                                        ) {
+
+                                            return (
+                                                '$'
+                                                +
+                                                Number(
+                                                    value
+                                                )
+                                                .toFixed(2)
+                                            );
+                                        }
                                 }
                             }
                         }
                     }
                 }
             );
+        }
 
-        @endif
-    </script>
+
+    @endif
+
+</script>
+
 
 </body>
+
 </html>

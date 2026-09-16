@@ -505,7 +505,7 @@
 
         table {
             width: 100%;
-            min-width: 2850px;
+            min-width: 3000px;
 
             border-collapse: collapse;
 
@@ -561,6 +561,11 @@
             font-size: 11px;
             white-space: normal;
             max-width: 220px;
+        }
+
+        .gross-profit {
+            color: #d97706;
+            font-weight: bold;
         }
 
         .profit {
@@ -915,16 +920,126 @@
         }
 
         @media (max-width: 700px) {
+            /*
+            |--------------------------------------------------------------------------
+            | PAYMENT MODAL - MOBILE
+            |--------------------------------------------------------------------------
+            | Modal dibuat bisa di-scroll agar tombol "Simpan Verifikasi"
+            | tidak terpotong di layar HP.
+            */
+
+            .payment-modal {
+                align-items: flex-start;
+                justify-content: center;
+
+                padding:
+                    max(12px, env(safe-area-inset-top))
+                    12px
+                    max(12px, env(safe-area-inset-bottom));
+
+                overflow-y: auto;
+                overscroll-behavior: contain;
+            }
+
+            .payment-modal-card {
+                width: 100%;
+                max-width: 100%;
+
+                max-height:
+                    calc(
+                        100dvh
+                        - 24px
+                        - env(safe-area-inset-top)
+                        - env(safe-area-inset-bottom)
+                    );
+
+                margin: 0 auto;
+
+                display: flex;
+                flex-direction: column;
+
+                overflow: hidden;
+            }
+
+            .payment-modal-header {
+                flex-shrink: 0;
+
+                padding: 15px 16px;
+            }
+
+            .payment-modal-header h3 {
+                font-size: 18px;
+                line-height: 1.3;
+            }
+
+            .payment-modal-body {
+                min-height: 0;
+
+                padding: 16px;
+
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .payment-customer-info {
+                margin-bottom: 14px;
+                padding: 12px 13px;
+            }
+
+            .payment-field {
+                margin-bottom: 13px;
+            }
+
+            .payment-field input {
+                min-height: 46px;
+                font-size: 16px;
+            }
+
             .payment-net-box {
                 grid-template-columns: 1fr;
+
+                gap: 8px;
+                margin-top: 14px;
+            }
+
+            .payment-net-item {
+                padding: 11px 12px;
             }
 
             .payment-modal-actions {
+                position: sticky;
+                bottom: 0;
+                z-index: 10;
+
                 flex-direction: column;
+
+                margin:
+                    16px -16px -16px;
+
+                padding:
+                    12px
+                    16px
+                    calc(
+                        12px
+                        + env(safe-area-inset-bottom)
+                    );
+
+                border-top:
+                    1px solid #e5e7eb;
+
+                background: white;
             }
 
             .payment-modal-actions button {
                 width: 100%;
+                min-height: 46px;
+
+                font-size: 15px;
+                font-weight: bold;
+            }
+
+            .payment-submit {
+                order: -1;
             }
         }
 
@@ -1239,9 +1354,96 @@
             }
 
             .table-card {
+                position: relative;
+
                 max-width: 100%;
 
                 border-radius: 7px;
+
+                overflow-x: auto;
+                overflow-y: visible;
+
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | KOLOM AKSI - MOBILE
+            |--------------------------------------------------------------------------
+            | Kolom aksi tetap terlihat di sisi kanan ketika tabel digeser.
+            */
+
+            table {
+                min-width: 3000px;
+            }
+
+            th:last-child,
+            td:last-child {
+                position: sticky;
+                right: 0;
+
+                z-index: 5;
+
+                min-width: 190px;
+
+                background: white;
+
+                box-shadow:
+                    -5px 0 10px
+                    rgba(15, 23, 42, 0.10);
+            }
+
+            thead th:last-child {
+                z-index: 7;
+
+                background: #edf2f7;
+            }
+
+            tbody tr:hover td:last-child {
+                background: #f8fafc;
+            }
+
+            .action-buttons {
+                width: 100%;
+                min-width: 0;
+
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+
+                gap: 8px;
+            }
+
+            .action-buttons form {
+                width: 100%;
+            }
+
+            .button-payment,
+            .button-deposit,
+            .button-edit,
+            .button-delete {
+                display: block;
+
+                width: 100%;
+                min-height: 42px;
+
+                padding: 10px 12px;
+
+                text-align: center;
+            }
+
+            .payment-completed,
+            .deposit-completed,
+            .deposit-waiting,
+            .deposit-no-money {
+                display: block;
+
+                width: 100%;
+
+                padding: 8px 9px;
+
+                white-space: normal;
+                text-align: left;
             }
 
             .pagination {
@@ -1635,7 +1837,7 @@
             <article class="summary-card summary-profit">
 
                 <h3>
-                    Total Keuntungan
+                    Total Keuntungan Kotor
                 </h3>
 
                 <strong class="value-profit">
@@ -1729,7 +1931,8 @@
                         <th>Total Harga Normal</th>
                         <th>Diskon Pelanggan</th>
                         <th>Total Setelah Diskon</th>
-                        <th>Keuntungan</th>
+                        <th>Keuntungan Kotor</th>
+                        <th>Keuntungan Bersih</th>
 
                         <th>Customer Bayar</th>
                         <th>Sisa Customer</th>
@@ -1789,6 +1992,21 @@
                                     $stockOut->deduction_amount
                                     ?? 0
                                 );
+
+                            /*
+                             * Keuntungan kotor = total_profit.
+                             * Keuntungan bersih = keuntungan kotor
+                             * dikurangi biaya / potongan petugas.
+                             */
+                            $grossProfit =
+                                (float) (
+                                    $stockOut->total_profit
+                                    ?? 0
+                                );
+
+                            $netProfit =
+                                $grossProfit
+                                - $deductionAmount;
 
                             $netDeposit =
                                 max(
@@ -1882,9 +2100,19 @@
                                 ) }}
                             </td>
 
+                            {{-- KEUNTUNGAN KOTOR --}}
+                            <td class="gross-profit">
+                                ${{ number_format(
+                                    $grossProfit,
+                                    2
+                                ) }}
+                            </td>
+
+
+                            {{-- KEUNTUNGAN BERSIH --}}
                             <td class="profit">
                                 ${{ number_format(
-                                    $stockOut->total_profit,
+                                    $netProfit,
                                     2
                                 ) }}
                             </td>
@@ -2328,7 +2556,7 @@
                         <tr>
 
                             <td
-                                colspan="24"
+                                colspan="25"
                                 class="empty-data"
                             >
                                 Belum ada transaksi stok keluar.
