@@ -765,7 +765,7 @@
 
 
         /* =========================================================
-           PAYMENT MODAL
+           PAYMENT & DEPOSIT MODAL
         ========================================================= */
 
         .payment-modal {
@@ -1040,6 +1040,74 @@
 
             .payment-submit {
                 order: -1;
+            }
+        }
+
+
+        /* =========================================================
+           DEPOSIT MODAL
+        ========================================================= */
+
+        .deposit-summary-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .deposit-summary-item {
+            padding: 13px;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .deposit-summary-item span {
+            display: block;
+            margin-bottom: 5px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .deposit-summary-item strong {
+            font-size: 18px;
+        }
+
+        .deposit-preview-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .deposit-preview-item {
+            padding: 13px;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .deposit-preview-item span {
+            display: block;
+            margin-bottom: 5px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .deposit-preview-item strong {
+            font-size: 18px;
+        }
+
+        .deposit-submit {
+            background: #16a34a;
+        }
+
+        .deposit-submit:hover {
+            background: #15803d;
+        }
+
+        @media (max-width: 700px) {
+            .deposit-summary-box,
+            .deposit-preview-box {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -2390,17 +2458,30 @@
                                                 method="POST"
                                                 class="deposit-form"
                                                 data-staff="{{ $sellerName }}"
+                                                data-product="{{ $stockOut->product?->product_name ?? 'Produk' }}"
+                                                data-target="{{ $netDeposit }}"
+                                                data-deposited="{{ $staffDeposited }}"
                                                 data-balance="{{ $staffBalance }}"
                                             >
 
                                                 @csrf
                                                 @method('PATCH')
 
+                                                <input
+                                                    type="hidden"
+                                                    name="deposit_amount"
+                                                    value=""
+                                                >
+
                                                 <button
                                                     type="submit"
                                                     class="button-deposit"
                                                 >
-                                                    Konfirmasi Setoran
+                                                    @if ($staffDeposited > 0)
+                                                        Tambah Setoran
+                                                    @else
+                                                        Konfirmasi Setoran
+                                                    @endif
                                                 </button>
 
                                             </form>
@@ -2824,8 +2905,145 @@
 </div>
 
 
+<div
+    id="depositModal"
+    class="payment-modal"
+    aria-hidden="true"
+>
+    <div class="payment-modal-card">
+
+        <div class="payment-modal-header">
+
+            <h3>
+                Verifikasi Setoran Petugas
+            </h3>
+
+            <button
+                type="button"
+                id="depositModalClose"
+                class="payment-modal-close"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="payment-modal-body">
+
+            <div
+                id="depositModalError"
+                class="payment-error"
+            ></div>
+
+            <div class="payment-customer-info">
+
+                <div>
+                    <strong>Petugas:</strong>
+                    <span id="depositStaffName">-</span>
+                </div>
+
+                <div>
+                    <strong>Produk:</strong>
+                    <span id="depositProductName">-</span>
+                </div>
+
+            </div>
+
+            <div class="deposit-summary-box">
+
+                <div class="deposit-summary-item">
+                    <span>Target Setoran Bersih</span>
+                    <strong style="color:#2563eb;">
+                        $<span id="depositTarget">0.00</span>
+                    </strong>
+                </div>
+
+                <div class="deposit-summary-item">
+                    <span>Sudah Disetor</span>
+                    <strong style="color:#15803d;">
+                        $<span id="depositAlreadyPaid">0.00</span>
+                    </strong>
+                </div>
+
+                <div class="deposit-summary-item">
+                    <span>Belum Disetor</span>
+                    <strong style="color:#dc2626;">
+                        $<span id="depositRemaining">0.00</span>
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="payment-field">
+
+                <label for="modalDepositAmount">
+                    Bayar / Setor Sekarang
+                </label>
+
+                <input
+                    type="number"
+                    id="modalDepositAmount"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Contoh: 30.00"
+                >
+
+            </div>
+
+            <div class="deposit-preview-box">
+
+                <div class="deposit-preview-item">
+                    <span>Bayar Sekarang</span>
+                    <strong style="color:#2563eb;">
+                        $<span id="depositPayNowPreview">0.00</span>
+                    </strong>
+                </div>
+
+                <div class="deposit-preview-item">
+                    <span>Total Setelah Setor</span>
+                    <strong style="color:#15803d;">
+                        $<span id="depositAfterPaidPreview">0.00</span>
+                    </strong>
+                </div>
+
+                <div class="deposit-preview-item">
+                    <span>Sisa Setelah Setor</span>
+                    <strong style="color:#dc2626;">
+                        $<span id="depositAfterBalancePreview">0.00</span>
+                    </strong>
+                </div>
+
+            </div>
+
+            <div class="payment-modal-actions">
+
+                <button
+                    type="button"
+                    id="depositModalCancel"
+                    class="payment-cancel"
+                >
+                    Batal
+                </button>
+
+                <button
+                    type="button"
+                    id="depositModalSubmit"
+                    class="deposit-submit"
+                >
+                    Verifikasi Setoran
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
 <form
-    id="idleLogoutForm"
+    id="idleLogoutForm\"
     action="{{ route('logout') }}"
     method="POST"
     style="display: none;"
@@ -3373,9 +3591,260 @@
 
     /*
     |--------------------------------------------------------------------------
-    | KONFIRMASI SETORAN ADMIN
+    | KONFIRMASI SETORAN ADMIN - MODAL SETORAN SEBAGIAN
     |--------------------------------------------------------------------------
     */
+
+    const depositModal =
+        document.getElementById(
+            'depositModal'
+        );
+
+    const depositModalClose =
+        document.getElementById(
+            'depositModalClose'
+        );
+
+    const depositModalCancel =
+        document.getElementById(
+            'depositModalCancel'
+        );
+
+    const depositModalSubmit =
+        document.getElementById(
+            'depositModalSubmit'
+        );
+
+    const depositModalError =
+        document.getElementById(
+            'depositModalError'
+        );
+
+    const depositStaffName =
+        document.getElementById(
+            'depositStaffName'
+        );
+
+    const depositProductName =
+        document.getElementById(
+            'depositProductName'
+        );
+
+    const depositTarget =
+        document.getElementById(
+            'depositTarget'
+        );
+
+    const depositAlreadyPaid =
+        document.getElementById(
+            'depositAlreadyPaid'
+        );
+
+    const depositRemaining =
+        document.getElementById(
+            'depositRemaining'
+        );
+
+    const modalDepositAmount =
+        document.getElementById(
+            'modalDepositAmount'
+        );
+
+    const depositPayNowPreview =
+        document.getElementById(
+            'depositPayNowPreview'
+        );
+
+    const depositAfterPaidPreview =
+        document.getElementById(
+            'depositAfterPaidPreview'
+        );
+
+    const depositAfterBalancePreview =
+        document.getElementById(
+            'depositAfterBalancePreview'
+        );
+
+
+    let activeDepositForm =
+        null;
+
+    let activeDepositTarget =
+        0;
+
+    let activeDepositAlreadyPaid =
+        0;
+
+    let activeDepositRemaining =
+        0;
+
+
+    function clearDepositError() {
+
+        depositModalError.textContent =
+            '';
+
+        depositModalError.classList.remove(
+            'show'
+        );
+    }
+
+
+    function showDepositError(
+        message
+    ) {
+
+        depositModalError.textContent =
+            message;
+
+        depositModalError.classList.add(
+            'show'
+        );
+    }
+
+
+    function updateDepositPreview() {
+
+        const payNow =
+            Number(
+                modalDepositAmount.value
+                || 0
+            );
+
+        const safePayNow =
+            Number.isFinite(payNow)
+                ? Math.max(payNow, 0)
+                : 0;
+
+        const afterPaid =
+            Math.min(
+                activeDepositAlreadyPaid
+                + safePayNow,
+                activeDepositTarget
+            );
+
+        const afterBalance =
+            Math.max(
+                activeDepositTarget
+                - afterPaid,
+                0
+            );
+
+        depositPayNowPreview.textContent =
+            safePayNow.toFixed(2);
+
+        depositAfterPaidPreview.textContent =
+            afterPaid.toFixed(2);
+
+        depositAfterBalancePreview.textContent =
+            afterBalance.toFixed(2);
+    }
+
+
+    function openDepositModal(
+        form
+    ) {
+
+        activeDepositForm =
+            form;
+
+        activeDepositTarget =
+            Number(
+                form.dataset.target
+                || 0
+            );
+
+        activeDepositAlreadyPaid =
+            Number(
+                form.dataset.deposited
+                || 0
+            );
+
+        activeDepositRemaining =
+            Number(
+                form.dataset.balance
+                || 0
+            );
+
+        const staff =
+            form.dataset.staff
+            || 'Petugas';
+
+        const product =
+            form.dataset.product
+            || 'Produk';
+
+        depositStaffName.textContent =
+            staff;
+
+        depositProductName.textContent =
+            product;
+
+        depositTarget.textContent =
+            activeDepositTarget.toFixed(2);
+
+        depositAlreadyPaid.textContent =
+            activeDepositAlreadyPaid.toFixed(2);
+
+        depositRemaining.textContent =
+            activeDepositRemaining.toFixed(2);
+
+        /*
+        | Default diisi dengan seluruh sisa.
+        | Admin tetap bisa mengganti menjadi sebagian,
+        | misalnya sisa $62 lalu input $30.
+        */
+        modalDepositAmount.value =
+            activeDepositRemaining.toFixed(2);
+
+        clearDepositError();
+
+        updateDepositPreview();
+
+        depositModal.classList.add(
+            'show'
+        );
+
+        depositModal.setAttribute(
+            'aria-hidden',
+            'false'
+        );
+
+        document.body.classList.add(
+            'menu-open'
+        );
+
+        setTimeout(
+            function () {
+                modalDepositAmount.focus();
+                modalDepositAmount.select();
+            },
+            50
+        );
+    }
+
+
+    function closeDepositModal() {
+
+        depositModal.classList.remove(
+            'show'
+        );
+
+        depositModal.setAttribute(
+            'aria-hidden',
+            'true'
+        );
+
+        document.body.classList.remove(
+            'menu-open'
+        );
+
+        activeDepositForm =
+            null;
+
+        clearDepositError();
+    }
+
 
     document
         .querySelectorAll(
@@ -3389,36 +3858,129 @@
 
                     event.preventDefault();
 
-                    const staff =
-                        form.dataset.staff
-                        || 'Petugas';
-
-                    const balance =
-                        Number(
-                            form.dataset.balance
-                            || 0
-                        );
-
-                    const confirmed =
-                        confirm(
-                            'Konfirmasi bahwa '
-                            + staff
-                            + ' sudah menyerahkan setoran bersih sebesar $'
-                            + balance.toFixed(2)
-                            + ' kepada Admin?'
-                        );
-
-                    if (
-                        !confirmed
-                    ) {
-                        return;
-                    }
-
-                    form.submit();
+                    openDepositModal(
+                        form
+                    );
                 }
             );
 
         });
+
+
+    modalDepositAmount.addEventListener(
+        'input',
+        updateDepositPreview
+    );
+
+
+    depositModalClose.addEventListener(
+        'click',
+        closeDepositModal
+    );
+
+    depositModalCancel.addEventListener(
+        'click',
+        closeDepositModal
+    );
+
+
+    depositModal.addEventListener(
+        'click',
+        function (event) {
+
+            if (
+                event.target
+                === depositModal
+            ) {
+                closeDepositModal();
+            }
+        }
+    );
+
+
+    depositModalSubmit.addEventListener(
+        'click',
+        function () {
+
+            if (
+                !activeDepositForm
+            ) {
+                return;
+            }
+
+
+            clearDepositError();
+
+
+            const depositAmount =
+                Number(
+                    modalDepositAmount.value
+                    || 0
+                );
+
+
+            if (
+                !Number.isFinite(
+                    depositAmount
+                )
+                || depositAmount <= 0
+            ) {
+
+                showDepositError(
+                    'Jumlah setoran wajib diisi dan harus lebih dari $0.00.'
+                );
+
+                return;
+            }
+
+
+            if (
+                depositAmount
+                > activeDepositRemaining
+            ) {
+
+                showDepositError(
+                    'Jumlah setoran tidak boleh melebihi sisa yang belum disetor sebesar $'
+                    + activeDepositRemaining.toFixed(2)
+                    + '.'
+                );
+
+                return;
+            }
+
+
+            const depositInput =
+                activeDepositForm
+                    .querySelector(
+                        'input[name="deposit_amount"]'
+                    );
+
+
+            depositInput.value =
+                depositAmount.toFixed(2);
+
+
+            const formToSubmit =
+                activeDepositForm;
+
+
+            depositModal.classList.remove(
+                'show'
+            );
+
+            depositModal.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+
+            document.body.classList.remove(
+                'menu-open'
+            );
+
+
+            formToSubmit.submit();
+        }
+    );
 
 
     /*

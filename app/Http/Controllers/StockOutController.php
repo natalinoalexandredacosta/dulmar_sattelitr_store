@@ -1835,19 +1835,50 @@ class StockOutController extends Controller
     */
 
     public function confirmDeposit(
+        Request $request,
         StockOut $stockOut
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI NOMINAL SETORAN
+        |--------------------------------------------------------------------------
+        */
+
+        $validated = $request->validate([
+            'deposit_amount' => [
+                'required',
+                'numeric',
+                'min:0.01',
+            ],
+        ], [
+            'deposit_amount.required' =>
+                'Jumlah setoran wajib diisi.',
+
+            'deposit_amount.numeric' =>
+                'Jumlah setoran harus berupa angka.',
+
+            'deposit_amount.min' =>
+                'Jumlah setoran harus lebih dari $0.00.',
+        ]);
+
+        $depositAmount =
+            (float) $validated[
+                'deposit_amount'
+            ];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATABASE TRANSACTION + LOCK
+        |--------------------------------------------------------------------------
+        */
+
         $result =
             DB::transaction(
                 function () use (
-                    $stockOut
+                    $stockOut,
+                    $depositAmount
                 ) {
-                    /*
-                    |--------------------------------------------------------------------------
-                    | LOCK STOCK OUT
-                    |--------------------------------------------------------------------------
-                    */
-
                     $lockedStockOut =
                         StockOut::query()
                             ->lockForUpdate()
@@ -1879,7 +1910,7 @@ class StockOutController extends Controller
 
                     /*
                     |--------------------------------------------------------------------------
-                    | BELUM ADA UANG
+                    | BELUM ADA UANG CUSTOMER
                     |--------------------------------------------------------------------------
                     */
 
@@ -1887,7 +1918,7 @@ class StockOutController extends Controller
                         $staffReceived <= 0
                     ) {
                         throw ValidationException::withMessages([
-                            'deposit' =>
+                            'deposit_amount' =>
                                 'Belum ada uang customer yang diterima petugas.',
                         ]);
                     }
@@ -1895,62 +1926,111 @@ class StockOutController extends Controller
 
                     /*
                     |--------------------------------------------------------------------------
-                    | BERAPA UANG YANG SUDAH MASUK KAS
-                    |--------------------------------------------------------------------------
-                    |
-                    | Kita hitung berdasarkan CashTransaction.
-                    |
-                    | Ini penting untuk mencegah double count.
-                    |
-                    */
-
-                    $alreadyRecordedCash =
-                        (float) CashTransaction::query()
-                            ->where(
-                                'source',
-                                'sale_deposit'
-                            )
-                            ->where(
-                                'reference_id',
-                                $lockedStockOut->id
-                            )
-                            ->where(
-                                'approval_status',
-                                'approved'
-                            )
-                            ->sum(
-                                'amount'
-                            );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | UANG BARU YANG BELUM MASUK KAS
+                    | TOTAL YANG SUDAH DISETOR
                     |--------------------------------------------------------------------------
                     */
 
-                    $cashToAdd =
+                    $alreadyDeposited =
+                        (float) $lockedStockOut
+                            ->staff_deposited_amount;
+
+
+                    $remainingDeposit =
                         max(
                             $netDepositTarget
-                            - $alreadyRecordedCash,
+                            - $alreadyDeposited,
                             0
                         );
 
 
+                    if (
+                        $remainingDeposit <= 0
+                    ) {
+                        throw ValidationException::withMessages([
+                            'deposit_amount' =>
+                                'Seluruh setoran transaksi ini sudah dikonfirmasi.',
+                        ]);
+                    }
+
+
+                    if (
+                        $depositAmount
+                        > $remainingDeposit
+                    ) {
+                        throw ValidationException::withMessages([
+                            'deposit_amount' =>
+                                'Jumlah setoran melebihi sisa yang belum disetor sebesar $'
+                                . number_format(
+                                    $remainingDeposit,
+                                    2
+                                )
+                                . '.',
+                        ]);
+                    }
+
+
                     /*
                     |--------------------------------------------------------------------------
-                    | SUDAH SEMUA MASUK
+                    | HASIL SETORAN BARU
                     |--------------------------------------------------------------------------
                     */
 
-                    if (
-                        $cashToAdd <= 0
-                    ) {
-                        throw ValidationException::withMessages([
-                            'deposit' =>
-                                'Seluruh setoran transaksi ini sudah dikonfirmasi dan sudah masuk Kas Inventory.',
-                        ]);
-                    }
+                    $newDeposited =
+                        $alreadyDeposited
+                        + $depositAmount;
+
+
+                    $newBalance =
+                        max(
+                            $netDepositTarget
+                            - $newDeposited,
+                            0
+                        );
+
+
+                    $depositStatus =
+                        $newBalance <= 0
+                            ? 'paid'
+                            : 'partial';
+
+
+                    $verifiedBy =
+                        auth()->user()?->name
+                        ?? 'Administrator';
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | UPDATE STOCK OUT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $lockedStockOut
+                        ->staff_deposited_amount =
+                        $newDeposited;
+
+
+                    $lockedStockOut
+                        ->staff_balance =
+                        $newBalance;
+
+
+                    $lockedStockOut
+                        ->staff_deposit_status =
+                        $depositStatus;
+
+
+                    $lockedStockOut
+                        ->staff_deposited_at =
+                        now();
+
+
+                    $lockedStockOut
+                        ->deposit_verified_by =
+                        $verifiedBy;
+
+
+                    $lockedStockOut->save();
 
 
                     /*
@@ -1969,49 +2049,10 @@ class StockOutController extends Controller
 
                     /*
                     |--------------------------------------------------------------------------
-                    | UPDATE SETORAN STOCK OUT
-                    |--------------------------------------------------------------------------
-                    */
-
-                    $lockedStockOut
-                        ->staff_deposited_amount =
-                        $netDepositTarget;
-
-
-                    $lockedStockOut
-                        ->staff_balance =
-                        0;
-
-
-                    $lockedStockOut
-                        ->staff_deposit_status =
-                        'paid';
-
-
-                    $lockedStockOut
-                        ->staff_deposited_at =
-                        now();
-
-
-                    $verifiedBy =
-                        auth()->user()?->name
-                        ?? 'Administrator';
-
-
-                    $lockedStockOut
-                        ->deposit_verified_by =
-                        $verifiedBy;
-
-
-                    $lockedStockOut->save();
-
-
-                    /*
-                    |--------------------------------------------------------------------------
                     | CASH INVENTORY
                     |--------------------------------------------------------------------------
                     |
-                    | TV Voucher tidak masuk ke Kas Inventory private.
+                    | Hanya nominal yang benar-benar dibayar sekarang yang masuk Kas Inventory.
                     |
                     */
 
@@ -2026,12 +2067,6 @@ class StockOutController extends Controller
                             $product
                         )
                     ) {
-                        /*
-                        |--------------------------------------------------------------------------
-                        | CUSTOMER
-                        |--------------------------------------------------------------------------
-                        */
-
                         $customer =
                             $lockedStockOut
                                 ->customer()
@@ -2047,16 +2082,6 @@ class StockOutController extends Controller
                             $product->product_name
                             ?? 'Produk';
 
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | CREATE CASH
-                        |--------------------------------------------------------------------------
-                        |
-                        | Langsung approved karena tindakan confirmDeposit
-                        | adalah verifikasi Admin bahwa uang fisik sudah diterima.
-                        |
-                        */
 
                         $cashTransaction =
                             CashTransaction::create([
@@ -2079,30 +2104,26 @@ class StockOutController extends Controller
                                     $lockedStockOut->id,
 
                                 'amount' =>
-                                    $cashToAdd,
+                                    $depositAmount,
 
                                 'description' =>
-                                    'Setoran bersih penjualan '
+                                    'Setoran penjualan '
                                     . $productName
                                     . ' - Customer '
                                     . $customerName
-                                    . ' - Harga normal $'
+                                    . ' - Bayar sekarang $'
                                     . number_format(
-                                        (float) $lockedStockOut->unit_selling_price
-                                        * (int) $lockedStockOut->quantity,
+                                        $depositAmount,
                                         2
                                     )
-                                    . ' - Diskon pelanggan $'
+                                    . ' - Total sudah setor $'
                                     . number_format(
-                                        (float) (
-                                            $lockedStockOut->customer_discount_amount
-                                            ?? 0
-                                        ),
+                                        $newDeposited,
                                         2
                                     )
-                                    . ' - Total setelah diskon $'
+                                    . ' - Sisa belum setor $'
                                     . number_format(
-                                        (float) $lockedStockOut->subtotal,
+                                        $newBalance,
                                         2
                                     )
                                     . ' - Potongan petugas $'
@@ -2111,8 +2132,12 @@ class StockOutController extends Controller
                                         2
                                     )
                                     . (
-                                        $lockedStockOut->deduction_note
-                                            ? ' (' . $lockedStockOut->deduction_note . ')'
+                                        $lockedStockOut
+                                            ->deduction_note
+                                            ? ' ('
+                                                . $lockedStockOut
+                                                    ->deduction_note
+                                                . ')'
                                             : ''
                                     )
                                     . ' - Transaksi #'
@@ -2129,15 +2154,6 @@ class StockOutController extends Controller
 
                                 'rejection_reason' =>
                                     null,
-
-                                /*
-                                |--------------------------------------------------------------------------
-                                | TANGGAL CASH
-                                |--------------------------------------------------------------------------
-                                |
-                                | Gunakan tanggal aktual saat uang fisik masuk Kas.
-                                |
-                                */
 
                                 'transaction_date' =>
                                     now()
@@ -2159,11 +2175,20 @@ class StockOutController extends Controller
                         'cash_transaction' =>
                             $cashTransaction,
 
-                        'cash_to_add' =>
-                            $cashToAdd,
+                        'deposit_amount' =>
+                            $depositAmount,
 
-                        'already_recorded_cash' =>
-                            $alreadyRecordedCash,
+                        'new_deposited' =>
+                            $newDeposited,
+
+                        'new_balance' =>
+                            $newBalance,
+
+                        'net_deposit_target' =>
+                            $netDepositTarget,
+
+                        'deposit_status' =>
+                            $depositStatus,
                     ];
                 }
             );
@@ -2187,9 +2212,33 @@ class StockOutController extends Controller
             ];
 
 
-        $cashToAdd =
+        $depositAmount =
             (float) $result[
-                'cash_to_add'
+                'deposit_amount'
+            ];
+
+
+        $newDeposited =
+            (float) $result[
+                'new_deposited'
+            ];
+
+
+        $newBalance =
+            (float) $result[
+                'new_balance'
+            ];
+
+
+        $netDepositTarget =
+            (float) $result[
+                'net_deposit_target'
+            ];
+
+
+        $depositStatus =
+            $result[
+                'deposit_status'
             ];
 
 
@@ -2254,7 +2303,7 @@ class StockOutController extends Controller
                 );
 
 
-            $received =
+            $receivedFormatted =
                 number_format(
                     (float) $stockOutFresh
                         ->staff_received_amount,
@@ -2262,59 +2311,7 @@ class StockOutController extends Controller
                 );
 
 
-            $deposited =
-                number_format(
-                    (float) $stockOutFresh
-                        ->staff_deposited_amount,
-                    2
-                );
-
-
-            $balance =
-                number_format(
-                    (float) $stockOutFresh
-                        ->staff_balance,
-                    2
-                );
-
-
-            $cashAddedFormatted =
-                number_format(
-                    $cashToAdd,
-                    2
-                );
-
-
-            $normalSaleTotalFormatted =
-                number_format(
-                    (float) $stockOutFresh
-                        ->unit_selling_price
-                    * (int) $stockOutFresh
-                        ->quantity,
-                    2
-                );
-
-
-            $customerDiscountFormatted =
-                number_format(
-                    (float) (
-                        $stockOutFresh
-                            ->customer_discount_amount
-                        ?? 0
-                    ),
-                    2
-                );
-
-
-            $saleTotalFormatted =
-                number_format(
-                    (float) $stockOutFresh
-                        ->subtotal,
-                    2
-                );
-
-
-            $deductionAmountFormatted =
+            $deductionFormatted =
                 number_format(
                     (float) (
                         $stockOutFresh
@@ -2325,24 +2322,30 @@ class StockOutController extends Controller
                 );
 
 
-            $deductionNote =
-                $stockOutFresh
-                    ->deduction_note
-                ?: '-';
-
-
-            $netDepositFormatted =
+            $targetFormatted =
                 number_format(
-                    max(
-                        (float) $stockOutFresh
-                            ->staff_received_amount
-                        - (float) (
-                            $stockOutFresh
-                                ->deduction_amount
-                            ?? 0
-                        ),
-                        0
-                    ),
+                    $netDepositTarget,
+                    2
+                );
+
+
+            $paidNowFormatted =
+                number_format(
+                    $depositAmount,
+                    2
+                );
+
+
+            $depositedFormatted =
+                number_format(
+                    $newDeposited,
+                    2
+                );
+
+
+            $balanceFormatted =
+                number_format(
+                    $newBalance,
                     2
                 );
 
@@ -2356,6 +2359,12 @@ class StockOutController extends Controller
                     $cashBalance,
                     2
                 );
+
+
+            $statusText =
+                $depositStatus === 'paid'
+                    ? 'SUDAH SETOR'
+                    : 'SETOR SEBAGIAN';
 
 
             $depositedAt =
@@ -2373,7 +2382,7 @@ class StockOutController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | TELEGRAM SETORAN
+            | TELEGRAM SETORAN PETUGAS
             |--------------------------------------------------------------------------
             */
 
@@ -2382,20 +2391,16 @@ class StockOutController extends Controller
                 . "<b>Produk:</b> {$productName}\n"
                 . "<b>Customer:</b> {$customerName}\n"
                 . "<b>Petugas Penjualan:</b> {$soldBy}\n"
-                . "<b>Total Harga Normal:</b> \${$normalSaleTotalFormatted}\n"
-                . "<b>Diskon Pelanggan:</b> \${$customerDiscountFormatted}\n"
-                . "<b>Total Setelah Diskon:</b> \${$saleTotalFormatted}\n"
-                . "<b>Uang Diterima Petugas:</b> \${$received}\n"
-                . "<b>Biaya/Potongan Petugas:</b> \${$deductionAmountFormatted}\n"
-                . "<b>Keterangan Potongan:</b> {$deductionNote}\n"
-                . "<b>Setoran Bersih:</b> \${$netDepositFormatted}\n"
-                . "<b>Sudah Disetor:</b> \${$deposited}\n"
-                . "<b>Belum Disetor:</b> \${$balance}\n"
-                . "<b>Cash Baru Masuk:</b> +\${$cashAddedFormatted}\n"
-                . "<b>Status:</b> SUDAH SETOR\n"
+                . "<b>Uang Diterima Petugas:</b> \${$receivedFormatted}\n"
+                . "<b>Biaya/Potongan Petugas:</b> \${$deductionFormatted}\n"
+                . "<b>Target Setoran Bersih:</b> \${$targetFormatted}\n"
+                . "<b>Bayar Sekarang:</b> \${$paidNowFormatted}\n"
+                . "<b>Total Sudah Disetor:</b> \${$depositedFormatted}\n"
+                . "<b>Belum Disetor:</b> \${$balanceFormatted}\n"
+                . "<b>Status:</b> {$statusText}\n"
                 . "<b>Dikonfirmasi Oleh:</b> {$verifiedBy}\n"
-                . "<b>Waktu Setoran:</b> {$depositedAt}\n\n"
-                . "✅ Uang fisik sudah diterima dan diverifikasi Admin."
+                . "<b>Waktu:</b> {$depositedAt}\n\n"
+                . "✅ Uang yang diterima sekarang sudah masuk Kas Inventory."
             );
 
 
@@ -2413,14 +2418,12 @@ class StockOutController extends Controller
                 $stockTelegram->send(
                     "<b>💰 CASH INVENTORY BERTAMBAH</b>\n\n"
                     . "<b>Cash ID:</b> #{$cashId}\n"
-                    . "<b>Sumber:</b> Setoran Bersih Penjualan\n"
+                    . "<b>Sumber:</b> Setoran Penjualan\n"
                     . "<b>Produk:</b> {$productName}\n"
                     . "<b>Customer:</b> {$customerName}\n"
-                    . "<b>Total Harga Normal:</b> \${$normalSaleTotalFormatted}\n"
-                    . "<b>Diskon Pelanggan:</b> \${$customerDiscountFormatted}\n"
-                    . "<b>Total Setelah Diskon:</b> \${$saleTotalFormatted}\n"
-                    . "<b>Biaya/Potongan Petugas:</b> \${$deductionAmountFormatted}\n"
-                    . "<b>Cash Masuk:</b> +\${$cashAddedFormatted}\n"
+                    . "<b>Cash Masuk Sekarang:</b> +\${$paidNowFormatted}\n"
+                    . "<b>Total Sudah Disetor:</b> \${$depositedFormatted}\n"
+                    . "<b>Sisa Belum Disetor:</b> \${$balanceFormatted}\n"
                     . "<b>Saldo Kas Sekarang:</b> \${$cashBalanceFormatted}\n"
                     . "<b>Diverifikasi Oleh:</b> {$verifiedBy}\n\n"
                     . "✅ Setoran otomatis tercatat di Kas Inventory."
@@ -2435,23 +2438,42 @@ class StockOutController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        if (
+            $depositStatus === 'paid'
+        ) {
+            return redirect()
+                ->route(
+                    'stock-outs.index'
+                )
+                ->with(
+                    'success',
+                    'Setoran berhasil dikonfirmasi sebesar $'
+                    . number_format(
+                        $depositAmount,
+                        2
+                    )
+                    . '. Seluruh setoran transaksi ini sudah lunas.'
+                );
+        }
+
+
         return redirect()
             ->route(
                 'stock-outs.index'
             )
             ->with(
                 'success',
-                'Setoran dari '
-                . (
-                    $stockOutFresh->sold_by
-                    ?: 'petugas'
-                )
-                . ' berhasil dikonfirmasi. Cash sebesar $'
+                'Setoran sebagian berhasil dikonfirmasi sebesar $'
                 . number_format(
-                    $cashToAdd,
+                    $depositAmount,
                     2
                 )
-                . ' otomatis masuk ke Kas Inventory.'
+                . '. Sisa yang belum disetor $'
+                . number_format(
+                    $newBalance,
+                    2
+                )
+                . '.'
             );
     }
 
