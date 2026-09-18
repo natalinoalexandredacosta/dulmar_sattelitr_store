@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InventoryReportExport;
+use App\Models\CashTransaction;
 use App\Models\Product;
 use App\Models\StockIn;
 use App\Models\StockOut;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,52 +15,24 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
-    /**
-     * Menampilkan halaman laporan inventaris.
-     */
     public function index(Request $request)
     {
-        $validated =
-            $this->validateDateFilter($request);
+        $validated = $this->validateDateFilter($request);
+        $startDate = $validated['start_date'] ?? null;
+        $endDate = $validated['end_date'] ?? null;
 
-        $startDate =
-            $validated['start_date'] ?? null;
+        $cashFilter = $this->validateCashPeriodFilter($request);
+        $cashMonth = (int) ($cashFilter['cash_month'] ?? now()->month);
+        $cashYear = (int) ($cashFilter['cash_year'] ?? now()->year);
 
-        $endDate =
-            $validated['end_date'] ?? null;
+        $cashPeriodStart = Carbon::create($cashYear, $cashMonth, 1)->startOfMonth();
+        $cashPeriodEnd = $cashPeriodStart->copy()->endOfMonth();
+        $cashPeriodLabel = $this->getIndonesianMonthName($cashMonth) . ' ' . $cashYear;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN KONDISI PRODUK SAAT INI
-        |--------------------------------------------------------------------------
-        */
-
-        $totalProducts =
-            Product::count();
-
-        $totalCurrentStock =
-            (int) Product::sum('stock');
-
-        $lowStockProducts =
-            Product::whereBetween(
-                'stock',
-                [1, 5]
-            )->count();
-
-        $outOfStockProducts =
-            Product::where(
-                'stock',
-                '<=',
-                0
-            )->count();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NILAI MODAL STOK SAAT INI
-        |--------------------------------------------------------------------------
-        */
+        $totalProducts = Product::count();
+        $totalCurrentStock = (int) Product::sum('stock');
+        $lowStockProducts = Product::whereBetween('stock', [1, 5])->count();
+        $outOfStockProducts = Product::where('stock', '<=', 0)->count();
 
         $currentInventoryValue =
             (float) Product::query()
@@ -74,139 +48,38 @@ class ReportController extends Controller
                     ) AS inventory_value
                     '
                 )
-                ->value(
-                    'inventory_value'
-                );
+                ->value('inventory_value');
 
+        $stockInQuery = StockIn::query();
+        $stockOutQuery = StockOut::query();
 
-        /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN STOK MASUK & KELUAR
-        |--------------------------------------------------------------------------
-        */
+        $this->applyDateFilter($stockInQuery, $startDate, $endDate);
+        $this->applyDateFilter($stockOutQuery, $startDate, $endDate);
 
-        $stockInQuery =
-            StockIn::query();
-
-        $stockOutQuery =
-            StockOut::query();
-
-
-        $this->applyDateFilter(
-            $stockInQuery,
-            $startDate,
-            $endDate
-        );
-
-        $this->applyDateFilter(
-            $stockOutQuery,
-            $startDate,
-            $endDate
-        );
-
-
-        $totalStockIn =
-            (int) (clone $stockInQuery)
-                ->sum('quantity');
-
-        $totalStockOut =
-            (int) (clone $stockOutQuery)
-                ->sum('quantity');
-
-
-        $totalStockInTransactions =
-            (clone $stockInQuery)
-                ->count();
-
-        $totalStockOutTransactions =
-            (clone $stockOutQuery)
-                ->count();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN PRODUK
-        |--------------------------------------------------------------------------
-        */
+        $totalStockIn = (int) (clone $stockInQuery)->sum('quantity');
+        $totalStockOut = (int) (clone $stockOutQuery)->sum('quantity');
+        $totalStockInTransactions = (clone $stockInQuery)->count();
+        $totalStockOutTransactions = (clone $stockOutQuery)->count();
 
         $products =
             Product::query()
-
                 ->withSum([
-                    'stockIns as total_stock_in' =>
-                        function ($query) use (
-                            $startDate,
-                            $endDate
-                        ) {
-
-                            $this->applyDateFilter(
-                                $query,
-                                $startDate,
-                                $endDate
-                            );
-                        },
+                    'stockIns as total_stock_in' => function ($query) use ($startDate, $endDate) {
+                        $this->applyDateFilter($query, $startDate, $endDate);
+                    },
                 ], 'quantity')
-
                 ->withSum([
-                    'stockOuts as total_stock_out' =>
-                        function ($query) use (
-                            $startDate,
-                            $endDate
-                        ) {
-
-                            $this->applyDateFilter(
-                                $query,
-                                $startDate,
-                                $endDate
-                            );
-                        },
+                    'stockOuts as total_stock_out' => function ($query) use ($startDate, $endDate) {
+                        $this->applyDateFilter($query, $startDate, $endDate);
+                    },
                 ], 'quantity')
-
-                ->orderBy(
-                    'product_name'
-                )
-
+                ->orderBy('product_name')
                 ->get();
 
+        $salesBaseQuery = StockOut::query();
+        $this->applyDateFilter($salesBaseQuery, $startDate, $endDate);
 
-        /*
-        |--------------------------------------------------------------------------
-        | QUERY DASAR PENJUALAN
-        |--------------------------------------------------------------------------
-        */
-
-        $salesBaseQuery =
-            StockOut::query();
-
-
-        $this->applyDateFilter(
-            $salesBaseQuery,
-            $startDate,
-            $endDate
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL JUMLAH BARANG TERJUAL
-        |--------------------------------------------------------------------------
-        */
-
-        $totalQuantity =
-            (int) (clone $salesBaseQuery)
-                ->sum(
-                    'quantity'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL HARGA BELI
-        |--------------------------------------------------------------------------
-        |
-        | Menjumlahkan harga beli per unit dari seluruh transaksi.
-        |
-        */
+        $totalQuantity = (int) (clone $salesBaseQuery)->sum('quantity');
 
         $totalPurchasePrice =
             (float) (clone $salesBaseQuery)
@@ -223,19 +96,7 @@ class ReportController extends Controller
                     ) AS total_purchase_price
                     '
                 )
-                ->value(
-                    'total_purchase_price'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL HARGA JUAL
-        |--------------------------------------------------------------------------
-        |
-        | Menjumlahkan harga jual per unit dari seluruh transaksi.
-        |
-        */
+                ->value('total_purchase_price');
 
         $totalSellingPrice =
             (float) (clone $salesBaseQuery)
@@ -252,19 +113,7 @@ class ReportController extends Controller
                     ) AS total_selling_price
                     '
                 )
-                ->value(
-                    'total_selling_price'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL PENJUALAN
-        |--------------------------------------------------------------------------
-        |
-        | subtotal = total nilai penjualan setelah diskon customer.
-        |
-        */
+                ->value('total_selling_price');
 
         $totalSales =
             (float) (clone $salesBaseQuery)
@@ -281,23 +130,10 @@ class ReportController extends Controller
                     ) AS total_sales
                     '
                 )
-                ->value(
-                    'total_sales'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL MODAL
-        |--------------------------------------------------------------------------
-        |
-        | Modal = quantity x harga beli per unit.
-        |
-        */
+                ->value('total_sales');
 
         $totalCapital =
             (float) (clone $salesBaseQuery)
-
                 ->selectRaw(
                     '
                     COALESCE(
@@ -310,21 +146,10 @@ class ReportController extends Controller
                     ) AS total_capital
                     '
                 )
-
-                ->value(
-                    'total_capital'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL BIAYA / POTONGAN PETUGAS
-        |--------------------------------------------------------------------------
-        */
+                ->value('total_capital');
 
         $totalDeduction =
             (float) (clone $salesBaseQuery)
-
                 ->selectRaw(
                     '
                     COALESCE(
@@ -338,21 +163,10 @@ class ReportController extends Controller
                     ) AS total_deduction
                     '
                 )
-
-                ->value(
-                    'total_deduction'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL KEUNTUNGAN KOTOR
-        |--------------------------------------------------------------------------
-        */
+                ->value('total_deduction');
 
         $totalGrossProfit =
             (float) (clone $salesBaseQuery)
-
                 ->selectRaw(
                     '
                     COALESCE(
@@ -366,26 +180,10 @@ class ReportController extends Controller
                     ) AS total_gross_profit
                     '
                 )
-
-                ->value(
-                    'total_gross_profit'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TOTAL KEUNTUNGAN BERSIH
-        |--------------------------------------------------------------------------
-        |
-        | Keuntungan Bersih
-        | = Keuntungan Kotor
-        | - Biaya Petugas
-        |
-        */
+                ->value('total_gross_profit');
 
         $totalProfit =
             (float) (clone $salesBaseQuery)
-
                 ->selectRaw(
                     '
                     COALESCE(
@@ -404,57 +202,21 @@ class ReportController extends Controller
                     ) AS net_profit
                     '
                 )
-
-                ->value(
-                    'net_profit'
-                );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | MARGIN KEUNTUNGAN BERSIH
-        |--------------------------------------------------------------------------
-        */
+                ->value('net_profit');
 
         $profitMargin =
             $totalSales > 0
-                ? (
-                    $totalProfit
-                    /
-                    $totalSales
-                ) * 100
+                ? ($totalProfit / $totalSales) * 100
                 : 0;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | RATA-RATA NILAI TRANSAKSI
-        |--------------------------------------------------------------------------
-        */
 
         $averageTransaction =
             $totalStockOutTransactions > 0
-                ? (
-                    $totalSales
-                    /
-                    $totalStockOutTransactions
-                )
+                ? ($totalSales / $totalStockOutTransactions)
                 : 0;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DAFTAR TRANSAKSI PENJUALAN
-        |--------------------------------------------------------------------------
-        */
 
         $salesQuery =
             StockOut::query()
-
-                ->select(
-                    'stock_outs.*'
-                )
-
+                ->select('stock_outs.*')
                 ->selectRaw(
                     '
                     (
@@ -470,57 +232,28 @@ class ReportController extends Controller
                     ) AS net_profit
                     '
                 )
-
                 ->with([
                     'product',
                     'customer',
                 ]);
 
-
-        $this->applyDateFilter(
-            $salesQuery,
-            $startDate,
-            $endDate
-        );
-
+        $this->applyDateFilter($salesQuery, $startDate, $endDate);
 
         $sales =
             $salesQuery
-
-                ->orderByDesc(
-                    'transaction_date'
-                )
-
-                ->orderByDesc(
-                    'id'
-                )
-
+                ->orderByDesc('transaction_date')
+                ->orderByDesc('id')
                 ->paginate(
                     10,
                     ['*'],
                     'sales_page'
                 );
 
-
-        /*
-         * Mempertahankan filter saat pindah halaman.
-         */
-        $sales->appends(
-            $request->query()
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | DATA GRAFIK PENJUALAN PER TANGGAL
-        |--------------------------------------------------------------------------
-        */
+        $sales->appends($request->query());
 
         $dailySalesQuery =
             StockOut::query()
-
                 ->select([
-
                     DB::raw(
                         '
                         DATE(
@@ -528,7 +261,6 @@ class ReportController extends Controller
                         ) AS sale_date
                         '
                     ),
-
                     DB::raw(
                         '
                         SUM(
@@ -536,7 +268,6 @@ class ReportController extends Controller
                         ) AS total_quantity
                         '
                     ),
-
                     DB::raw(
                         '
                         SUM(
@@ -544,7 +275,6 @@ class ReportController extends Controller
                         ) AS total_sales
                         '
                     ),
-
                     DB::raw(
                         '
                         SUM(
@@ -560,7 +290,6 @@ class ReportController extends Controller
                         ) AS total_profit
                         '
                     ),
-
                     DB::raw(
                         '
                         SUM(
@@ -571,220 +300,277 @@ class ReportController extends Controller
                         ) AS total_deduction
                         '
                     ),
-
                 ]);
 
-
-        $this->applyDateFilter(
-            $dailySalesQuery,
-            $startDate,
-            $endDate
-        );
-
+        $this->applyDateFilter($dailySalesQuery, $startDate, $endDate);
 
         $dailySales =
             $dailySalesQuery
-
-                ->groupBy(
-                    DB::raw(
-                        'DATE(transaction_date)'
-                    )
-                )
-
-                ->orderBy(
-                    DB::raw(
-                        'DATE(transaction_date)'
-                    )
-                )
-
+                ->groupBy(DB::raw('DATE(transaction_date)'))
+                ->orderBy(DB::raw('DATE(transaction_date)'))
                 ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LABEL GRAFIK
-        |--------------------------------------------------------------------------
-        */
 
         $chartLabels =
             $dailySales
-
-                ->map(
-                    function ($item) {
-
-                        return date(
-                            'd-m-Y',
-                            strtotime(
-                                $item->sale_date
-                            )
-                        );
-                    }
-                )
-
+                ->map(function ($item) {
+                    return date(
+                        'd-m-Y',
+                        strtotime($item->sale_date)
+                    );
+                })
                 ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NILAI PENJUALAN GRAFIK
-        |--------------------------------------------------------------------------
-        */
 
         $chartSalesValues =
             $dailySales
-
-                ->pluck(
-                    'total_sales'
-                )
-
-                ->map(
-                    function ($value) {
-
-                        return (float) $value;
-                    }
-                )
-
+                ->pluck('total_sales')
+                ->map(function ($value) {
+                    return (float) $value;
+                })
                 ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NILAI KEUNTUNGAN BERSIH GRAFIK
-        |--------------------------------------------------------------------------
-        */
 
         $chartProfitValues =
             $dailySales
-
-                ->pluck(
-                    'total_profit'
-                )
-
-                ->map(
-                    function ($value) {
-
-                        return (float) $value;
-                    }
-                )
-
+                ->pluck('total_profit')
+                ->map(function ($value) {
+                    return (float) $value;
+                })
                 ->values();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | JUMLAH PRODUK TERJUAL
-        |--------------------------------------------------------------------------
-        */
 
         $chartQuantityValues =
             $dailySales
-
-                ->pluck(
-                    'total_quantity'
-                )
-
-                ->map(
-                    function ($value) {
-
-                        return (int) $value;
-                    }
-                )
-
+                ->pluck('total_quantity')
+                ->map(function ($value) {
+                    return (int) $value;
+                })
                 ->values();
-
 
         /*
         |--------------------------------------------------------------------------
-        | RETURN VIEW
+        | LAPORAN KAS INVENTORY BULANAN
         |--------------------------------------------------------------------------
         */
+
+        $cashOpeningIncome =
+            (float) CashTransaction::query()
+                ->where('approval_status', 'approved')
+                ->where('type', 'income')
+                ->whereDate(
+                    'transaction_date',
+                    '<',
+                    $cashPeriodStart->toDateString()
+                )
+                ->sum('amount');
+
+        $cashOpeningExpense =
+            (float) CashTransaction::query()
+                ->where('approval_status', 'approved')
+                ->where('type', 'expense')
+                ->whereDate(
+                    'transaction_date',
+                    '<',
+                    $cashPeriodStart->toDateString()
+                )
+                ->sum('amount');
+
+        $cashOpeningBalance =
+            $cashOpeningIncome
+            - $cashOpeningExpense;
+
+        $approvedCashBase =
+            CashTransaction::query()
+                ->where('approval_status', 'approved')
+                ->whereBetween(
+                    'transaction_date',
+                    [
+                        $cashPeriodStart->toDateString(),
+                        $cashPeriodEnd->toDateString(),
+                    ]
+                );
+
+        $cashTotalIncome =
+            (float) (clone $approvedCashBase)
+                ->where('type', 'income')
+                ->sum('amount');
+
+        $cashTotalExpense =
+            (float) (clone $approvedCashBase)
+                ->where('type', 'expense')
+                ->sum('amount');
+
+        $cashClosingBalance =
+            $cashOpeningBalance
+            + $cashTotalIncome
+            - $cashTotalExpense;
+
+        $cashIncomeCount =
+            (clone $approvedCashBase)
+                ->where('type', 'income')
+                ->count();
+
+        $cashExpenseCount =
+            (clone $approvedCashBase)
+                ->where('type', 'expense')
+                ->count();
+
+        $pendingCashBase =
+            CashTransaction::query()
+                ->where('approval_status', 'pending')
+                ->whereBetween(
+                    'transaction_date',
+                    [
+                        $cashPeriodStart->toDateString(),
+                        $cashPeriodEnd->toDateString(),
+                    ]
+                );
+
+        $cashPendingIncome =
+            (float) (clone $pendingCashBase)
+                ->where('type', 'income')
+                ->sum('amount');
+
+        $cashPendingExpense =
+            (float) (clone $pendingCashBase)
+                ->where('type', 'expense')
+                ->sum('amount');
+
+        $cashPendingIncomeCount =
+            (clone $pendingCashBase)
+                ->where('type', 'income')
+                ->count();
+
+        $cashPendingExpenseCount =
+            (clone $pendingCashBase)
+                ->where('type', 'expense')
+                ->count();
+
+        $cashIncomeByCategory =
+            CashTransaction::query()
+                ->select('category')
+                ->selectRaw('COUNT(*) AS transaction_count')
+                ->selectRaw('SUM(amount) AS total_amount')
+                ->where('approval_status', 'approved')
+                ->where('type', 'income')
+                ->whereBetween(
+                    'transaction_date',
+                    [
+                        $cashPeriodStart->toDateString(),
+                        $cashPeriodEnd->toDateString(),
+                    ]
+                )
+                ->groupBy('category')
+                ->orderByDesc('total_amount')
+                ->get();
+
+        $cashExpenseByCategory =
+            CashTransaction::query()
+                ->select('category')
+                ->selectRaw('COUNT(*) AS transaction_count')
+                ->selectRaw('SUM(amount) AS total_amount')
+                ->where('approval_status', 'approved')
+                ->where('type', 'expense')
+                ->whereBetween(
+                    'transaction_date',
+                    [
+                        $cashPeriodStart->toDateString(),
+                        $cashPeriodEnd->toDateString(),
+                    ]
+                )
+                ->groupBy('category')
+                ->orderByDesc('total_amount')
+                ->get();
+
+        $cashTransactions =
+            CashTransaction::query()
+                ->whereBetween(
+                    'transaction_date',
+                    [
+                        $cashPeriodStart->toDateString(),
+                        $cashPeriodEnd->toDateString(),
+                    ]
+                )
+                ->orderByDesc('transaction_date')
+                ->orderByDesc('id')
+                ->paginate(
+                    10,
+                    ['*'],
+                    'cash_page'
+                );
+
+        $cashTransactions->appends(
+            $request->query()
+        );
 
         return view(
             'reports.index',
             compact(
-
                 'totalProducts',
-
                 'totalCurrentStock',
-
                 'lowStockProducts',
-
                 'outOfStockProducts',
-
                 'currentInventoryValue',
-
                 'totalStockIn',
-
                 'totalStockOut',
-
                 'totalStockInTransactions',
-
                 'totalStockOutTransactions',
-
                 'products',
-
                 'sales',
-
                 'totalQuantity',
-
                 'totalPurchasePrice',
-
                 'totalSellingPrice',
-
                 'totalSales',
-
                 'totalCapital',
-
                 'totalDeduction',
-
                 'totalGrossProfit',
-
                 'totalProfit',
-
                 'profitMargin',
-
                 'averageTransaction',
-
                 'chartLabels',
-
                 'chartSalesValues',
-
                 'chartProfitValues',
-
                 'chartQuantityValues',
-
                 'startDate',
+                'endDate',
 
-                'endDate'
+                'cashMonth',
+                'cashYear',
+                'cashPeriodStart',
+                'cashPeriodEnd',
+                'cashPeriodLabel',
+                'cashOpeningBalance',
+                'cashTotalIncome',
+                'cashTotalExpense',
+                'cashClosingBalance',
+                'cashPendingIncome',
+                'cashPendingExpense',
+                'cashIncomeCount',
+                'cashExpenseCount',
+                'cashPendingIncomeCount',
+                'cashPendingExpenseCount',
+                'cashIncomeByCategory',
+                'cashExpenseByCategory',
+                'cashTransactions'
             )
         );
     }
 
 
-    /**
-     * Mengunduh laporan inventaris dalam format Excel.
-     */
     public function exportExcel(
         Request $request
     ) {
-
         $validated =
             $this->validateDateFilter(
                 $request
             );
-
 
         $startDate =
             $validated[
                 'start_date'
             ] ?? null;
 
-
         $endDate =
             $validated[
                 'end_date'
             ] ?? null;
-
 
         $fileName =
             'laporan-inventaris-'
@@ -793,29 +579,21 @@ class ReportController extends Controller
             )
             . '.xlsx';
 
-
         return Excel::download(
-
             new InventoryReportExport(
                 $startDate,
                 $endDate
             ),
-
             $fileName
         );
     }
 
 
-    /**
-     * Validasi filter tanggal laporan.
-     */
     private function validateDateFilter(
         Request $request
     ): array {
-
         return $request->validate(
             [
-
                 'start_date' => [
                     'nullable',
                     'date',
@@ -826,10 +604,8 @@ class ReportController extends Controller
                     'date',
                     'after_or_equal:start_date',
                 ],
-
             ],
             [
-
                 'start_date.date' =>
                     'Tanggal mulai tidak valid.',
 
@@ -838,23 +614,51 @@ class ReportController extends Controller
 
                 'end_date.after_or_equal' =>
                     'Tanggal selesai harus sama atau setelah tanggal mulai.',
-
             ]
         );
     }
 
 
-    /**
-     * Menerapkan filter tanggal pada query transaksi.
-     */
+    private function validateCashPeriodFilter(
+        Request $request
+    ): array {
+        return $request->validate(
+            [
+                'cash_month' => [
+                    'nullable',
+                    'integer',
+                    'between:1,12',
+                ],
+
+                'cash_year' => [
+                    'nullable',
+                    'integer',
+                    'between:2020,2100',
+                ],
+            ],
+            [
+                'cash_month.integer' =>
+                    'Bulan laporan Kas Inventory tidak valid.',
+
+                'cash_month.between' =>
+                    'Bulan laporan Kas Inventory harus antara 1 sampai 12.',
+
+                'cash_year.integer' =>
+                    'Tahun laporan Kas Inventory tidak valid.',
+
+                'cash_year.between' =>
+                    'Tahun laporan Kas Inventory tidak valid.',
+            ]
+        );
+    }
+
+
     private function applyDateFilter(
         Builder $query,
         ?string $startDate,
         ?string $endDate
     ): void {
-
         if ($startDate) {
-
             $query->whereDate(
                 'transaction_date',
                 '>=',
@@ -862,14 +666,35 @@ class ReportController extends Controller
             );
         }
 
-
         if ($endDate) {
-
             $query->whereDate(
                 'transaction_date',
                 '<=',
                 $endDate
             );
         }
+    }
+
+
+    private function getIndonesianMonthName(
+        int $month
+    ): string {
+        $months = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
+
+        return $months[$month]
+            ?? 'Tidak Diketahui';
     }
 }

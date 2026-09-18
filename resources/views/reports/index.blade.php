@@ -10,7 +10,7 @@
     >
 
     <title>
-        Laporan Inventaris - Dulmar Satellite Store
+        Laporan Inventaris & Kas - Dulmar Satellite Store
     </title>
 
     <link
@@ -417,6 +417,201 @@
             color: #d97706;
         }
 
+
+        /* =========================================================
+           CASH INVENTORY REPORT
+        ========================================================= */
+
+        .cash-report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cash-report-header h3 {
+            margin: 0 0 7px;
+        }
+
+        .cash-report-header p {
+            margin: 0;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .cash-period-badge {
+            flex-shrink: 0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .cash-filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 12px;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cash-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(170px, 1fr));
+            gap: 16px;
+            margin: 22px 0;
+        }
+
+        .cash-summary-grid-secondary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(170px, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .cash-summary-card {
+            padding: 18px;
+            border-radius: 9px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+        }
+
+        .cash-summary-card span {
+            display: block;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .cash-summary-card strong {
+            display: block;
+            font-size: 24px;
+        }
+
+        .cash-opening {
+            border-left: 5px solid #2563eb;
+        }
+
+        .cash-income {
+            border-left: 5px solid #16a34a;
+        }
+
+        .cash-expense {
+            border-left: 5px solid #dc2626;
+        }
+
+        .cash-closing {
+            border-left: 5px solid #7c3aed;
+        }
+
+        .cash-pending {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .cash-count {
+            border-left: 5px solid #0f766e;
+        }
+
+        .cash-category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .cash-category-card {
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            border-radius: 9px;
+            background: white;
+        }
+
+        .cash-category-card h4 {
+            margin: 0;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .cash-category-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .cash-category-list li {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .cash-category-list li:last-child {
+            border-bottom: 0;
+        }
+
+        .cash-category-name {
+            min-width: 0;
+        }
+
+        .cash-category-name strong {
+            display: block;
+            color: #111827;
+        }
+
+        .cash-category-name small {
+            color: #64748b;
+        }
+
+        .cash-category-amount {
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .cash-income-text {
+            color: #15803d;
+        }
+
+        .cash-expense-text {
+            color: #dc2626;
+        }
+
+        .cash-status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .cash-status-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .cash-status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .cash-status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .cash-note {
+            white-space: normal;
+            min-width: 280px;
+            max-width: 520px;
+            line-height: 1.45;
+        }
+
         .chart-container {
             position: relative;
 
@@ -608,6 +803,13 @@
         }
 
         @media (max-width: 1250px) {
+            .cash-summary-grid,
+            .cash-summary-grid-secondary,
+            .cash-category-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
             .summary-grid {
                 grid-template-columns:
                     repeat(2, 1fr);
@@ -777,9 +979,25 @@
             }
 
             .summary-grid,
-            .financial-grid {
+            .financial-grid,
+            .cash-summary-grid,
+            .cash-summary-grid-secondary,
+            .cash-category-grid {
                 grid-template-columns:
                     1fr;
+            }
+
+            .cash-report-header {
+                flex-direction: column;
+            }
+
+            .cash-period-badge {
+                width: 100%;
+            }
+
+            .cash-filter-form {
+                display: grid;
+                grid-template-columns: 1fr;
             }
 
             .filter-card,
@@ -896,6 +1114,7 @@
             .sidebar-overlay,
             .page-actions,
             .filter-form,
+            .cash-filter-form,
             .pagination {
                 display: none !important;
             }
@@ -1099,13 +1318,12 @@
             <div>
 
                 <h2>
-                    Laporan Inventaris
+                    Laporan Inventaris & Kas
                 </h2>
 
                 <p>
-                    Ringkasan pergerakan stok,
-                    penjualan, biaya petugas,
-                    dan keuntungan bersih.
+                    Ringkasan inventaris, penjualan,
+                    keuntungan, dan Kas Inventory bulanan.
                 </p>
 
             </div>
@@ -1178,6 +1396,18 @@
                 method="GET"
                 class="filter-form"
             >
+
+                <input
+                    type="hidden"
+                    name="cash_month"
+                    value="{{ $cashMonth ?? now()->month }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="cash_year"
+                    value="{{ $cashYear ?? now()->year }}"
+                >
 
 
                 <div class="form-group">
@@ -1912,6 +2142,548 @@
 
                     @endif
 
+
+                </nav>
+
+            @endif
+
+        </section>
+
+
+
+        {{-- ============================================================
+             MONTHLY CASH INVENTORY REPORT
+        ============================================================ --}}
+
+        <section class="report-card">
+
+            <div class="cash-report-header">
+
+                <div>
+
+                    <h3>
+                        Laporan Kas Inventory Bulanan
+                    </h3>
+
+                    <p>
+                        Laporan cash masuk, cash keluar, saldo,
+                        pending transaksi, dan rincian kategori
+                        berdasarkan bulan yang dipilih.
+                    </p>
+
+                </div>
+
+                <div class="cash-period-badge">
+                    {{ $cashPeriodLabel }}
+                </div>
+
+            </div>
+
+
+            <form
+                action="{{ route('reports.index') }}"
+                method="GET"
+                class="cash-filter-form"
+            >
+
+                <input
+                    type="hidden"
+                    name="start_date"
+                    value="{{ $startDate }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="end_date"
+                    value="{{ $endDate }}"
+                >
+
+
+                <div class="form-group">
+
+                    <label for="cash_month">
+                        Bulan
+                    </label>
+
+                    <select
+                        id="cash_month"
+                        name="cash_month"
+                        class="form-control"
+                    >
+                        @php
+                            $cashMonths = [
+                                1 => 'Januari',
+                                2 => 'Februari',
+                                3 => 'Maret',
+                                4 => 'April',
+                                5 => 'Mei',
+                                6 => 'Juni',
+                                7 => 'Juli',
+                                8 => 'Agustus',
+                                9 => 'September',
+                                10 => 'Oktober',
+                                11 => 'November',
+                                12 => 'Desember',
+                            ];
+                        @endphp
+
+                        @foreach ($cashMonths as $monthNumber => $monthName)
+
+                            <option
+                                value="{{ $monthNumber }}"
+                                {{ (int) $cashMonth === (int) $monthNumber ? 'selected' : '' }}
+                            >
+                                {{ $monthName }}
+                            </option>
+
+                        @endforeach
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="cash_year">
+                        Tahun
+                    </label>
+
+                    <select
+                        id="cash_year"
+                        name="cash_year"
+                        class="form-control"
+                    >
+                        @for ($year = now()->year + 1; $year >= 2020; $year--)
+
+                            <option
+                                value="{{ $year }}"
+                                {{ (int) $cashYear === (int) $year ? 'selected' : '' }}
+                            >
+                                {{ $year }}
+                            </option>
+
+                        @endfor
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="button-filter"
+                >
+                    Tampilkan Kas
+                </button>
+
+            </form>
+
+
+            <div class="cash-summary-grid">
+
+                <div class="cash-summary-card cash-opening">
+
+                    <span>
+                        Saldo Awal
+                    </span>
+
+                    <strong style="color:#2563eb;">
+                        ${{ number_format($cashOpeningBalance ?? 0, 2) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="cash-summary-card cash-income">
+
+                    <span>
+                        Total Cash Masuk
+                    </span>
+
+                    <strong style="color:#15803d;">
+                        ${{ number_format($cashTotalIncome ?? 0, 2) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="cash-summary-card cash-expense">
+
+                    <span>
+                        Total Cash Keluar
+                    </span>
+
+                    <strong style="color:#dc2626;">
+                        ${{ number_format($cashTotalExpense ?? 0, 2) }}
+                    </strong>
+
+                </div>
+
+
+                <div class="cash-summary-card cash-closing">
+
+                    <span>
+                        Saldo Akhir
+                    </span>
+
+                    <strong style="color:#7c3aed;">
+                        ${{ number_format($cashClosingBalance ?? 0, 2) }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="cash-summary-grid-secondary">
+
+                <div class="cash-summary-card cash-pending">
+
+                    <span>
+                        Pending Cash Masuk
+                    </span>
+
+                    <strong style="color:#d97706;">
+                        ${{ number_format($cashPendingIncome ?? 0, 2) }}
+                    </strong>
+
+                    <small>
+                        {{ $cashPendingIncomeCount ?? 0 }} transaksi
+                    </small>
+
+                </div>
+
+
+                <div class="cash-summary-card cash-pending">
+
+                    <span>
+                        Pending Cash Keluar
+                    </span>
+
+                    <strong style="color:#d97706;">
+                        ${{ number_format($cashPendingExpense ?? 0, 2) }}
+                    </strong>
+
+                    <small>
+                        {{ $cashPendingExpenseCount ?? 0 }} transaksi
+                    </small>
+
+                </div>
+
+
+                <div class="cash-summary-card cash-count">
+
+                    <span>
+                        Cash Masuk Approved
+                    </span>
+
+                    <strong style="color:#0f766e;">
+                        {{ $cashIncomeCount ?? 0 }}
+                    </strong>
+
+                    <small>
+                        transaksi
+                    </small>
+
+                </div>
+
+
+                <div class="cash-summary-card cash-count">
+
+                    <span>
+                        Cash Keluar Approved
+                    </span>
+
+                    <strong style="color:#0f766e;">
+                        {{ $cashExpenseCount ?? 0 }}
+                    </strong>
+
+                    <small>
+                        transaksi
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="cash-category-grid">
+
+                <div class="cash-category-card">
+
+                    <h4>
+                        Cash Masuk per Kategori
+                    </h4>
+
+                    <ul class="cash-category-list">
+
+                        @forelse ($cashIncomeByCategory as $item)
+
+                            <li>
+
+                                <div class="cash-category-name">
+
+                                    <strong>
+                                        {{ $item->category ?: 'Tanpa Kategori' }}
+                                    </strong>
+
+                                    <small>
+                                        {{ $item->transaction_count }} transaksi
+                                    </small>
+
+                                </div>
+
+                                <div class="cash-category-amount cash-income-text">
+                                    +${{ number_format($item->total_amount, 2) }}
+                                </div>
+
+                            </li>
+
+                        @empty
+
+                            <li>
+                                Belum ada cash masuk approved pada periode ini.
+                            </li>
+
+                        @endforelse
+
+                    </ul>
+
+                </div>
+
+
+                <div class="cash-category-card">
+
+                    <h4>
+                        Cash Keluar per Kategori
+                    </h4>
+
+                    <ul class="cash-category-list">
+
+                        @forelse ($cashExpenseByCategory as $item)
+
+                            <li>
+
+                                <div class="cash-category-name">
+
+                                    <strong>
+                                        {{ $item->category ?: 'Tanpa Kategori' }}
+                                    </strong>
+
+                                    <small>
+                                        {{ $item->transaction_count }} transaksi
+                                    </small>
+
+                                </div>
+
+                                <div class="cash-category-amount cash-expense-text">
+                                    -${{ number_format($item->total_amount, 2) }}
+                                </div>
+
+                            </li>
+
+                        @empty
+
+                            <li>
+                                Belum ada cash keluar approved pada periode ini.
+                            </li>
+
+                        @endforelse
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="report-card">
+
+            <h3>
+                Riwayat Kas Inventory - {{ $cashPeriodLabel }}
+            </h3>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Jenis</th>
+                            <th>Kategori</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                            <th>Dibuat Oleh</th>
+                            <th>Diproses Oleh</th>
+                            <th>Jumlah</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @forelse ($cashTransactions as $cashTransaction)
+
+                            <tr>
+
+                                <td>
+                                    {{
+                                        $cashTransactions->firstItem()
+                                        + $loop->index
+                                    }}
+                                </td>
+
+                                <td>
+                                    {{
+                                        \Carbon\Carbon::parse(
+                                            $cashTransaction->transaction_date
+                                        )->format('d-m-Y')
+                                    }}
+                                </td>
+
+                                <td>
+                                    @if ($cashTransaction->type === 'income')
+                                        <span class="cash-income-text">
+                                            Cash Masuk
+                                        </span>
+                                    @else
+                                        <span class="cash-expense-text">
+                                            Cash Keluar
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    {{ $cashTransaction->category ?: '-' }}
+                                </td>
+
+                                <td>
+                                    @if ($cashTransaction->approval_status === 'approved')
+
+                                        <span class="cash-status cash-status-approved">
+                                            Disetujui
+                                        </span>
+
+                                    @elseif ($cashTransaction->approval_status === 'pending')
+
+                                        <span class="cash-status cash-status-pending">
+                                            Menunggu
+                                        </span>
+
+                                    @else
+
+                                        <span class="cash-status cash-status-rejected">
+                                            Ditolak
+                                        </span>
+
+                                    @endif
+                                </td>
+
+                                <td class="cash-note">
+                                    {{ $cashTransaction->description ?: '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $cashTransaction->created_by ?: '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $cashTransaction->approved_by ?: '-' }}
+                                </td>
+
+                                <td>
+                                    @if ($cashTransaction->type === 'income')
+
+                                        <span class="cash-income-text">
+                                            +${{ number_format($cashTransaction->amount, 2) }}
+                                        </span>
+
+                                    @else
+
+                                        <span class="cash-expense-text">
+                                            -${{ number_format($cashTransaction->amount, 2) }}
+                                        </span>
+
+                                    @endif
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="empty-data"
+                                >
+                                    Belum ada transaksi Kas Inventory
+                                    untuk {{ $cashPeriodLabel }}.
+                                </td>
+
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            @if ($cashTransactions->hasPages())
+
+                <nav class="pagination">
+
+                    @if ($cashTransactions->onFirstPage())
+
+                        <span class="disabled">
+                            Sebelumnya
+                        </span>
+
+                    @else
+
+                        <a href="{{ $cashTransactions->previousPageUrl() }}">
+                            Sebelumnya
+                        </a>
+
+                    @endif
+
+
+                    <span class="pagination-info">
+
+                        Halaman
+                        {{ $cashTransactions->currentPage() }}
+                        dari
+                        {{ $cashTransactions->lastPage() }}
+
+                        - Total
+                        {{ $cashTransactions->total() }}
+                        transaksi
+
+                    </span>
+
+
+                    @if ($cashTransactions->hasMorePages())
+
+                        <a href="{{ $cashTransactions->nextPageUrl() }}">
+                            Berikutnya
+                        </a>
+
+                    @else
+
+                        <span class="disabled">
+                            Berikutnya
+                        </span>
+
+                    @endif
 
                 </nav>
 
