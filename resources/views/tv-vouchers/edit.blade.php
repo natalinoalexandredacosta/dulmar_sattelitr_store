@@ -150,17 +150,6 @@
         </div>
 
         <div class="form-group">
-            <label>Nomor Receiver</label>
-
-            <input
-                type="text"
-                name="receiver_number"
-                value="{{ old('receiver_number', $tvVoucher->receiver_number) }}"
-                required
-            >
-        </div>
-
-        <div class="form-group">
             <label>Nama Paket</label>
 
             <input
