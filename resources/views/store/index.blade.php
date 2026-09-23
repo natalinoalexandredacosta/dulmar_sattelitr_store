@@ -42,8 +42,8 @@
 
     <link
         rel="icon"
-        type="image/jpeg"
-        href="{{ asset('images/logo-dulmar.jpg') }}"
+        type="image/png"
+        href="{{ asset('images/logo-dulmar.png') }}"
     >
 
     {{-- Open Graph --}}
@@ -74,7 +74,7 @@
 
     <meta
         property="og:image"
-        content="{{ asset('images/logo-dulmar.jpg') }}"
+        content="{{ asset('images/logo-dulmar.png') }}"
     >
 
     <meta
@@ -100,7 +100,7 @@
 
     <meta
         name="twitter:image"
-        content="{{ asset('images/logo-dulmar.jpg') }}"
+        content="{{ asset('images/logo-dulmar.png') }}"
     >
 
     @php
@@ -109,7 +109,7 @@
         '@type' => 'Organization',
         'name' => 'Dulmar Satellite Store',
         'url' => route('store.index'),
-        'logo' => asset('images/logo-dulmar.jpg'),
+        'logo' => asset('images/logo-dulmar.png'),
         'description' => 'Dulmar Satellite Store menyediakan receiver K-Vision, Nex Parabola, TV, kabel, RCA, speaker dan perlengkapan satellite & elektronik di Timor-Leste.',
         'contactPoint' => [
             '@type' => 'ContactPoint',
@@ -5134,7 +5134,7 @@
             <div class="brand-logo">
 
                 <img
-                    src="{{ asset('images/logo-dulmar.jpg') }}"
+                    src="{{ asset('images/logo-dulmar.png') }}"
                     alt="Logo Dulmar Satellite Store Timor-Leste"
                 >
 
