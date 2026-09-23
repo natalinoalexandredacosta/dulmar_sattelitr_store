@@ -22,6 +22,12 @@ class TelegramUnpaidReminderCommand extends Command
         $chatId =
             env('TELEGRAM_CHAT_ID');
 
+            $groupChatId =
+    env('TELEGRAM_GROUP_CHAT_ID');
+
+        $tvVoucherChatId =
+            env('TELEGRAM_TV_VOUCHER_CHAT_ID');
+
         if (!$token || !$chatId) {
             $this->error(
                 'TELEGRAM_BOT_TOKEN atau TELEGRAM_CHAT_ID belum diisi.'
@@ -61,10 +67,18 @@ class TelegramUnpaidReminderCommand extends Command
                 . now()->format('d-m-Y');
 
             $this->sendTelegram(
-                (string) $token,
-                (string) $chatId,
-                $message
-            );
+    (string) $token,
+    (string) $chatId,
+    $message
+);
+
+if ($groupChatId) {
+    $this->sendTelegram(
+        (string) $token,
+        (string) $groupChatId,
+        $message
+    );
+}
 
             $this->info(
                 'Semua setoran petugas sudah lunas.'
@@ -96,26 +110,16 @@ class TelegramUnpaidReminderCommand extends Command
                     'quantity'
                 );
 
-            /*
-             * Total uang customer yang sudah diterima
-             * oleh petugas.
-             */
             $uangDiterima =
                 (float) $items->sum(
                     'staff_received_amount'
                 );
 
-            /*
-             * Total yang sudah disetor.
-             */
             $sudahDisetor =
                 (float) $items->sum(
                     'staff_deposited_amount'
                 );
 
-            /*
-             * Total yang masih harus disetor.
-             */
             $belumDisetor =
                 (float) $items->sum(
                     'staff_balance'
@@ -199,14 +203,28 @@ class TelegramUnpaidReminderCommand extends Command
             . "\n\n"
             . "⚠️ Mohon petugas segera melakukan setoran.";
 
+        /*
+         * Kirim ke chat/bot utama.
+         */
         $this->sendTelegram(
             (string) $token,
             (string) $chatId,
             $message
         );
 
+        /*
+         * Kirim juga ke group TV VOUCHER 2026.
+         */
+        if ($tvVoucherChatId) {
+            $this->sendTelegram(
+                (string) $token,
+                (string) $tvVoucherChatId,
+                $message
+            );
+        }
+
         $this->info(
-            'Reminder setoran petugas berhasil dikirim.'
+            'Reminder setoran petugas berhasil dikirim ke Telegram.'
         );
 
         return SymfonyCommand::SUCCESS;
