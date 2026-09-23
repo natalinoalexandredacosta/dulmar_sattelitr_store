@@ -16,17 +16,21 @@ class TelegramUnpaidReminderCommand extends Command
 
     public function handle(): int
     {
+        /*
+        |--------------------------------------------------------------------------
+        | TELEGRAM CONFIG
+        |--------------------------------------------------------------------------
+        */
+
         $token =
             env('TELEGRAM_BOT_TOKEN');
 
         $chatId =
             env('TELEGRAM_CHAT_ID');
 
-            $groupChatId =
-    env('TELEGRAM_GROUP_CHAT_ID');
+        $groupChatId =
+            env('TELEGRAM_GROUP_CHAT_ID');
 
-        $tvVoucherChatId =
-            env('TELEGRAM_TV_VOUCHER_CHAT_ID');
 
         if (!$token || !$chatId) {
             $this->error(
@@ -36,10 +40,13 @@ class TelegramUnpaidReminderCommand extends Command
             return SymfonyCommand::FAILURE;
         }
 
+
         /*
-         * Ambil hanya transaksi yang masih mempunyai
-         * sisa setoran petugas.
-         */
+        |--------------------------------------------------------------------------
+        | AMBIL TRANSAKSI YANG MASIH BELUM DISETOR
+        |--------------------------------------------------------------------------
+        */
+
         $transactions =
             TvVoucherTransaction::query()
                 ->where(
@@ -55,53 +62,87 @@ class TelegramUnpaidReminderCommand extends Command
                 )
                 ->get();
 
+
         /*
-         * Jika tidak ada setoran tertunda.
-         */
+        |--------------------------------------------------------------------------
+        | JIKA SEMUA SETORAN SUDAH LUNAS
+        |--------------------------------------------------------------------------
+        */
+
         if ($transactions->isEmpty()) {
+
             $message =
                 "✅ <b>SETORAN TV VOUCHER</b>\n\n"
                 . "Semua uang yang diterima petugas "
-                . "sudah disetor ke toko.\n\n"
-                . "Tanggal: "
+                . "sudah disetor ke Admin.\n\n"
+                . "📅 "
                 . now()->format('d-m-Y');
 
-            $this->sendTelegram(
-    (string) $token,
-    (string) $chatId,
-    $message
-);
 
-if ($groupChatId) {
-    $this->sendTelegram(
-        (string) $token,
-        (string) $groupChatId,
-        $message
-    );
-}
+            /*
+             * Kirim ke chat/bot utama.
+             */
+            $this->sendTelegram(
+                (string) $token,
+                (string) $chatId,
+                $message
+            );
+
+
+            /*
+             * Kirim juga ke group TV VOUCHER 2026.
+             */
+            if ($groupChatId) {
+                $this->sendTelegram(
+                    (string) $token,
+                    (string) $groupChatId,
+                    $message
+                );
+            }
+
 
             $this->info(
-                'Semua setoran petugas sudah lunas.'
+                'Semua setoran petugas sudah lunas dan notifikasi berhasil dikirim.'
             );
 
             return SymfonyCommand::SUCCESS;
         }
 
+
         /*
-         * Kelompokkan berdasarkan orang yang mengisi voucher.
-         */
+        |--------------------------------------------------------------------------
+        | KELOMPOKKAN BERDASARKAN PETUGAS
+        |--------------------------------------------------------------------------
+        */
+
         $grouped =
             $transactions->groupBy(
                 function ($transaction) {
-                    return $transaction->filled_by
+                    return
+                        $transaction->filled_by
                         ?: 'Tidak diketahui';
                 }
             );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | HEADER PESAN
+        |--------------------------------------------------------------------------
+        */
+
         $message =
             "⚠️ <b>REMINDER SETORAN TV VOUCHER</b>\n\n";
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | DETAIL PER PETUGAS
+        |--------------------------------------------------------------------------
+        */
+
         foreach ($grouped as $name => $items) {
+
             $jumlahTransaksi =
                 $items->count();
 
@@ -124,6 +165,7 @@ if ($groupChatId) {
                 (float) $items->sum(
                     'staff_balance'
                 );
+
 
             $message .=
                 "👤 <b>{$name}</b>\n"
@@ -149,9 +191,13 @@ if ($groupChatId) {
                 . "\n\n";
         }
 
+
         /*
-         * Grand total.
-         */
+        |--------------------------------------------------------------------------
+        | GRAND TOTAL
+        |--------------------------------------------------------------------------
+        */
+
         $grandReceived =
             (float) $transactions->sum(
                 'staff_received_amount'
@@ -174,6 +220,7 @@ if ($groupChatId) {
             (int) $transactions->sum(
                 'quantity'
             );
+
 
         $message .=
             "━━━━━━━━━━━━━━━━━━\n"
@@ -203,32 +250,48 @@ if ($groupChatId) {
             . "\n\n"
             . "⚠️ Mohon petugas segera melakukan setoran.";
 
+
         /*
-         * Kirim ke chat/bot utama.
-         */
+        |--------------------------------------------------------------------------
+        | KIRIM KE CHAT / BOT UTAMA
+        |--------------------------------------------------------------------------
+        */
+
         $this->sendTelegram(
             (string) $token,
             (string) $chatId,
             $message
         );
 
+
         /*
-         * Kirim juga ke group TV VOUCHER 2026.
-         */
-        if ($tvVoucherChatId) {
+        |--------------------------------------------------------------------------
+        | KIRIM JUGA KE GROUP TV VOUCHER 2026
+        |--------------------------------------------------------------------------
+        */
+
+        if ($groupChatId) {
             $this->sendTelegram(
                 (string) $token,
-                (string) $tvVoucherChatId,
+                (string) $groupChatId,
                 $message
             );
         }
 
+
         $this->info(
-            'Reminder setoran petugas berhasil dikirim ke Telegram.'
+            'Reminder setoran petugas berhasil dikirim ke bot utama dan group Telegram.'
         );
 
         return SymfonyCommand::SUCCESS;
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEND TELEGRAM
+    |--------------------------------------------------------------------------
+    */
 
     private function sendTelegram(
         string $token,
@@ -236,19 +299,21 @@ if ($groupChatId) {
         string $message
     ): void {
         $response =
-            Http::timeout(15)->post(
-                "https://api.telegram.org/bot{$token}/sendMessage",
-                [
-                    'chat_id' =>
-                        $chatId,
+            Http::timeout(15)
+                ->post(
+                    "https://api.telegram.org/bot{$token}/sendMessage",
+                    [
+                        'chat_id' =>
+                            $chatId,
 
-                    'text' =>
-                        $message,
+                        'text' =>
+                            $message,
 
-                    'parse_mode' =>
-                        'HTML',
-                ]
-            );
+                        'parse_mode' =>
+                            'HTML',
+                    ]
+                );
+
 
         if (!$response->successful()) {
             throw new \RuntimeException(
