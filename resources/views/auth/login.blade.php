@@ -8,8 +8,8 @@
 
     <link
         rel="icon"
-        type="image/jpeg"
-        href="{{ asset('images/logo-dulmar.jpg') }}"
+        type="image/png"
+        href="{{ asset('images/logo-dulmar.png') }}"
     >
 
     <style>
@@ -17,28 +17,45 @@
             box-sizing: border-box;
         }
 
+        html,
         body {
-            position: relative;
             margin: 0;
-            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
             min-height: 100vh;
+
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow-x: hidden;
-            padding: 100px 25px 25px;
-            font-family: Arial, sans-serif;
 
-            background: linear-gradient(
-                135deg,
-                #1f2b3a,
-                #2563eb
-            );
+            padding: 105px 24px 30px;
+
+            overflow-x: hidden;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(59, 130, 246, 0.35),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #172033 0%,
+                    #1e3a6d 48%,
+                    #2563eb 100%
+                );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Tulisan berjalan
+        | Welcome Banner
         |--------------------------------------------------------------------------
         */
 
@@ -46,25 +63,39 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 20;
+            z-index: 30;
 
             width: 100%;
-            height: 75px;
+            height: 72px;
 
             display: flex;
             align-items: center;
 
             overflow: hidden;
 
-            border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+            border-bottom:
+                1px solid rgba(
+                    255,
+                    255,
+                    255,
+                    0.22
+                );
 
-            background: linear-gradient(
-                90deg,
-                rgba(15, 23, 42, 0.94),
-                rgba(37, 99, 235, 0.94)
-            );
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(15, 23, 42, 0.97),
+                    rgba(30, 64, 175, 0.96),
+                    rgba(37, 99, 235, 0.96)
+                );
 
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.28);
+            box-shadow:
+                0 5px 18px rgba(
+                    0,
+                    0,
+                    0,
+                    0.22
+                );
         }
 
         .welcome-text {
@@ -73,17 +104,25 @@
 
             white-space: nowrap;
 
-            color: white;
+            color: #ffffff;
 
-            font-size: 30px;
-            font-weight: bold;
-            letter-spacing: 1.5px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
 
             text-shadow:
-                0 3px 5px rgba(0, 0, 0, 0.7),
-                0 0 15px rgba(96, 165, 250, 0.9);
+                0 2px 5px rgba(
+                    0,
+                    0,
+                    0,
+                    0.5
+                );
 
-            animation: bergerakKeKanan 13s linear infinite;
+            animation:
+                bergerakKeKanan
+                14s
+                linear
+                infinite;
         }
 
         .welcome-text span {
@@ -92,38 +131,63 @@
 
         @keyframes bergerakKeKanan {
             from {
-                transform: translateX(-100%);
+                transform:
+                    translateX(-100%);
             }
 
             to {
-                transform: translateX(100vw);
+                transform:
+                    translateX(100vw);
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Kotak Login
+        | Login Card
         |--------------------------------------------------------------------------
         */
 
         .login-card {
             position: relative;
-            z-index: 2;
+            z-index: 5;
 
             width: 100%;
             max-width: 430px;
 
-            padding: 40px;
+            padding:
+                38px 38px 36px;
 
-            border: 1px solid rgba(255, 255, 255, 0.75);
-            border-radius: 14px;
+            border:
+                1px solid rgba(
+                    255,
+                    255,
+                    255,
+                    0.70
+                );
 
-            background-color: rgba(255, 255, 255, 0.86);
+            border-radius: 20px;
 
-            backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.93
+                );
 
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+            backdrop-filter:
+                blur(8px);
+
+            -webkit-backdrop-filter:
+                blur(8px);
+
+            box-shadow:
+                0 24px 55px rgba(
+                    0,
+                    0,
+                    0,
+                    0.30
+                );
         }
 
         /*
@@ -133,51 +197,81 @@
         */
 
         .logo {
-            width: 105px;
-            height: 105px;
+            width: 145px;
+            height: 145px;
 
             display: flex;
             justify-content: center;
             align-items: center;
 
-            margin: 0 auto 20px;
+            margin:
+                0 auto 22px;
+
             padding: 5px;
 
             overflow: hidden;
 
-            border: 3px solid #dbeafe;
+            border:
+                4px solid #dbeafe;
+
             border-radius: 50%;
 
-            background-color: white;
+            background: #ffffff;
 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.16);
+            box-shadow:
+                0 8px 20px rgba(
+                    37,
+                    99,
+                    235,
+                    0.20
+                ),
+                0 4px 12px rgba(
+                    0,
+                    0,
+                    0,
+                    0.14
+                );
         }
 
         .logo img {
+            display: block;
+
             width: 100%;
             height: 100%;
 
-            border-radius: 50%;
-
             object-fit: contain;
+
+            border-radius: 50%;
         }
 
-        h1 {
-            margin: 0 0 10px;
+        /*
+        |--------------------------------------------------------------------------
+        | Title
+        |--------------------------------------------------------------------------
+        */
 
-            color: #1f2b3a;
+        .brand-title {
+            margin:
+                0 0 8px;
 
-            font-size: 29px;
+            color: #172033;
+
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.2;
+
             text-align: center;
         }
 
         .subtitle {
-            margin: 0 0 30px;
+            margin:
+                0 0 30px;
 
-            color: #4b5563;
+            color: #64748b;
 
             font-size: 15px;
-            line-height: 1.5;
+            line-height: 1.55;
+
             text-align: center;
         }
 
@@ -189,32 +283,39 @@
 
         .alert {
             margin-bottom: 22px;
-            padding: 14px 16px;
 
-            border-radius: 7px;
+            padding:
+                13px 15px;
+
+            border-radius: 10px;
 
             font-size: 14px;
             line-height: 1.5;
         }
 
         .alert-success {
-            border: 1px solid #86efac;
+            border:
+                1px solid #86efac;
 
-            background-color: rgba(220, 252, 231, 0.95);
+            background:
+                #dcfce7;
 
             color: #166534;
         }
 
         .alert-error {
-            border: 1px solid #fca5a5;
+            border:
+                1px solid #fca5a5;
 
-            background-color: rgba(254, 226, 226, 0.95);
+            background:
+                #fee2e2;
 
             color: #991b1b;
         }
 
         .alert ul {
             margin: 0;
+
             padding-left: 20px;
         }
 
@@ -225,39 +326,65 @@
         */
 
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
 
-            margin-bottom: 9px;
+            margin-bottom: 8px;
 
             color: #1f2937;
 
-            font-size: 15px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
         }
 
         .form-control {
             width: 100%;
 
-            padding: 13px 15px;
+            padding:
+                13px 14px;
 
-            border: 1px solid #d1d5db;
-            border-radius: 7px;
+            border:
+                1px solid #cbd5e1;
 
-            background-color: rgba(255, 255, 255, 0.94);
+            border-radius: 10px;
 
-            font-size: 16px;
+            background:
+                #f8fafc;
+
+            color: #0f172a;
+
+            font-size: 15px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background-color 0.2s ease;
+        }
+
+        .form-control:hover {
+            background:
+                #ffffff;
         }
 
         .form-control:focus {
-            border-color: #2563eb;
+            border-color:
+                #2563eb;
 
             outline: none;
 
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            background:
+                #ffffff;
+
+            box-shadow:
+                0 0 0 4px rgba(
+                    37,
+                    99,
+                    235,
+                    0.12
+                );
         }
 
         /*
@@ -270,8 +397,9 @@
             position: relative;
         }
 
-        .password-wrapper .form-control {
-            padding-right: 95px;
+        .password-wrapper
+        .form-control {
+            padding-right: 105px;
         }
 
         .show-password {
@@ -279,21 +407,32 @@
             top: 50%;
             right: 12px;
 
+            padding:
+                4px 6px;
+
             border: none;
-            background: none;
+
+            background:
+                transparent;
 
             color: #2563eb;
 
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
 
             cursor: pointer;
 
-            transform: translateY(-50%);
+            transform:
+                translateY(-50%);
+        }
+
+        .show-password:hover {
+            color: #1d4ed8;
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Lupa Password
+        | Forgot Password
         |--------------------------------------------------------------------------
         */
 
@@ -301,8 +440,8 @@
             display: flex;
             justify-content: flex-end;
 
-            margin-top: -8px;
-            margin-bottom: 20px;
+            margin-top: -5px;
+            margin-bottom: 22px;
         }
 
         .forgot-password-link {
@@ -316,12 +455,13 @@
 
         .forgot-password-link:hover {
             color: #1d4ed8;
+
             text-decoration: underline;
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Tombol Login
+        | Login Button
         |--------------------------------------------------------------------------
         */
 
@@ -331,80 +471,134 @@
             padding: 14px;
 
             border: none;
-            border-radius: 7px;
+            border-radius: 10px;
 
-            background-color: #2563eb;
-            color: white;
+            background:
+                linear-gradient(
+                    90deg,
+                    #2563eb,
+                    #1d4ed8
+                );
 
-            font-size: 17px;
-            font-weight: bold;
+            color: #ffffff;
+
+            font-size: 16px;
+            font-weight: 700;
 
             cursor: pointer;
+
+            box-shadow:
+                0 8px 18px rgba(
+                    37,
+                    99,
+                    235,
+                    0.24
+                );
+
+            transition:
+                transform 0.15s ease,
+                box-shadow 0.15s ease;
         }
 
         .button-login:hover {
-            background-color: #1d4ed8;
+            transform:
+                translateY(-1px);
+
+            box-shadow:
+                0 10px 22px rgba(
+                    37,
+                    99,
+                    235,
+                    0.30
+                );
+        }
+
+        .button-login:active {
+            transform:
+                translateY(0);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Tampilan HP
+        | Mobile
         |--------------------------------------------------------------------------
         */
 
-        @media (max-width: 700px) {
+        @media (
+            max-width: 700px
+        ) {
             body {
-                padding: 90px 15px 20px;
-            }
-
-            body::before {
-                background-position: center;
-                background-size: contain;
-                opacity: 0.3;
+                padding:
+                    88px 14px 20px;
             }
 
             .welcome-banner {
-                height: 65px;
+                height: 62px;
             }
 
             .welcome-text {
-                font-size: 21px;
-                animation-duration: 10s;
+                font-size: 20px;
+
+                animation-duration:
+                    11s;
             }
 
             .login-card {
-                padding: 30px 22px;
+                max-width: 390px;
 
-                background-color: rgba(255, 255, 255, 0.9);
+                padding:
+                    28px 22px 30px;
+
+                border-radius: 16px;
             }
 
             .logo {
-                width: 90px;
-                height: 90px;
+                width: 112px;
+                height: 112px;
+
+                margin-bottom: 18px;
             }
 
-            h1 {
+            .brand-title {
                 font-size: 25px;
             }
 
-            .forgot-password-wrapper {
-                margin-bottom: 18px;
+            .subtitle {
+                margin-bottom: 26px;
+
+                font-size: 14px;
+            }
+
+            .form-control {
+                font-size: 14px;
+            }
+
+            .button-login {
+                font-size: 15px;
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Kurangi animasi jika pengguna menonaktifkan animasi
+        | Reduce Motion
         |--------------------------------------------------------------------------
         */
 
-        @media (prefers-reduced-motion: reduce) {
+        @media (
+            prefers-reduced-motion:
+            reduce
+        ) {
             .welcome-text {
                 left: 50%;
 
-                transform: translateX(-50%);
+                transform:
+                    translateX(-50%);
 
                 animation: none;
+            }
+
+            .button-login {
+                transition: none;
             }
         }
     </style>
@@ -412,14 +606,16 @@
 
 <body>
 
-    <!-- Tulisan berjalan di bagian atas -->
     <div class="welcome-banner">
 
         <div class="welcome-text">
+
             Welcome Mai
+
             <span>
                 Dulmar Satellite Store
             </span>
+
         </div>
 
     </div>
@@ -430,14 +626,14 @@
         <div class="logo">
 
             <img
-                src="{{ asset('images/logo-dulmar.jpg') }}"
-                alt="Logo Dulmar Online Shop"
+                src="{{ asset('images/logo-dulmar.png') }}"
+                alt="Dulmar Satellite Store"
             >
 
         </div>
 
 
-        <h1>
+        <h1 class="brand-title">
             Dulmar Satellite Store
         </h1>
 
@@ -455,32 +651,34 @@
 
         @endif
 
-@php
-    $filteredErrors = collect($errors->all())->reject(function ($error) {
-        return $error === 'Sesi Anda berakhir karena tidak ada aktivitas selama 10 menit. Silakan login kembali.';
-    });
-@endphp
 
-@if ($filteredErrors->isNotEmpty())
+        @php
+            $filteredErrors = collect($errors->all())->reject(function ($error) {
+                return $error === 'Sesi Anda berakhir karena tidak ada aktivitas selama 10 menit. Silakan login kembali.';
+            });
+        @endphp
 
-    <div class="alert alert-error">
 
-        <ul>
+        @if ($filteredErrors->isNotEmpty())
 
-            @foreach ($filteredErrors as $error)
+            <div class="alert alert-error">
 
-                <li>
-                    {{ $error }}
-                </li>
+                <ul>
 
-            @endforeach
+                    @foreach ($filteredErrors as $error)
 
-        </ul>
+                        <li>
+                            {{ $error }}
+                        </li>
 
-    </div>
+                    @endforeach
 
-@endif
-        
+                </ul>
+
+            </div>
+
+        @endif
+
 
         <form
             action="{{ route('login.process') }}"
@@ -588,7 +786,9 @@
 
                 button.textContent =
                     'Sembunyikan';
+
             } else {
+
                 passwordInput.type =
                     'password';
 
