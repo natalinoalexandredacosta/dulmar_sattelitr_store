@@ -11,6 +11,7 @@ class CashAccount extends Model
 
     public const TYPE_ADMIN = 'admin';
     public const TYPE_BANK = 'bank';
+    public const TYPE_MOSAN = 'mosan';
 
     protected $fillable = [
         'account_type',
@@ -28,6 +29,7 @@ class CashAccount extends Model
         return match ($this->account_type) {
             self::TYPE_ADMIN => 'Uang di Admin',
             self::TYPE_BANK => 'Uang di Bank',
+            self::TYPE_MOSAN => 'Saldo Mosan',
             default => ucfirst((string) $this->account_type),
         };
     }

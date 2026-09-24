@@ -565,7 +565,7 @@ Route::middleware([
 
     /*
     |--------------------------------------------------------------------------
-    | KAS ADMIN
+    | KAS ADMIN / BANK / MOSAN
     |--------------------------------------------------------------------------
     */
 
@@ -574,30 +574,21 @@ Route::middleware([
         'index',
     ])->name('cash-accounts.index');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN
+    |--------------------------------------------------------------------------
+    */
+
     Route::post(
         '/cash-accounts/admin/add',
         [
             CashAccountController::class,
             'addAdmin',
         ]
-    )->name('cash-accounts.admin.add');
-
-    Route::post(
-        '/cash-accounts/bank/add',
-        [
-            CashAccountController::class,
-            'addBank',
-        ]
-    )->name('cash-accounts.bank.add');
-
-    Route::post(
-        '/cash-accounts/transfer-to-bank',
-        [
-            CashAccountController::class,
-            'transferToBank',
-        ]
     )->name(
-        'cash-accounts.transfer-to-bank'
+        'cash-accounts.admin.add'
     );
 
     Route::patch(
@@ -610,6 +601,23 @@ Route::middleware([
         'cash-accounts.admin.update'
     );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | BANK
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/cash-accounts/bank/add',
+        [
+            CashAccountController::class,
+            'addBank',
+        ]
+    )->name(
+        'cash-accounts.bank.add'
+    );
+
     Route::patch(
         '/cash-accounts/bank',
         [
@@ -618,6 +626,67 @@ Route::middleware([
         ]
     )->name(
         'cash-accounts.bank.update'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MOSAN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/cash-accounts/mosan/add',
+        [
+            CashAccountController::class,
+            'addMosan',
+        ]
+    )->name(
+        'cash-accounts.mosan.add'
+    );
+
+    Route::patch(
+        '/cash-accounts/mosan',
+        [
+            CashAccountController::class,
+            'updateMosan',
+        ]
+    )->name(
+        'cash-accounts.mosan.update'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSFER ADMIN -> BANK
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/cash-accounts/transfer-to-bank',
+        [
+            CashAccountController::class,
+            'transferToBank',
+        ]
+    )->name(
+        'cash-accounts.transfer-to-bank'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSFER MOSAN -> BANK
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/cash-accounts/mosan/transfer-to-bank',
+        [
+            CashAccountController::class,
+            'transferMosanToBank',
+        ]
+    )->name(
+        'cash-accounts.mosan.transfer-to-bank'
     );
 
 

@@ -330,7 +330,7 @@
             display: grid;
 
             grid-template-columns:
-                repeat(2, minmax(220px, 1fr));
+                repeat(3, minmax(220px, 1fr));
 
             gap: 16px;
 
@@ -390,8 +390,16 @@
             border-left: 5px solid #0284c7;
         }
 
+        .summary-mosan {
+            border-left: 5px solid #16a34a;
+        }
+
         .summary-cash strong {
             color: #0f766e;
+        }
+
+        .summary-mosan strong {
+            color: #16a34a;
         }
 
         .summary-bank strong {
@@ -496,6 +504,11 @@
             color: #075985;
         }
 
+        .payment-method-mosan {
+            background: #dcfce7;
+            color: #166534;
+        }
+
         .payment-method-none {
             background: #e5e7eb;
             color: #4b5563;
@@ -515,6 +528,20 @@
 
             background: #e0f2fe;
             color: #075985;
+
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .mosan-completed {
+            display: inline-block;
+
+            padding: 7px 10px;
+
+            border-radius: 6px;
+
+            background: #dcfce7;
+            color: #166534;
 
             font-size: 12px;
             font-weight: bold;
@@ -719,7 +746,7 @@
 
         /*
         |--------------------------------------------------------------------------
-        | MODAL CASH / BANK
+        | MODAL CASH / MOSAN / BANK
         |--------------------------------------------------------------------------
         */
 
@@ -854,7 +881,7 @@
             display: grid;
 
             grid-template-columns:
-                repeat(2, 1fr);
+                repeat(3, 1fr);
 
             gap: 12px;
         }
@@ -1369,7 +1396,7 @@
                 </h2>
 
                 <p>
-                    Kelola pembayaran CASH / BANK,
+                    Kelola pembayaran CASH / MOSAN / BANK,
                     nama bank, bukti pembayaran dan setoran petugas.
                 </p>
 
@@ -1682,6 +1709,19 @@
             </article>
 
 
+            <article class="summary-card summary-mosan">
+
+                <h3>
+                    📱 Total MOSAN
+                </h3>
+
+                <strong>
+                    ${{ number_format($totalMosan ?? 0, 2) }}
+                </strong>
+
+            </article>
+
+
             <article class="summary-card summary-bank">
 
                 <h3>
@@ -1769,6 +1809,9 @@
 
                             $isBank =
                                 $paymentMethod === 'bank';
+
+                            $isMosan =
+                                $paymentMethod === 'mosan';
 
                             $customerName =
                                 $tvVoucher->customer_name
@@ -1884,6 +1927,14 @@
                                         💵 CASH
                                     </span>
 
+                                @elseif ($isMosan)
+
+                                    <span
+                                        class="payment-method payment-method-mosan"
+                                    >
+                                        📱 MOSAN
+                                    </span>
+
                                 @elseif ($isBank)
 
                                     <span
@@ -1924,7 +1975,7 @@
 
                             <td>
                                 ${{ number_format(
-                                    $isBank
+                                    ($isBank || $isMosan)
                                         ? 0
                                         : $staffReceived,
                                     2
@@ -1934,7 +1985,7 @@
 
                             <td class="amount-green">
                                 ${{ number_format(
-                                    $isBank
+                                    ($isBank || $isMosan)
                                         ? 0
                                         : $staffDeposited,
                                     2
@@ -1944,7 +1995,7 @@
 
                             <td class="amount-red">
                                 ${{ number_format(
-                                    $isBank
+                                    ($isBank || $isMosan)
                                         ? 0
                                         : $staffBalance,
                                     2
@@ -1954,7 +2005,13 @@
 
                             <td>
 
-                                @if ($isBank && $customerPaid > 0)
+                                @if ($isMosan && $customerPaid > 0)
+
+                                    <span class="mosan-completed">
+                                        📱 Masuk Mosan
+                                    </span>
+
+                                @elseif ($isBank && $customerPaid > 0)
 
                                     <span class="bank-completed">
                                         🏦 Masuk Bank
@@ -2055,6 +2112,7 @@
 
                                         @if (
                                             !$isCash
+                                            && !$isMosan
                                             && !$isBank
                                             && $customerPaid > 0
                                         )
@@ -2074,7 +2132,7 @@
 
                                                 data-has-proof="{{ $tvVoucher->payment_proof ? '1' : '0' }}"
                                             >
-                                                Atur CASH / BANK
+                                                Atur CASH / MOSAN / BANK
                                             </button>
 
                                         @endif
@@ -2249,6 +2307,17 @@
 
 
                                     {{-- =====================================================
+                                         MOSAN
+                                    ====================================================== --}}
+
+                                    @elseif ($isMosan)
+
+                                        <div class="mosan-completed">
+                                            📱 Masuk Mosan
+                                        </div>
+
+
+                                    {{-- =====================================================
                                          BANK
                                     ====================================================== --}}
 
@@ -2410,7 +2479,7 @@
 
 
 {{-- ============================================================
-     MODAL ATUR CASH / BANK
+     MODAL ATUR CASH / MOSAN / BANK
 ============================================================ --}}
 
 <div
@@ -2488,6 +2557,22 @@
 
                             <label for="methodCash">
                                 💵 CASH
+                            </label>
+
+                        </div>
+
+
+                        <div class="method-option">
+
+                            <input
+                                type="radio"
+                                id="methodMosan"
+                                name="payment_method"
+                                value="mosan"
+                            >
+
+                            <label for="methodMosan">
+                                📱 MOSAN
                             </label>
 
                         </div>
@@ -2681,7 +2766,7 @@
 
     /*
     |--------------------------------------------------------------------------
-    | MODAL CASH / BANK
+    | MODAL CASH / MOSAN / BANK
     |--------------------------------------------------------------------------
     */
 
@@ -2708,6 +2793,11 @@
     const methodCash =
         document.getElementById(
             'methodCash'
+        );
+
+    const methodMosan =
+        document.getElementById(
+            'methodMosan'
         );
 
     const methodBank =
@@ -2878,6 +2968,26 @@
     );
 
 
+    methodMosan.addEventListener(
+        'change',
+        function () {
+
+            if (methodMosan.checked) {
+
+                bankFields.classList.remove(
+                    'show'
+                );
+
+                bankName.value =
+                    '';
+
+                paymentProof.value =
+                    '';
+            }
+        }
+    );
+
+
     methodBank.addEventListener(
         'change',
         function () {
@@ -2934,7 +3044,7 @@
                 event.preventDefault();
 
                 alert(
-                    'Pilih metode pembayaran CASH atau BANK.'
+                    'Pilih metode pembayaran CASH, MOSAN, atau BANK.'
                 );
 
                 return;
@@ -2959,6 +3069,33 @@
                         + 'Lanjutkan?'
                     );
 
+
+                if (!confirmed) {
+
+                    event.preventDefault();
+                }
+
+                return;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MOSAN
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                selectedMethod.value
+                === 'mosan'
+            ) {
+
+                const confirmed =
+                    confirm(
+                        'Pembayaran akan dicatat sebagai MOSAN.\n\n'
+                        + 'Dana akan masuk ke Saldo Mosan dan tidak menjadi Cash petugas.\n\n'
+                        + 'Lanjutkan?'
+                    );
 
                 if (!confirmed) {
 
@@ -3169,7 +3306,7 @@
 
                     let method =
                         prompt(
-                            'Ketik CASH atau BANK:'
+                            'Ketik CASH, MOSAN, atau BANK:'
                         );
 
 
@@ -3187,11 +3324,13 @@
                     if (
                         method !== 'cash'
                         &&
+                        method !== 'mosan'
+                        &&
                         method !== 'bank'
                     ) {
 
                         alert(
-                            'Metode harus CASH atau BANK.'
+                            'Metode harus CASH, MOSAN, atau BANK.'
                         );
 
                         return;

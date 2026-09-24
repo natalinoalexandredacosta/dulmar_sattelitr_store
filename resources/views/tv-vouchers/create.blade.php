@@ -651,7 +651,10 @@
                     Nama pelanggan diisi manual oleh petugas pada saat melakukan
                     isi saldo. Nomor receiver tidak perlu dicatat pada form karena
                     bukti transaksi akan diunggah setelah proses isi ulang.
-                    Pembayaran customer dan setoran petugas tetap dicatat terpisah.
+                    Pilih metode pembayaran customer: Cash, Mosan, atau Bank.
+                    Jika Cash, uang dicatat sebagai uang yang diterima petugas.
+                    Jika Mosan, dana otomatis masuk ke Saldo Mosan.
+                    Jika Bank, dana dicatat langsung masuk ke Bank.
                 </div>
 
                 <form
@@ -970,6 +973,71 @@
                                 </div>
 
                                 <div class="form-group">
+                                    <label for="payment_method">
+                                        Metode Pembayaran
+                                        <span class="required">*</span>
+                                    </label>
+
+                                    <select
+                                        id="payment_method"
+                                        name="payment_method"
+                                        class="form-control"
+                                        required
+                                    >
+                                        <option
+                                            value="cash"
+                                            {{ old('payment_method', 'cash') === 'cash' ? 'selected' : '' }}
+                                        >
+                                            Cash
+                                        </option>
+
+                                        <option
+                                            value="mosan"
+                                            {{ old('payment_method') === 'mosan' ? 'selected' : '' }}
+                                        >
+                                            Mosan
+                                        </option>
+
+                                        <option
+                                            value="bank"
+                                            {{ old('payment_method') === 'bank' ? 'selected' : '' }}
+                                        >
+                                            Bank
+                                        </option>
+                                    </select>
+
+                                    <span class="help-text">
+                                        Cash masuk ke petugas, Mosan masuk ke Saldo Mosan,
+                                        dan Bank dicatat langsung masuk rekening Bank.
+                                    </span>
+                                </div>
+
+                                <div
+                                    class="form-group"
+                                    id="bankNameGroup"
+                                    style="display: none;"
+                                >
+                                    <label for="bank_name">
+                                        Nama Bank
+                                        <span class="required">*</span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="bank_name"
+                                        name="bank_name"
+                                        class="form-control"
+                                        value="{{ old('bank_name') }}"
+                                        placeholder="Contoh: Mandiri"
+                                        maxlength="100"
+                                    >
+
+                                    <span class="help-text">
+                                        Wajib diisi jika metode pembayaran adalah Bank.
+                                    </span>
+                                </div>
+
+                                <div class="form-group">
                                     <label for="customer_phone">
                                         No. HP Customer
                                     </label>
@@ -1029,9 +1097,10 @@
                         <div class="section-card staff-deposit-card">
                             <h3>Setoran Petugas</h3>
 
-                            <p>
-                                Petugas hanya wajib menyetor uang yang sudah
-                                diterima dari customer.
+                            <p id="staffDepositDescription">
+                                Bagian ini hanya berlaku untuk pembayaran Cash.
+                                Pembayaran Mosan dan Bank tidak menjadi uang Cash
+                                yang dipegang petugas.
                             </p>
 
                             <div class="section-fields">
@@ -1048,8 +1117,9 @@
                                         readonly
                                     >
 
-                                    <span class="help-text">
-                                        Otomatis mengikuti jumlah yang sudah dibayar customer.
+                                    <span class="help-text" id="staffReceivedHelp">
+                                        Untuk Cash, otomatis mengikuti jumlah yang sudah dibayar customer.
+                                        Untuk Mosan atau Bank, nilainya otomatis $0.00.
                                     </span>
                                 </div>
 
@@ -1238,6 +1308,18 @@
         const customerPaidAmountInput =
             document.getElementById('customer_paid_amount');
 
+        const paymentMethodInput =
+            document.getElementById('payment_method');
+
+        const bankNameGroup =
+            document.getElementById('bankNameGroup');
+
+        const bankNameInput =
+            document.getElementById('bank_name');
+
+        const staffDepositDescription =
+            document.getElementById('staffDepositDescription');
+
         const customerTotalDisplay =
             document.getElementById('customerTotalDisplay');
 
@@ -1404,8 +1486,80 @@
         }
 
         function calculateStaffDeposit() {
-            const received =
+            const paymentMethod =
+                paymentMethodInput.value;
+
+            const customerPaid =
                 getCustomerPaidAmount();
+
+            /*
+            |--------------------------------------------------------------------------
+            | NON-CASH: MOSAN / BANK
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                paymentMethod === 'mosan'
+                || paymentMethod === 'bank'
+            ) {
+                staffDepositedAmountInput.value =
+                    '0.00';
+
+                staffDepositedAmountInput.readOnly =
+                    true;
+
+                staffReceivedInput.value =
+                    formatMoney(0);
+
+                staffReceivedDisplay.textContent =
+                    formatMoney(0);
+
+                staffDepositedDisplay.textContent =
+                    formatMoney(0);
+
+                staffBalanceDisplay.textContent =
+                    formatMoney(0);
+
+                if (paymentMethod === 'mosan') {
+                    staffDepositStatusDisplay.textContent =
+                        customerPaid > 0
+                            ? 'Masuk Mosan'
+                            : 'Belum Ada Pembayaran';
+
+                    staffDepositDescription.textContent =
+                        'Pembayaran Mosan tidak dipegang petugas. '
+                        + 'Dana customer akan dicatat ke Saldo Mosan.';
+                } else {
+                    staffDepositStatusDisplay.textContent =
+                        customerPaid > 0
+                            ? 'Masuk Bank'
+                            : 'Belum Ada Pembayaran';
+
+                    staffDepositDescription.textContent =
+                        'Pembayaran Bank tidak dipegang petugas. '
+                        + 'Dana customer dicatat langsung masuk Bank.';
+                }
+
+                paymentStatusInput.value =
+                    customerPaid > 0
+                        ? 'paid'
+                        : 'unpaid';
+
+                return;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | CASH
+            |--------------------------------------------------------------------------
+            */
+
+            staffDepositDescription.textContent =
+                'Pembayaran Cash diterima oleh petugas. '
+                + 'Catat jumlah yang sudah disetor petugas ke toko.';
+
+            const received =
+                customerPaid;
 
             let deposited =
                 Number(
@@ -1484,6 +1638,29 @@
                 paymentStatus;
         }
 
+        function updatePaymentMethodUI() {
+            const paymentMethod =
+                paymentMethodInput.value;
+
+            const isBank =
+                paymentMethod === 'bank';
+
+            bankNameGroup.style.display =
+                isBank
+                    ? 'block'
+                    : 'none';
+
+            bankNameInput.required =
+                isBank;
+
+            if (!isBank) {
+                bankNameInput.value =
+                    '';
+            }
+
+            calculateStaffDeposit();
+        }
+
         function updateProofRequirement() {
             const isSuccess =
                 rechargeStatusInput.value === 'success';
@@ -1549,6 +1726,11 @@
             calculateCustomerPayment
         );
 
+        paymentMethodInput.addEventListener(
+            'change',
+            updatePaymentMethodUI
+        );
+
         staffDepositedAmountInput.addEventListener(
             'input',
             calculateStaffDeposit
@@ -1566,8 +1748,44 @@
 
         calculateTransaction();
         calculateCustomerPayment();
+        updatePaymentMethodUI();
         calculateStaffDeposit();
         updateProofRequirement();
+
+        const tvVoucherForm =
+            document.querySelector(
+                'form[action="{{ route('tv-vouchers.store') }}"]'
+            );
+
+        if (tvVoucherForm) {
+            tvVoucherForm.addEventListener(
+                'submit',
+                function (event) {
+                    const paymentMethod =
+                        paymentMethodInput.value;
+
+                    if (
+                        paymentMethod === 'bank'
+                        && bankNameInput.value.trim() === ''
+                    ) {
+                        event.preventDefault();
+
+                        alert(
+                            'Nama Bank wajib diisi jika metode pembayaran adalah Bank.'
+                        );
+
+                        bankNameInput.focus();
+
+                        return;
+                    }
+
+                    if (paymentMethod !== 'bank') {
+                        bankNameInput.value =
+                            '';
+                    }
+                }
+            );
+        }
 
         const sidebar =
             document.getElementById('sidebar');

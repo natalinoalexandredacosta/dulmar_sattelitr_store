@@ -10,11 +10,40 @@ class CashMovement extends Model
 {
     use HasFactory;
 
+    /*
+    |--------------------------------------------------------------------------
+    | TAMBAH SALDO
+    |--------------------------------------------------------------------------
+    */
+
     public const TYPE_ADD_ADMIN = 'add_admin';
     public const TYPE_ADD_BANK = 'add_bank';
-    public const TYPE_TRANSFER_ADMIN_TO_BANK = 'transfer_admin_to_bank';
+    public const TYPE_ADD_MOSAN = 'add_mosan';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSFER
+    |--------------------------------------------------------------------------
+    */
+
+    public const TYPE_TRANSFER_ADMIN_TO_BANK =
+        'transfer_admin_to_bank';
+
+    public const TYPE_TRANSFER_MOSAN_TO_BANK =
+        'transfer_mosan_to_bank';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT / KOREKSI SALDO
+    |--------------------------------------------------------------------------
+    */
+
     public const TYPE_EDIT_ADMIN = 'edit_admin';
     public const TYPE_EDIT_BANK = 'edit_bank';
+    public const TYPE_EDIT_MOSAN = 'edit_mosan';
+
 
     protected $fillable = [
         'movement_type',
@@ -27,9 +56,17 @@ class CashMovement extends Model
         'created_by',
     ];
 
+
     protected $casts = [
         'amount' => 'decimal:2',
     ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RELATION
+    |--------------------------------------------------------------------------
+    */
 
     public function creator(): BelongsTo
     {
@@ -39,14 +76,60 @@ class CashMovement extends Model
         );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | MOVEMENT LABEL
+    |--------------------------------------------------------------------------
+    */
+
     public function getMovementLabelAttribute(): string
     {
         return match ($this->movement_type) {
-            self::TYPE_ADD_ADMIN => 'Tambah Uang Admin',
-            self::TYPE_ADD_BANK => 'Tambah Uang Bank',
-            self::TYPE_TRANSFER_ADMIN_TO_BANK => 'Setor Admin ke Bank',
-            self::TYPE_EDIT_ADMIN => 'Edit Saldo Admin',
-            self::TYPE_EDIT_BANK => 'Edit Saldo Bank',
+
+            /*
+            | Tambah saldo
+            */
+
+            self::TYPE_ADD_ADMIN =>
+                'Tambah Uang Admin',
+
+            self::TYPE_ADD_BANK =>
+                'Tambah Uang Bank',
+
+            self::TYPE_ADD_MOSAN =>
+                'Tambah Saldo Mosan',
+
+
+            /*
+            | Transfer
+            */
+
+            self::TYPE_TRANSFER_ADMIN_TO_BANK =>
+                'Setor Admin ke Bank',
+
+            self::TYPE_TRANSFER_MOSAN_TO_BANK =>
+                'Transfer Mosan ke Bank',
+
+
+            /*
+            | Edit saldo
+            */
+
+            self::TYPE_EDIT_ADMIN =>
+                'Edit Saldo Admin',
+
+            self::TYPE_EDIT_BANK =>
+                'Edit Saldo Bank',
+
+            self::TYPE_EDIT_MOSAN =>
+                'Edit Saldo Mosan',
+
+
+            /*
+            | Fallback
+            */
+
             default => ucfirst(
                 str_replace(
                     '_',
@@ -56,6 +139,13 @@ class CashMovement extends Model
             ),
         };
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT AMOUNT
+    |--------------------------------------------------------------------------
+    */
 
     public function getFormattedAmountAttribute(): string
     {

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashAccount;
+use App\Models\CashMovement;
 use App\Models\Customer;
 use App\Models\TvVoucherTransaction;
 use App\Services\TelegramService;
@@ -214,7 +216,7 @@ class TvVoucherTransactionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | TOTAL CASH & BANK
+        | TOTAL CASH / BANK / MOSAN
         |--------------------------------------------------------------------------
         */
 
@@ -233,6 +235,16 @@ class TvVoucherTransactionController extends Controller
                 ->where(
                     'payment_method',
                     'bank'
+                )
+                ->sum(
+                    'customer_paid_amount'
+                );
+
+        $totalMosan =
+            (float) (clone $query)
+                ->where(
+                    'payment_method',
+                    'mosan'
                 )
                 ->sum(
                     'customer_paid_amount'
@@ -259,6 +271,7 @@ class TvVoucherTransactionController extends Controller
                 'totalUnpaid',
                 'totalCash',
                 'totalBank',
+                'totalMosan',
                 'search',
                 'provider',
                 'rechargeStatus',
@@ -316,7 +329,7 @@ class TvVoucherTransactionController extends Controller
 
                 'payment_method' => [
                     'nullable',
-                    'in:cash,bank',
+                    'in:cash,bank,mosan',
                 ],
             ]);
 
@@ -466,7 +479,7 @@ class TvVoucherTransactionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CASH & BANK
+        | CASH / BANK / MOSAN
         |--------------------------------------------------------------------------
         */
 
@@ -485,6 +498,16 @@ class TvVoucherTransactionController extends Controller
                 ->where(
                     'payment_method',
                     'bank'
+                )
+                ->sum(
+                    'customer_paid_amount'
+                );
+
+        $totalMosan =
+            (float) $transactions
+                ->where(
+                    'payment_method',
+                    'mosan'
                 )
                 ->sum(
                     'customer_paid_amount'
@@ -651,6 +674,16 @@ class TvVoucherTransactionController extends Controller
                                     ->sum(
                                         'customer_paid_amount'
                                     ),
+
+                            'mosan' =>
+                                (float) $items
+                                    ->where(
+                                        'payment_method',
+                                        'mosan'
+                                    )
+                                    ->sum(
+                                        'customer_paid_amount'
+                                    ),
                         ];
                     }
                 )
@@ -720,6 +753,16 @@ class TvVoucherTransactionController extends Controller
                                     ->sum(
                                         'customer_paid_amount'
                                     ),
+
+                            'mosan' =>
+                                (float) $items
+                                    ->where(
+                                        'payment_method',
+                                        'mosan'
+                                    )
+                                    ->sum(
+                                        'customer_paid_amount'
+                                    ),
                         ];
                     }
                 )
@@ -748,6 +791,7 @@ class TvVoucherTransactionController extends Controller
 
                 'totalCash',
                 'totalBank',
+                'totalMosan',
 
                 'totalCustomerPaidTransactions',
                 'totalCustomerPartialTransactions',
@@ -867,6 +911,51 @@ class TvVoucherTransactionController extends Controller
             $validatedData
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | MOSAN / BANK HARUS DIVERIFIKASI DULU
+        |--------------------------------------------------------------------------
+        |
+        | Walaupun petugas memilih "Lunas" pada form create, pembayaran non-cash
+        | belum dianggap benar-benar diterima sampai Admin melakukan verifikasi
+        | dari halaman daftar TV Voucher.
+        |
+        | Dengan demikian:
+        | - saldo Mosan TIDAK langsung bertambah saat transaksi dibuat;
+        | - customer_paid_amount tetap 0 sampai verifikasi;
+        | - tombol Verifikasi Pembayaran tetap muncul;
+        | - creditMosanBalance() hanya dipanggil setelah verifikasi.
+        |
+        */
+
+        if (
+            in_array(
+                $validatedData['payment_method'] ?? 'cash',
+                ['mosan', 'bank'],
+                true
+            )
+        ) {
+            $validatedData[
+                'customer_payment_status'
+            ] =
+                TvVoucherTransaction::CUSTOMER_PAYMENT_UNPAID;
+
+            $validatedData[
+                'customer_paid_amount'
+            ] = 0;
+
+            $validatedData[
+                'customer_balance'
+            ] =
+                (float) $validatedData[
+                    'total_amount'
+                ];
+
+            $validatedData[
+                'customer_paid_at'
+            ] = null;
+        }
+
         $this->calculateStaffDeposit(
             $validatedData
         );
@@ -899,10 +988,12 @@ class TvVoucherTransactionController extends Controller
                     function () use (
                         $validatedData
                     ) {
-                        return
+                        $transaction =
                             TvVoucherTransaction::create(
                                 $validatedData
                             );
+
+                        return $transaction;
                     }
                 );
         } catch (\Throwable $exception) {
@@ -938,7 +1029,13 @@ class TvVoucherTransactionController extends Controller
             )
             ->with(
                 'success',
-                'Transaksi TV Voucher berhasil ditambahkan.'
+                in_array(
+                    $validatedData['payment_method'] ?? 'cash',
+                    ['mosan', 'bank'],
+                    true
+                )
+                    ? 'Transaksi TV Voucher berhasil ditambahkan. Pembayaran non-cash menunggu verifikasi Admin.'
+                    : 'Transaksi TV Voucher berhasil ditambahkan.'
             );
     }
 
@@ -1066,6 +1163,49 @@ class TvVoucherTransactionController extends Controller
             $validatedData
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | EDIT TIDAK BOLEH MELEWATI VERIFIKASI NON-CASH
+        |--------------------------------------------------------------------------
+        |
+        | Untuk transaksi MOSAN/BANK, perubahan form edit tidak boleh
+        | menambah pembayaran customer secara langsung. Nilai pembayaran
+        | tetap mengikuti hasil verifikasi yang sudah tersimpan.
+        |
+        */
+
+        if (
+            in_array(
+                $validatedData['payment_method'] ?? 'cash',
+                ['mosan', 'bank'],
+                true
+            )
+        ) {
+            $validatedData[
+                'customer_payment_status'
+            ] =
+                $tvVoucher
+                    ->customer_payment_status;
+
+            $validatedData[
+                'customer_paid_amount'
+            ] =
+                (float) $tvVoucher
+                    ->customer_paid_amount;
+
+            $validatedData[
+                'customer_balance'
+            ] =
+                (float) $tvVoucher
+                    ->customer_balance;
+
+            $validatedData[
+                'customer_paid_at'
+            ] =
+                $tvVoucher
+                    ->customer_paid_at;
+        }
+
         $this->calculateStaffDeposit(
             $validatedData,
             $tvVoucher
@@ -1156,8 +1296,11 @@ class TvVoucherTransactionController extends Controller
      * CASH:
      * uang masuk ke petugas.
      *
+     * MOSAN:
+     * setelah diverifikasi, saldo Mosan bertambah.
+     *
      * BANK:
-     * uang langsung masuk bank.
+     * pembayaran dicatat sebagai pembayaran Bank.
      */
     public function verifyCustomerPayment(
         Request $request,
@@ -1173,7 +1316,7 @@ class TvVoucherTransactionController extends Controller
 
                 'payment_method' => [
                     'required',
-                    'in:cash,bank',
+                    'in:cash,bank,mosan',
                 ],
 
                 'bank_name' => [
@@ -1436,6 +1579,7 @@ class TvVoucherTransactionController extends Controller
                 $customerPaidAt,
                 $paymentMethod,
                 $bankName,
+                $paymentAmount,
                 $staffReceivedAmount,
                 $staffDepositedAmount,
                 $staffBalance,
@@ -1484,6 +1628,18 @@ class TvVoucherTransactionController extends Controller
                     'paid_at' =>
                         $paidAt,
                 ]);
+
+                if (
+                    $paymentMethod === 'mosan'
+                    &&
+                    $paymentAmount > 0
+                ) {
+                    $this->creditMosanBalance(
+                        $paymentAmount,
+                        'Pembayaran TV Voucher via Mosan - Transaksi #'
+                        . $tvVoucher->id
+                    );
+                }
             }
         );
 
@@ -1573,10 +1729,11 @@ class TvVoucherTransactionController extends Controller
                 : 'Bayar Sebagian';
 
         $methodText =
-            $paymentMethod
-            === 'bank'
-                ? 'BANK'
-                : 'CASH';
+            match ($paymentMethod) {
+                'bank' => 'BANK',
+                'mosan' => 'MOSAN',
+                default => 'CASH',
+            };
 
         $bankText =
             $paymentMethod
@@ -1616,6 +1773,12 @@ class TvVoucherTransactionController extends Controller
             $telegramMessage .=
                 "<b>Uang Diterima Petugas:</b> \${$paymentFormatted}\n"
                 . "<b>Belum Disetor Petugas:</b> \${$staffBalanceFormatted}";
+        } elseif (
+            $paymentMethod
+            === 'mosan'
+        ) {
+            $telegramMessage .=
+                "<b>Status Dana:</b> Masuk Mosan";
         } else {
             $telegramMessage .=
                 "<b>Status Dana:</b> Masuk Bank";
@@ -1629,6 +1792,20 @@ class TvVoucherTransactionController extends Controller
             $newCustomerBalance
             <= 0
         ) {
+            if (
+                $paymentMethod
+                === 'mosan'
+            ) {
+                return redirect()
+                    ->route(
+                        'tv-vouchers.index'
+                    )
+                    ->with(
+                        'success',
+                        'Pembayaran customer berhasil diverifikasi. Customer Lunas dan pembayaran tercatat masuk Mosan.'
+                    );
+            }
+
             if (
                 $paymentMethod
                 === 'bank'
@@ -1673,7 +1850,7 @@ class TvVoucherTransactionController extends Controller
      * Atur metode pembayaran untuk transaksi lama.
      *
      * Dipakai untuk transaksi lama yang sudah dibayar
-     * sebelum fitur CASH / BANK dibuat.
+     * sebelum fitur CASH / MOSAN / BANK dibuat.
      */
     public function setPaymentMethod(
         Request $request,
@@ -1682,7 +1859,7 @@ class TvVoucherTransactionController extends Controller
         $validated = $request->validate([
             'payment_method' => [
                 'required',
-                'in:cash,bank',
+                'in:cash,bank,mosan',
             ],
 
             'bank_name' => [
@@ -1696,7 +1873,7 @@ class TvVoucherTransactionController extends Controller
                 'Metode pembayaran wajib dipilih.',
 
             'payment_method.in' =>
-                'Metode pembayaran harus CASH atau BANK.',
+                'Metode pembayaran harus CASH, BANK atau MOSAN.',
 
             'bank_name.required_if' =>
                 'Nama bank wajib diisi untuk pembayaran BANK.',
@@ -1737,10 +1914,10 @@ class TvVoucherTransactionController extends Controller
                 $bankName,
                 $customerPaid
             ) {
-                if ($paymentMethod === 'bank') {
+                if (in_array($paymentMethod, ['bank', 'mosan'], true)) {
                     $tvVoucher->update([
                         'payment_method' =>
-                            'bank',
+                            $paymentMethod,
 
                         'bank_name' =>
                             $bankName,
@@ -1847,6 +2024,20 @@ class TvVoucherTransactionController extends Controller
             }
         );
 
+        if ($paymentMethod === 'mosan') {
+            return redirect()
+                ->route('tv-vouchers.index')
+                ->with(
+                    'success',
+                    'Pembayaran $'
+                    . number_format(
+                        $customerPaid,
+                        2
+                    )
+                    . ' berhasil ditetapkan sebagai MOSAN. Catatan: perubahan metode transaksi lama ini tidak otomatis mengubah saldo Mosan.'
+                );
+        }
+
         if ($paymentMethod === 'bank') {
             return redirect()
                 ->route('tv-vouchers.index')
@@ -1898,9 +2089,11 @@ class TvVoucherTransactionController extends Controller
         */
 
         if (
-            $tvVoucher
-                ->payment_method
-            === 'bank'
+            in_array(
+                $tvVoucher->payment_method,
+                ['bank', 'mosan'],
+                true
+            )
 
             &&
             $staffReceived
@@ -1912,7 +2105,7 @@ class TvVoucherTransactionController extends Controller
                 )
                 ->with(
                     'error',
-                    'Pembayaran ini melalui Bank dan tidak memiliki uang Cash yang perlu disetor.'
+                    'Pembayaran ini tidak melalui Cash dan tidak memiliki uang Cash yang perlu disetor.'
                 );
         }
 
@@ -2240,7 +2433,7 @@ class TvVoucherTransactionController extends Controller
 
             'payment_method' => [
                 'nullable',
-                'in:cash,bank',
+                'in:cash,bank,mosan',
             ],
 
             'bank_name' => [
@@ -2539,13 +2732,16 @@ class TvVoucherTransactionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | BANK
+        | BANK / MOSAN
         |--------------------------------------------------------------------------
         */
 
         if (
-            $paymentMethod
-            === 'bank'
+            in_array(
+                $paymentMethod,
+                ['bank', 'mosan'],
+                true
+            )
         ) {
             $validatedData[
                 'staff_received_amount'
@@ -3026,11 +3222,11 @@ class TvVoucherTransactionController extends Controller
             );
 
         $paymentMethod =
-            $tvVoucher
-                ->payment_method
-            === 'bank'
-                ? 'BANK'
-                : 'CASH';
+            match ($tvVoucher->payment_method) {
+                'bank' => 'BANK',
+                'mosan' => 'MOSAN',
+                default => 'CASH',
+            };
 
         $bankName =
             e(
@@ -3072,10 +3268,23 @@ class TvVoucherTransactionController extends Controller
         if (
             $tvVoucher
                 ->payment_method
+            === 'mosan'
+        ) {
+            $staffDepositStatus =
+                (float) $tvVoucher
+                    ->customer_paid_amount > 0
+                    ? 'Masuk Mosan'
+                    : 'Menunggu Verifikasi Mosan';
+        } elseif (
+            $tvVoucher
+                ->payment_method
             === 'bank'
         ) {
             $staffDepositStatus =
-                'Masuk Bank';
+                (float) $tvVoucher
+                    ->customer_paid_amount > 0
+                    ? 'Masuk Bank'
+                    : 'Menunggu Verifikasi Bank';
         } elseif (
             (float) $tvVoucher
                 ->staff_received_amount
@@ -3145,12 +3354,29 @@ class TvVoucherTransactionController extends Controller
         if (
             $tvVoucher
                 ->payment_method
+            === 'mosan'
+        ) {
+            $message .=
+                "<b>DANA MOSAN</b>\n"
+                . (
+                    (float) $tvVoucher->customer_paid_amount > 0
+                        ? "<b>Masuk Mosan:</b> \${$customerPaid}\n"
+                            . "<b>Status:</b> Masuk Mosan\n\n"
+                        : "<b>Status:</b> Menunggu Verifikasi Admin\n\n"
+                );
+        } elseif (
+            $tvVoucher
+                ->payment_method
             === 'bank'
         ) {
             $message .=
                 "<b>DANA BANK</b>\n"
-                . "<b>Masuk Bank:</b> \${$customerPaid}\n"
-                . "<b>Status:</b> Masuk Bank\n\n";
+                . (
+                    (float) $tvVoucher->customer_paid_amount > 0
+                        ? "<b>Masuk Bank:</b> \${$customerPaid}\n"
+                            . "<b>Status:</b> Masuk Bank\n\n"
+                        : "<b>Status:</b> Menunggu Verifikasi Admin\n\n"
+                );
         } else {
             $message .=
                 "<b>SETORAN CASH PETUGAS</b>\n"
@@ -3197,4 +3423,70 @@ class TvVoucherTransactionController extends Controller
             $message
         );
     }
+
+    /**
+     * Tambahkan pembayaran ke saldo Mosan dan simpan audit trail.
+     * Dipanggil dari dalam DB::transaction().
+     */
+    private function creditMosanBalance(
+        float $amount,
+        string $notes
+    ): void {
+        if ($amount <= 0) {
+            return;
+        }
+
+        $mosanAccount =
+            CashAccount::query()
+                ->where(
+                    'account_type',
+                    CashAccount::TYPE_MOSAN
+                )
+                ->lockForUpdate()
+                ->firstOrCreate(
+                    [
+                        'account_type' =>
+                            CashAccount::TYPE_MOSAN,
+                    ],
+                    [
+                        'balance' => 0,
+                        'bank_name' => null,
+                        'notes' =>
+                            'Saldo pembayaran digital yang berada di aplikasi Mosan.',
+                    ]
+                );
+
+        $mosanAccount->balance =
+            (float) $mosanAccount->balance
+            + $amount;
+
+        $mosanAccount->save();
+
+        CashMovement::create([
+            'movement_type' =>
+                CashMovement::TYPE_ADD_MOSAN,
+
+            'amount' =>
+                $amount,
+
+            'from_account' =>
+                null,
+
+            'to_account' =>
+                CashAccount::TYPE_MOSAN,
+
+            'bank_name' =>
+                null,
+
+            'proof' =>
+                null,
+
+            'notes' =>
+                $notes,
+
+            'created_by' =>
+                auth()->id(),
+        ]);
+    }
+
 }

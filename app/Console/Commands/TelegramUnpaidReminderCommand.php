@@ -74,7 +74,7 @@ class TelegramUnpaidReminderCommand extends Command
             $message =
                 "✅ <b>SETORAN TV VOUCHER</b>\n\n"
                 . "Semua uang yang diterima petugas "
-                . "sudah disetor ke Admin.\n\n"
+                . "sudah disetor ke Adminclear.\n\n"
                 . "📅 "
                 . now()->format('d-m-Y');
 
