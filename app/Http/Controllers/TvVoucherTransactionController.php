@@ -907,54 +907,19 @@ class TvVoucherTransactionController extends Controller
             $validatedData
         );
 
+        /*
+         * Transaksi baru selalu menunggu verifikasi Admin.
+         * Status/nominal pembayaran pada form create belum membuktikan
+         * uang sudah diterima, untuk Cash, Bank maupun Mosan.
+         */
+        $validatedData['customer_payment_status'] =
+            TvVoucherTransaction::CUSTOMER_PAYMENT_UNPAID;
+        $validatedData['customer_paid_amount'] = 0;
+        $validatedData['staff_deposited_amount'] = 0;
+
         $this->calculateCustomerPayment(
             $validatedData
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | MOSAN / BANK HARUS DIVERIFIKASI DULU
-        |--------------------------------------------------------------------------
-        |
-        | Walaupun petugas memilih "Lunas" pada form create, pembayaran non-cash
-        | belum dianggap benar-benar diterima sampai Admin melakukan verifikasi
-        | dari halaman daftar TV Voucher.
-        |
-        | Dengan demikian:
-        | - saldo Mosan TIDAK langsung bertambah saat transaksi dibuat;
-        | - customer_paid_amount tetap 0 sampai verifikasi;
-        | - tombol Verifikasi Pembayaran tetap muncul;
-        | - creditMosanBalance() hanya dipanggil setelah verifikasi.
-        |
-        */
-
-        if (
-            in_array(
-                $validatedData['payment_method'] ?? 'cash',
-                ['mosan', 'bank'],
-                true
-            )
-        ) {
-            $validatedData[
-                'customer_payment_status'
-            ] =
-                TvVoucherTransaction::CUSTOMER_PAYMENT_UNPAID;
-
-            $validatedData[
-                'customer_paid_amount'
-            ] = 0;
-
-            $validatedData[
-                'customer_balance'
-            ] =
-                (float) $validatedData[
-                    'total_amount'
-                ];
-
-            $validatedData[
-                'customer_paid_at'
-            ] = null;
-        }
 
         $this->calculateStaffDeposit(
             $validatedData
@@ -1029,13 +994,7 @@ class TvVoucherTransactionController extends Controller
             )
             ->with(
                 'success',
-                in_array(
-                    $validatedData['payment_method'] ?? 'cash',
-                    ['mosan', 'bank'],
-                    true
-                )
-                    ? 'Transaksi TV Voucher berhasil ditambahkan. Pembayaran non-cash menunggu verifikasi Admin.'
-                    : 'Transaksi TV Voucher berhasil ditambahkan.'
+                'Transaksi TV Voucher berhasil ditambahkan. Pembayaran menunggu verifikasi Admin.'
             );
     }
 
@@ -2564,7 +2523,7 @@ class TvVoucherTransactionController extends Controller
             $validatedData[
                 'customer_payment_status'
             ]
-            ?? TvVoucherTransaction::CUSTOMER_PAYMENT_PAID;
+            ?? TvVoucherTransaction::CUSTOMER_PAYMENT_UNPAID;
 
         $total =
             (float) $validatedData[
