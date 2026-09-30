@@ -47,7 +47,7 @@ class TelegramMonthlyStockReportCommand extends Command
         */
 
         $reportMonth =
-            now()
+            now('Asia/Dili')
                 ->subMonthNoOverflow();
 
         $startDate =
