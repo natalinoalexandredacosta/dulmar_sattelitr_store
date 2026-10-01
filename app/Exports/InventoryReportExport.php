@@ -88,8 +88,8 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
         $this->applyDateFilter($salesQuery);
 
         $sales = $salesQuery
-            ->orderBy('transaction_date')
-            ->orderBy('id')
+            ->orderByDesc('transaction_date')
+            ->orderByDesc('id')
             ->get();
 
         $totalSales = (float) $sales->sum('subtotal');
@@ -99,7 +99,13 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 * (int) $sale->quantity;
         });
 
-        $totalProfit = (float) $sales->sum('total_profit');
+        $totalDeduction = (float) $sales->sum('deduction_amount');
+
+        // Gunakan rumus keuntungan bersih yang sama dengan ReportController.
+        $totalProfit = (float) $sales->sum(function ($sale) {
+            return (float) ($sale->total_profit ?? 0)
+                - (float) ($sale->deduction_amount ?? 0);
+        });
 
         $products = Product::withSum([
             'stockIns as total_stock_in' => function ($query) {
@@ -171,6 +177,11 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
             $totalStockOut,
         ]);
 
+        $addRow([
+            'Jumlah Transaksi Penjualan',
+            $sales->count(),
+        ]);
+
         $subtotalRow = $addRow([
             'Subtotal Penjualan',
             $totalSales,
@@ -181,14 +192,20 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
             $totalCapital,
         ]);
 
+        $deductionRow = $addRow([
+            'Biaya Petugas',
+            $totalDeduction,
+        ]);
+
         $profitRow = $addRow([
-            'Total Keuntungan',
+            'Keuntungan Bersih',
             $totalProfit,
         ]);
 
         $this->summaryCurrencyRows = [
             $subtotalRow,
             $capitalRow,
+            $deductionRow,
             $profitRow,
         ];
 
@@ -215,8 +232,10 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
             'Harga Beli',
             'Harga Jual',
             'Total Jual',
-            'Laba per Unit',
-            'Total Laba',
+            'Total Modal',
+            'Biaya Petugas',
+            'Keuntungan Bersih',
+            'Catatan',
         ]);
 
         $this->salesStartRow = count($rows) + 1;
@@ -238,8 +257,11 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                     $hargaBeli,
                     $hargaJual,
                     (float) $sale->subtotal,
-                    $hargaJual - $hargaBeli,
-                    (float) $sale->total_profit,
+                    $hargaBeli * $jumlah,
+                    (float) ($sale->deduction_amount ?? 0),
+                    (float) ($sale->total_profit ?? 0)
+                        - (float) ($sale->deduction_amount ?? 0),
+                    $sale->notes ?? '-',
                 ]);
             }
 
@@ -251,16 +273,18 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
         }
 
         $this->salesTotalRow = $addRow([
+            'TOTAL SEMUA TRANSAKSI',
             '',
             '',
             '',
-            '',
-            'TOTAL',
-            '',
-            '',
+            $totalStockOut,
+            (float) $sales->sum('unit_purchase_price'),
+            (float) $sales->sum('unit_selling_price'),
             $totalSales,
-            '',
+            $totalCapital,
+            $totalDeduction,
             $totalProfit,
+            '-',
         ]);
 
         $addRow(['']);
@@ -340,12 +364,12 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 $sheet->setShowGridlines(false);
                 $sheet->getDefaultRowDimension()->setRowHeight(22);
 
-                $sheet->getStyle("A1:J{$this->lastRow}")
+                $sheet->getStyle("A1:L{$this->lastRow}")
                     ->getFont()
                     ->setName('Calibri')
                     ->setSize(11);
 
-                $sheet->getStyle("A1:J{$this->lastRow}")
+                $sheet->getStyle("A1:L{$this->lastRow}")
                     ->getAlignment()
                     ->setVertical(Alignment::VERTICAL_CENTER);
 
@@ -365,6 +389,8 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 $sheet->getColumnDimension('H')->setWidth(18);
                 $sheet->getColumnDimension('I')->setWidth(18);
                 $sheet->getColumnDimension('J')->setWidth(18);
+                $sheet->getColumnDimension('K')->setWidth(20);
+                $sheet->getColumnDimension('L')->setWidth(36);
 
                 /*
                 |--------------------------------------------------------------------------
@@ -373,11 +399,11 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 */
 
                 $sheet->mergeCells(
-                    "A{$this->titleRow}:J{$this->titleRow}"
+                    "A{$this->titleRow}:L{$this->titleRow}"
                 );
 
                 $sheet->getStyle(
-                    "A{$this->titleRow}:J{$this->titleRow}"
+                    "A{$this->titleRow}:L{$this->titleRow}"
                 )->applyFromArray([
                     'font' => [
                         'bold' => true,
@@ -404,16 +430,16 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 */
 
                 $sheet->mergeCells(
-                    "B{$this->periodRow}:J{$this->periodRow}"
+                    "B{$this->periodRow}:L{$this->periodRow}"
                 );
 
                 $sheet->mergeCells(
                     'B' . ($this->periodRow + 1)
-                    . ':J' . ($this->periodRow + 1)
+                    . ':L' . ($this->periodRow + 1)
                 );
 
                 $sheet->getStyle(
-                    "A{$this->periodRow}:J"
+                    "A{$this->periodRow}:L"
                     . ($this->periodRow + 1)
                 )->applyFromArray([
                     'fill' => [
@@ -441,9 +467,9 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 ];
 
                 foreach ($sectionRows as $row) {
-                    $sheet->mergeCells("A{$row}:J{$row}");
+                    $sheet->mergeCells("A{$row}:L{$row}");
 
-                    $sheet->getStyle("A{$row}:J{$row}")
+                    $sheet->getStyle("A{$row}:L{$row}")
                         ->applyFromArray([
                             'font' => [
                                 'bold' => true,
@@ -483,19 +509,36 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                     "A{$this->summaryStartRow}:A{$this->summaryEndRow}"
                 )->getFont()->setBold(true);
 
+                // Ringkasan memakai A:D untuk label dan E:F untuk nilai.
+                for ($row = $this->summaryHeaderRow; $row <= $this->summaryEndRow; $row++) {
+                    $label = $sheet->getCell("A{$row}")->getValue();
+                    $value = $sheet->getCell("B{$row}")->getValue();
+                    $sheet->setCellValue("B{$row}", null);
+                    $sheet->mergeCells("A{$row}:D{$row}");
+                    $sheet->mergeCells("E{$row}:F{$row}");
+                    $sheet->setCellValue("A{$row}", $label);
+                    $sheet->setCellValue("E{$row}", $value);
+                }
                 $sheet->getStyle(
-                    "B{$this->summaryStartRow}:B{$this->summaryEndRow}"
+                    "A{$this->summaryHeaderRow}:F{$this->summaryHeaderRow}"
+                )->applyFromArray($this->headerStyle('4472C4'));
+                $sheet->getStyle(
+                    "A{$this->summaryHeaderRow}:F{$this->summaryEndRow}"
+                )->applyFromArray(['borders' => $this->thinBorders()]);
+
+                $sheet->getStyle(
+                    "E{$this->summaryStartRow}:E{$this->summaryEndRow}"
                 )->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
                 $sheet->getStyle(
-                    "B{$this->summaryStartRow}:B"
-                    . ($this->summaryStartRow + 3)
+                    "E{$this->summaryStartRow}:E"
+                    . ($this->summaryStartRow + 4)
                 )->getNumberFormat()
                     ->setFormatCode('#,##0');
 
                 foreach ($this->summaryCurrencyRows as $row) {
-                    $sheet->getStyle("B{$row}")
+                    $sheet->getStyle("E{$row}")
                         ->getNumberFormat()
                         ->setFormatCode('$#,##0.00;[Red]-$#,##0.00');
                 }
@@ -507,17 +550,17 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 */
 
                 $sheet->getStyle(
-                    "A{$this->salesHeaderRow}:J{$this->salesHeaderRow}"
+                    "A{$this->salesHeaderRow}:L{$this->salesHeaderRow}"
                 )->applyFromArray($this->headerStyle('FFC000'));
 
                 $sheet->getStyle(
-                    "A{$this->salesHeaderRow}:J{$this->salesTotalRow}"
+                    "A{$this->salesHeaderRow}:L{$this->salesTotalRow}"
                 )->applyFromArray([
                     'borders' => $this->thinBorders(),
                 ]);
 
                 $sheet->getStyle(
-                    "A{$this->salesHeaderRow}:J{$this->salesTotalRow}"
+                    "A{$this->salesHeaderRow}:L{$this->salesTotalRow}"
                 )->getAlignment()->setWrapText(true);
 
                 if ($this->hasSales) {
@@ -526,26 +569,30 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                     )->getNumberFormat()->setFormatCode('#,##0');
 
                     $sheet->getStyle(
-                        "F{$this->salesStartRow}:J{$this->salesEndRow}"
+                        "F{$this->salesStartRow}:K{$this->salesEndRow}"
                     )->getNumberFormat()
                         ->setFormatCode('$#,##0.00;[Red]-$#,##0.00');
 
                     $sheet->setAutoFilter(
-                        "A{$this->salesHeaderRow}:J{$this->salesEndRow}"
+                        "A{$this->salesHeaderRow}:L{$this->salesEndRow}"
                     );
                 } else {
                     $sheet->mergeCells(
-                        "A{$this->salesStartRow}:J{$this->salesStartRow}"
+                        "A{$this->salesStartRow}:L{$this->salesStartRow}"
                     );
 
                     $sheet->getStyle(
-                        "A{$this->salesStartRow}:J{$this->salesStartRow}"
+                        "A{$this->salesStartRow}:L{$this->salesStartRow}"
                     )->getAlignment()
                         ->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
+                $sheet->mergeCells(
+                    "A{$this->salesTotalRow}:D{$this->salesTotalRow}"
+                );
+
                 $sheet->getStyle(
-                    "A{$this->salesTotalRow}:J{$this->salesTotalRow}"
+                    "A{$this->salesTotalRow}:L{$this->salesTotalRow}"
                 )->applyFromArray([
                     'font' => [
                         'bold' => true,
@@ -558,14 +605,13 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                 ]);
 
                 $sheet->getStyle(
-                    "H{$this->salesTotalRow}"
+                    "F{$this->salesTotalRow}:K{$this->salesTotalRow}"
                 )->getNumberFormat()
-                    ->setFormatCode('$#,##0.00');
+                    ->setFormatCode('$#,##0.00;[Red]-$#,##0.00');
 
                 $sheet->getStyle(
-                    "J{$this->salesTotalRow}"
-                )->getNumberFormat()
-                    ->setFormatCode('$#,##0.00');
+                    "E{$this->salesTotalRow}"
+                )->getNumberFormat()->setFormatCode('#,##0');
 
                 /*
                 |--------------------------------------------------------------------------
@@ -631,7 +677,7 @@ class InventoryReportExport implements FromArray, WithEvents, WithTitle
                     ->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 $sheet->getStyle(
-                    "E{$this->salesHeaderRow}:J{$this->salesTotalRow}"
+                    "E{$this->salesHeaderRow}:K{$this->salesTotalRow}"
                 )->getAlignment()
                     ->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
@@ -676,7 +722,7 @@ $sheet->getPageSetup()
 
 // Tentukan area yang akan dicetak.
 $sheet->getPageSetup()
-    ->setPrintArea("A1:J{$this->lastRow}");
+    ->setPrintArea("A1:L{$this->lastRow}");
 
 // Atur margin halaman.
 $sheet->getPageMargins()->setTop(0.5);
