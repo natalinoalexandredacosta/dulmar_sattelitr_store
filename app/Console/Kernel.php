@@ -35,6 +35,22 @@ class Kernel extends ConsoleKernel
             ->monthlyOn(1, '08:05')
             ->timezone('Asia/Dili')
             ->withoutOverlapping();
+
+
+        /*
+         * Laporan Kas Admin, Bank, dan Mosan otomatis.
+         * Dikirim setiap hari Senin jam 08:10 waktu Timor-Leste.
+         *
+         * Laporan akan mengirim:
+         * - Ringkasan Kas Admin
+         * - File Excel
+         * - File PDF
+         */
+        $schedule
+            ->command('telegram:cash-account-report')
+            ->weeklyOn(1, '08:10')
+            ->timezone('Asia/Dili')
+            ->withoutOverlapping();
     }
 
     /**
@@ -42,7 +58,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
