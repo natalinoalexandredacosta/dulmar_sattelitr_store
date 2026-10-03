@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Target Penjualan Bulanan</title>
 
     <style>
@@ -125,6 +124,7 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -203,12 +203,13 @@
 
         .table-wrap {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1650px;
+            min-width: 1450px;
         }
 
         th,
@@ -225,6 +226,7 @@
             color: #475569;
             font-size: 11px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .status {
@@ -267,28 +269,12 @@
 
         .muted {
             color: #6b7280;
+            margin-top: 4px;
         }
 
         .positive {
             color: #166534;
             font-weight: 700;
-        }
-
-        .warning {
-            color: #b45309;
-            font-weight: 700;
-        }
-
-        .edit-form {
-            display: grid;
-            grid-template-columns: 85px 120px 150px auto;
-            gap: 7px;
-            min-width: 460px;
-        }
-
-        .edit-form input {
-            padding: 8px;
-            font-size: 12px;
         }
 
         .product-progress {
@@ -301,6 +287,33 @@
             gap: 10px;
             font-size: 11px;
             margin-bottom: 4px;
+        }
+
+        .action-cell {
+            min-width: 520px;
+        }
+
+        .action-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .edit-form {
+            display: grid;
+            grid-template-columns: 80px 115px 140px auto;
+            gap: 7px;
+            min-width: 430px;
+        }
+
+        .edit-form input {
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .delete-form {
+            margin: 0;
         }
 
         .empty {
@@ -351,7 +364,6 @@
 </head>
 
 <body>
-
 <div class="page">
 
     @php
@@ -375,14 +387,12 @@
         <div>
             <h1>Target Penjualan Bulanan</h1>
             <p>
-                Target, realisasi, persentase pencapaian, omzet dan laba penjualan.
+                Pantau target barang, penjualan yang sudah diverifikasi,
+                uang penjualan, dan keuntungan.
             </p>
         </div>
 
-        <a
-            href="{{ route('dashboard') }}"
-            class="btn btn-secondary"
-        >
+        <a href="{{ route('dashboard') }}" class="btn btn-secondary">
             Dashboard
         </a>
     </header>
@@ -402,7 +412,6 @@
     @if ($errors->any())
         <div class="alert alert-error">
             <strong>Data belum dapat disimpan:</strong>
-
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -414,14 +423,9 @@
     <section class="card">
         <h2>Periode</h2>
 
-        <form
-            action="{{ route('sales-targets.index') }}"
-            method="GET"
-            class="grid"
-        >
+        <form action="{{ route('sales-targets.index') }}" method="GET" class="grid">
             <div class="field">
                 <label>Bulan</label>
-
                 <select name="month">
                     @foreach ($monthNames as $number => $name)
                         <option
@@ -436,7 +440,6 @@
 
             <div class="field">
                 <label>Tahun</label>
-
                 <input
                     type="number"
                     name="year"
@@ -447,10 +450,7 @@
             </div>
 
             <div class="actions">
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
+                <button type="submit" class="btn btn-primary">
                     Tampilkan
                 </button>
             </div>
@@ -458,32 +458,17 @@
     </section>
 
     <section class="summary-grid">
-
         <article class="summary-card">
-            <div class="summary-label">
-                Target Qty
-            </div>
-
-            <div class="summary-value">
-                {{ number_format($totalTargetQty) }}
-            </div>
-
-            <div class="summary-small">
-                Unit
-            </div>
+            <div class="summary-label">Target Barang</div>
+            <div class="summary-value">{{ number_format($totalTargetQty) }}</div>
+            <div class="summary-small">unit</div>
         </article>
 
         <article class="summary-card">
-            <div class="summary-label">
-                Terjual
-            </div>
-
-            <div class="summary-value">
-                {{ number_format($totalSoldQty) }}
-            </div>
-
+            <div class="summary-label">Sudah Terjual</div>
+            <div class="summary-value">{{ number_format($totalSoldQty) }}</div>
             <div class="summary-small">
-                Pencapaian {{ number_format($overallQtyProgress, 1) }}%
+                Target tercapai {{ number_format($overallQtyProgress, 1) }}%
             </div>
 
             <div class="progress-wrap">
@@ -495,61 +480,34 @@
         </article>
 
         <article class="summary-card">
-            <div class="summary-label">
-                Belum Terjual
-            </div>
-
-            <div class="summary-value">
-                {{ number_format($totalUnsoldQty) }}
-            </div>
-
+            <div class="summary-label">Sisa Target</div>
+            <div class="summary-value">{{ number_format($totalUnsoldQty) }}</div>
             <div class="summary-small">
                 {{ number_format($overallUnsoldPercentage, 1) }}% dari target
             </div>
         </article>
 
         <article class="summary-card">
-            <div class="summary-label">
-                Target Omzet
-            </div>
+            <div class="summary-label">Target Uang</div>
+            <div class="summary-value">${{ number_format($totalTargetRevenue, 2) }}</div>
+            <div class="summary-small">Target bulan terpilih</div>
+        </article>
 
-            <div class="summary-value">
-                ${{ number_format($totalTargetRevenue, 2) }}
-            </div>
-
+        <article class="summary-card">
+            <div class="summary-label">Uang Penjualan</div>
+            <div class="summary-value">${{ number_format($totalActualRevenue, 2) }}</div>
             <div class="summary-small">
-                Target periode
+                {{ number_format($overallRevenueProgress, 1) }}% dari target uang
             </div>
         </article>
 
         <article class="summary-card">
-            <div class="summary-label">
-                Omzet Aktual
-            </div>
-
-            <div class="summary-value">
-                ${{ number_format($totalActualRevenue, 2) }}
-            </div>
-
+            <div class="summary-label">Keuntungan</div>
+            <div class="summary-value">${{ number_format($totalSalesProfit, 2) }}</div>
             <div class="summary-small">
-                {{ number_format($overallRevenueProgress, 1) }}% target omzet
+                Margin untung {{ number_format($overallProfitMargin, 1) }}%
             </div>
         </article>
-
-        <article class="summary-card">
-            <div class="summary-label">
-                Laba Penjualan
-            </div>
-
-            <div class="summary-value">
-                ${{ number_format($totalSalesProfit, 2) }}
-            </div>
-
-            <div class="summary-small">
-                Margin {{ number_format($overallProfitMargin, 1) }}%
-            </div>
-        </article>
-
     </section>
 
     <section class="card">
@@ -559,36 +517,17 @@
             {{ $year }}
         </h2>
 
-        <form
-            action="{{ route('sales-targets.store') }}"
-            method="POST"
-        >
+        <form action="{{ route('sales-targets.store') }}" method="POST">
             @csrf
 
-            <input
-                type="hidden"
-                name="month"
-                value="{{ $month }}"
-            >
-
-            <input
-                type="hidden"
-                name="year"
-                value="{{ $year }}"
-            >
+            <input type="hidden" name="month" value="{{ $month }}">
+            <input type="hidden" name="year" value="{{ $year }}">
 
             <div class="grid">
-
                 <div class="field">
                     <label>Produk</label>
-
-                    <select
-                        name="product_id"
-                        required
-                    >
-                        <option value="">
-                            -- Pilih Produk --
-                        </option>
+                    <select name="product_id" required>
+                        <option value="">-- Pilih Produk --</option>
 
                         @foreach ($products as $product)
                             <option
@@ -602,8 +541,7 @@
                 </div>
 
                 <div class="field">
-                    <label>Target Qty</label>
-
+                    <label>Target Barang (Unit)</label>
                     <input
                         type="number"
                         name="target_qty"
@@ -614,8 +552,7 @@
                 </div>
 
                 <div class="field">
-                    <label>Target Omzet ($)</label>
-
+                    <label>Target Uang ($)</label>
                     <input
                         type="number"
                         name="target_revenue"
@@ -627,31 +564,20 @@
                 </div>
 
                 <div class="actions">
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
+                    <button type="submit" class="btn btn-primary">
                         + Simpan Target
                     </button>
                 </div>
-
             </div>
 
-            <div
-                class="field"
-                style="margin-top: 14px;"
-            >
+            <div class="field" style="margin-top: 14px;">
                 <label>Catatan</label>
-
-                <textarea
-                    name="notes"
-                >{{ old('notes') }}</textarea>
+                <textarea name="notes">{{ old('notes') }}</textarea>
             </div>
         </form>
     </section>
 
     <section class="card">
-
         <h2>
             Progress
             {{ $monthNames[(int) $month] ?? $month }}
@@ -659,42 +585,30 @@
         </h2>
 
         <div class="table-wrap">
-
             <table>
                 <thead>
                 <tr>
                     <th>No</th>
                     <th>Produk</th>
-
-                    <th>Target Qty</th>
-                    <th>Terjual</th>
-                    <th>Belum Terjual</th>
-
-                    <th>Pencapaian</th>
-                    <th>Tidak Terjual</th>
-
-                    <th>Target Omzet</th>
-                    <th>Omzet Aktual</th>
-                    <th>Progress Omzet</th>
-
-                    <th>Laba Penjualan</th>
-                    <th>Margin</th>
-
+                    <th>Target Barang</th>
+                    <th>Sudah Terjual</th>
+                    <th>Sisa Target</th>
+                    <th>Target Tercapai</th>
+                    <th>Sisa Target (%)</th>
+                    <th>Target Uang</th>
+                    <th>Uang Penjualan</th>
+                    <th>Target Uang Tercapai</th>
+                    <th>Keuntungan</th>
+                    <th>Margin Untung</th>
                     <th>Status</th>
-                    <th>Edit</th>
-                    <th>Hapus</th>
+                    <th>Aksi</th>
                 </tr>
                 </thead>
 
                 <tbody>
-
                 @forelse ($targets as $target)
-
                     <tr>
-
-                        <td>
-                            {{ $loop->iteration }}
-                        </td>
+                        <td>{{ $loop->iteration }}</td>
 
                         <td>
                             <strong>
@@ -721,24 +635,18 @@
 
                             @if ($target->excess_qty > 0)
                                 <div class="positive">
-                                    +{{ number_format($target->excess_qty) }}
-                                    di atas target
+                                    +{{ number_format($target->excess_qty) }} di atas target
                                 </div>
                             @endif
                         </td>
 
                         <td>
-
                             <div class="product-progress">
-
                                 <div class="progress-numbers">
                                     <strong>
                                         {{ number_format($target->qty_progress, 1) }}%
                                     </strong>
-
-                                    <span>
-                                        Target 100%
-                                    </span>
+                                    <span>Target 100%</span>
                                 </div>
 
                                 <div class="progress-wrap">
@@ -752,9 +660,7 @@
                                         style="width: {{ min(100, $target->qty_progress) }}%"
                                     ></div>
                                 </div>
-
                             </div>
-
                         </td>
 
                         <td class="metric">
@@ -782,111 +688,107 @@
                         </td>
 
                         <td>
-                            <span
-                                class="status {{ $target->target_status_class }}"
-                            >
-                                {{ $target->target_status }}
+                            <span class="status {{ $target->target_status_class }}">
+                                {{
+                                    match ($target->target_status) {
+                                        'Tercapai' => 'Target Tercapai',
+                                        'Hampir Tercapai' => 'Hampir Selesai',
+                                        'Sedang Berjalan' => 'Cukup Baik',
+                                        'Rendah' => 'Masih Rendah',
+                                        'Tidak Terjual' => 'Belum Ada Penjualan',
+                                        default => $target->target_status,
+                                    }
+                                }}
                             </span>
                         </td>
 
-                        <td>
-
-                            <form
-                                action="{{ route('sales-targets.update', $target) }}"
-                                method="POST"
-                                class="edit-form"
-                            >
-                                @csrf
-                                @method('PUT')
-
-                                <input
-                                    type="number"
-                                    name="target_qty"
-                                    min="1"
-                                    value="{{ $target->target_qty }}"
-                                    required
+                        <td class="action-cell">
+                            <div class="action-row">
+                                <form
+                                    action="{{ route('sales-targets.update', $target) }}"
+                                    method="POST"
+                                    class="edit-form"
                                 >
+                                    @csrf
+                                    @method('PUT')
 
-                                <input
-                                    type="number"
-                                    name="target_revenue"
-                                    min="0"
-                                    step="0.01"
-                                    value="{{ $target->target_revenue }}"
-                                    required
+                                    <input
+                                        type="number"
+                                        name="target_qty"
+                                        min="1"
+                                        value="{{ $target->target_qty }}"
+                                        title="Target Barang"
+                                        placeholder="Target"
+                                        required
+                                    >
+
+                                    <input
+                                        type="number"
+                                        name="target_revenue"
+                                        min="0"
+                                        step="0.01"
+                                        value="{{ $target->target_revenue }}"
+                                        title="Target Uang"
+                                        placeholder="Target Uang"
+                                        required
+                                    >
+
+                                    <input
+                                        type="text"
+                                        name="notes"
+                                        value="{{ $target->notes }}"
+                                        placeholder="Catatan"
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-secondary"
+                                    >
+                                        Simpan
+                                    </button>
+                                </form>
+
+                                <form
+                                    action="{{ route('sales-targets.destroy', $target) }}"
+                                    method="POST"
+                                    class="delete-form"
+                                    onsubmit="return confirm('Hapus target ini?')"
                                 >
+                                    @csrf
+                                    @method('DELETE')
 
-                                <input
-                                    type="text"
-                                    name="notes"
-                                    value="{{ $target->notes }}"
-                                    placeholder="Catatan"
-                                >
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-secondary"
-                                >
-                                    Simpan
-                                </button>
-
-                            </form>
-
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger"
+                                    >
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
                         </td>
-
-                        <td>
-
-                            <form
-                                action="{{ route('sales-targets.destroy', $target) }}"
-                                method="POST"
-                                onsubmit="return confirm('Hapus target ini?')"
-                            >
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-danger"
-                                >
-                                    Hapus
-                                </button>
-
-                            </form>
-
-                        </td>
-
                     </tr>
-
                 @empty
-
                     <tr>
-                        <td
-                            colspan="15"
-                            class="empty"
-                        >
+                        <td colspan="14" class="empty">
                             Belum ada target penjualan untuk periode ini.
                         </td>
                     </tr>
-
                 @endforelse
-
                 </tbody>
             </table>
-
         </div>
 
         <div class="note">
             <strong>Catatan:</strong>
-            Terjual dihitung dari SUM(quantity), omzet aktual dari SUM(subtotal),
-            dan laba penjualan dari SUM(total_profit) pada tabel stock_outs sesuai
-            bulan yang dipilih. Persentase pencapaian dibatasi maksimum 100%.
-            Jika penjualan melewati target, kelebihannya ditampilkan sebagai
-            jumlah unit di atas target.
+            Target hanya menghitung transaksi stok keluar yang setoran petugasnya sudah
+            berstatus <strong>paid</strong> dan sudah diverifikasi Admin.
+            Uang Penjualan menggunakan jumlah setoran yang sudah diterima toko
+            (<strong>staff_deposited_amount</strong>), sedangkan Keuntungan dihitung dari
+            Uang Penjualan dikurangi modal barang. Transaksi yang masih
+            <strong>unpaid</strong> belum masuk ke pencapaian target.
         </div>
-
     </section>
 
 </div>
-
 </body>
 </html>
