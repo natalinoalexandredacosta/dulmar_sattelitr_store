@@ -22,13 +22,9 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Dili')
             ->withoutOverlapping();
 
-
         /*
          * Report inventory bulanan otomatis.
          * Dikirim setiap tanggal 1 jam 08:05 waktu Timor-Leste.
-         *
-         * Contoh:
-         * 1 September 2026 -> kirim report Agustus 2026.
          */
         $schedule
             ->command('telegram:stock-monthly-report')
@@ -36,19 +32,23 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Dili')
             ->withoutOverlapping();
 
-
         /*
-         * Laporan Kas Admin, Bank, dan Mosan otomatis.
-         * Dikirim setiap hari Senin jam 08:10 waktu Timor-Leste.
-         *
-         * Laporan akan mengirim:
-         * - Ringkasan Kas Admin
-         * - File Excel
-         * - File PDF
+         * Laporan Kas Admin, Bank, dan Mosan.
+         * Dikirim setiap Senin jam 08:10 waktu Timor-Leste.
          */
         $schedule
             ->command('telegram:cash-account-report')
             ->weeklyOn(1, '08:10')
+            ->timezone('Asia/Dili')
+            ->withoutOverlapping();
+
+        /*
+         * Progress target penjualan bulanan.
+         * Dikirim setiap hari jam 08:15 waktu Timor-Leste.
+         */
+        $schedule
+            ->command('telegram:sales-target-daily-report')
+            ->dailyAt('08:15')
             ->timezone('Asia/Dili')
             ->withoutOverlapping();
     }
