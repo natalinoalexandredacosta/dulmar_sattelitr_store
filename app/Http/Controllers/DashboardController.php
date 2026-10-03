@@ -13,23 +13,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | RINGKASAN INVENTORY
-        |--------------------------------------------------------------------------
-        */
-
         $totalProducts = Product::count();
         $totalStock = Product::sum('stock');
         $totalStockIn = StockIn::sum('quantity');
         $totalStockOut = StockOut::sum('quantity');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | GRAFIK STOK 7 HARI TERAKHIR
-        |--------------------------------------------------------------------------
-        */
 
         $chartLabels = [];
         $chartStockIn = [];
@@ -51,33 +38,12 @@ class DashboardController extends Controller
             )->sum('quantity');
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | TARGET PENJUALAN BULAN BERJALAN
-        |--------------------------------------------------------------------------
-        */
-
         $currentDate = now('Asia/Dili');
         $currentMonth = (int) $currentDate->month;
         $currentYear = (int) $currentDate->year;
 
-        $startDate = $currentDate
-            ->copy()
-            ->startOfMonth()
-            ->toDateString();
-
-        $endDate = $currentDate
-            ->copy()
-            ->endOfMonth()
-            ->toDateString();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL TARGET BULAN INI
-        |--------------------------------------------------------------------------
-        */
+        $startDate = $currentDate->copy()->startOfMonth()->toDateString();
+        $endDate = $currentDate->copy()->endOfMonth()->toDateString();
 
         $salesTargets = SalesTarget::query()
             ->with('product')
@@ -91,65 +57,37 @@ class DashboardController extends Controller
             ->unique()
             ->values();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PENJUALAN AKTUAL BULAN INI
-        |--------------------------------------------------------------------------
-        */
-
         $actualSales = collect();
 
         if ($targetProductIds->isNotEmpty()) {
             $actualSales = DB::table('stock_outs')
                 ->select('product_id')
                 ->selectRaw('COALESCE(SUM(quantity), 0) AS sold_qty')
-
-                /*
-                 * Uang yang benar-benar menjadi nilai penjualan toko:
-                 * subtotal dikurangi deduction/potongan petugas.
-                 */
+                ->selectRaw('COALESCE(SUM(staff_deposited_amount), 0) AS actual_revenue')
                 ->selectRaw('
                     COALESCE(
                         SUM(
-                            subtotal - COALESCE(deduction_amount, 0)
-                        ),
-                        0
-                    ) AS actual_revenue
-                ')
-
-                /*
-                 * Keuntungan setelah potongan petugas:
-                 * uang penjualan bersih dikurangi modal barang.
-                 */
-                ->selectRaw('
-                    COALESCE(
-                        SUM(
-                            (
-                                subtotal - COALESCE(deduction_amount, 0)
-                            )
-                            -
-                            (
-                                unit_purchase_price * quantity
-                            )
+                            staff_deposited_amount
+                            - (unit_purchase_price * quantity)
                         ),
                         0
                     ) AS net_profit
                 ')
-
                 ->whereIn('product_id', $targetProductIds)
+
+                /*
+                 * Hanya transaksi yang setoran petugas sudah lunas
+                 * dan sudah diverifikasi Admin yang dihitung.
+                 */
+                ->where('staff_deposit_status', 'paid')
+                ->whereNotNull('deposit_verified_by')
+                ->whereNotNull('staff_deposited_at')
+
                 ->whereBetween('transaction_date', [$startDate, $endDate])
                 ->groupBy('product_id')
                 ->get()
                 ->keyBy('product_id');
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | HITUNG TOTAL TARGET DAN REALISASI
-        |--------------------------------------------------------------------------
-        */
 
         $dashboardTargetQty = 0;
         $dashboardSoldQty = 0;
@@ -161,28 +99,11 @@ class DashboardController extends Controller
             $actual = $actualSales->get($target->product_id);
 
             $dashboardTargetQty += (int) $target->target_qty;
-
-            $dashboardSoldQty += (int) (
-                $actual->sold_qty ?? 0
-            );
-
+            $dashboardSoldQty += (int) ($actual->sold_qty ?? 0);
             $dashboardTargetRevenue += (float) $target->target_revenue;
-
-            $dashboardActualRevenue += (float) (
-                $actual->actual_revenue ?? 0
-            );
-
-            $dashboardProfit += (float) (
-                $actual->net_profit ?? 0
-            );
+            $dashboardActualRevenue += (float) ($actual->actual_revenue ?? 0);
+            $dashboardProfit += (float) ($actual->net_profit ?? 0);
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | HITUNG PERSENTASE
-        |--------------------------------------------------------------------------
-        */
 
         $dashboardRemainingQty = max(
             $dashboardTargetQty - $dashboardSoldQty,
@@ -190,10 +111,7 @@ class DashboardController extends Controller
         );
 
         $dashboardTargetProgress = $dashboardTargetQty > 0
-            ? min(
-                100,
-                ($dashboardSoldQty / $dashboardTargetQty) * 100
-            )
+            ? min(100, ($dashboardSoldQty / $dashboardTargetQty) * 100)
             : 0;
 
         $dashboardRemainingPercent = max(
@@ -212,13 +130,6 @@ class DashboardController extends Controller
             ? ($dashboardProfit / $dashboardActualRevenue) * 100
             : 0;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS TARGET
-        |--------------------------------------------------------------------------
-        */
-
         if ($dashboardTargetProgress >= 100) {
             $dashboardTargetStatus = 'Target Tercapai';
         } elseif ($dashboardTargetProgress >= 75) {
@@ -231,13 +142,6 @@ class DashboardController extends Controller
             $dashboardTargetStatus = 'Belum Ada Penjualan';
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN VIEW
-        |--------------------------------------------------------------------------
-        */
-
         return view('dashboard', compact(
             'totalProducts',
             'totalStock',
@@ -246,23 +150,18 @@ class DashboardController extends Controller
             'chartLabels',
             'chartStockIn',
             'chartStockOut',
-
             'currentMonth',
             'currentYear',
-
             'dashboardTargetQty',
             'dashboardSoldQty',
             'dashboardRemainingQty',
-
             'dashboardTargetRevenue',
             'dashboardActualRevenue',
             'dashboardProfit',
-
             'dashboardTargetProgress',
             'dashboardRemainingPercent',
             'dashboardRevenueProgress',
             'dashboardProfitMargin',
-
             'dashboardTargetStatus'
         ));
     }

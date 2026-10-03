@@ -54,55 +54,27 @@ class SalesTargetController extends Controller
             $actualSales = DB::table('stock_outs')
                 ->select('product_id')
                 ->selectRaw('COALESCE(SUM(quantity), 0) AS sold_qty')
-
-                /*
-                 * Uang penjualan bersih:
-                 * subtotal dikurangi potongan/deduction petugas.
-                 *
-                 * Contoh:
-                 * harga jual $35 - potongan $3 = $32 masuk ke toko.
-                 */
+                ->selectRaw('COALESCE(SUM(staff_deposited_amount), 0) AS actual_revenue')
+                ->selectRaw('COALESCE(SUM(unit_purchase_price * quantity), 0) AS actual_cost')
                 ->selectRaw('
                     COALESCE(
                         SUM(
-                            subtotal - COALESCE(deduction_amount, 0)
-                        ),
-                        0
-                    ) AS actual_revenue
-                ')
-
-                /*
-                 * Modal barang aktual.
-                 */
-                ->selectRaw('
-                    COALESCE(
-                        SUM(
-                            unit_purchase_price * quantity
-                        ),
-                        0
-                    ) AS actual_cost
-                ')
-
-                /*
-                 * Keuntungan bersih penjualan setelah potongan petugas:
-                 * (subtotal - deduction) - modal barang.
-                 */
-                ->selectRaw('
-                    COALESCE(
-                        SUM(
-                            (
-                                subtotal - COALESCE(deduction_amount, 0)
-                            )
-                            -
-                            (
-                                unit_purchase_price * quantity
-                            )
+                            staff_deposited_amount
+                            - (unit_purchase_price * quantity)
                         ),
                         0
                     ) AS net_profit
                 ')
-
                 ->whereIn('product_id', $targetProductIds)
+
+                /*
+                 * Hanya transaksi yang setoran petugas sudah lunas
+                 * dan sudah diverifikasi Admin yang dihitung.
+                 */
+                ->where('staff_deposit_status', 'paid')
+                ->whereNotNull('deposit_verified_by')
+                ->whereNotNull('staff_deposited_at')
+
                 ->whereBetween('transaction_date', [$startDate, $endDate])
                 ->groupBy('product_id')
                 ->get()
@@ -149,10 +121,6 @@ class SalesTargetController extends Controller
             $target->setAttribute('actual_cost', round($actualCost, 2));
             $target->setAttribute('revenue_progress', round($revenueProgress, 2));
 
-            /*
-             * Nama atribut tetap sales_profit agar Blade lama tetap kompatibel.
-             * Nilainya sekarang adalah keuntungan setelah deduction petugas.
-             */
             $target->setAttribute('sales_profit', round($netProfit, 2));
             $target->setAttribute('profit_margin', round($profitMargin, 2));
 
