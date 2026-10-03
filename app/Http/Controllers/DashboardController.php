@@ -36,25 +36,19 @@ class DashboardController extends Controller
         $chartStockOut = [];
 
         for ($hari = 6; $hari >= 0; $hari--) {
+            $tanggal = Carbon::today('Asia/Dili')->subDays($hari);
 
-            $tanggal = Carbon::today(
-                'Asia/Dili'
-            )->subDays($hari);
+            $chartLabels[] = $tanggal->format('d-m-Y');
 
-            $chartLabels[] =
-                $tanggal->format('d-m-Y');
+            $chartStockIn[] = StockIn::whereDate(
+                'transaction_date',
+                $tanggal->format('Y-m-d')
+            )->sum('quantity');
 
-            $chartStockIn[] =
-                StockIn::whereDate(
-                    'transaction_date',
-                    $tanggal->format('Y-m-d')
-                )->sum('quantity');
-
-            $chartStockOut[] =
-                StockOut::whereDate(
-                    'transaction_date',
-                    $tanggal->format('Y-m-d')
-                )->sum('quantity');
+            $chartStockOut[] = StockOut::whereDate(
+                'transaction_date',
+                $tanggal->format('Y-m-d')
+            )->sum('quantity');
         }
 
 
@@ -64,26 +58,19 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $currentDate =
-            now('Asia/Dili');
+        $currentDate = now('Asia/Dili');
+        $currentMonth = (int) $currentDate->month;
+        $currentYear = (int) $currentDate->year;
 
-        $currentMonth =
-            (int) $currentDate->month;
+        $startDate = $currentDate
+            ->copy()
+            ->startOfMonth()
+            ->toDateString();
 
-        $currentYear =
-            (int) $currentDate->year;
-
-        $startDate =
-            $currentDate
-                ->copy()
-                ->startOfMonth()
-                ->toDateString();
-
-        $endDate =
-            $currentDate
-                ->copy()
-                ->endOfMonth()
-                ->toDateString();
+        $endDate = $currentDate
+            ->copy()
+            ->endOfMonth()
+            ->toDateString();
 
 
         /*
@@ -92,32 +79,17 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $salesTargets =
-            SalesTarget::query()
-                ->with('product')
-                ->where(
-                    'month',
-                    $currentMonth
-                )
-                ->where(
-                    'year',
-                    $currentYear
-                )
-                ->get();
+        $salesTargets = SalesTarget::query()
+            ->with('product')
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->get();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | PRODUK YANG MEMILIKI TARGET
-        |--------------------------------------------------------------------------
-        */
-
-        $targetProductIds =
-            $salesTargets
-                ->pluck('product_id')
-                ->filter()
-                ->unique()
-                ->values();
+        $targetProductIds = $salesTargets
+            ->pluck('product_id')
+            ->filter()
+            ->unique()
+            ->values();
 
 
         /*
@@ -128,48 +100,48 @@ class DashboardController extends Controller
 
         $actualSales = collect();
 
-        if (
-            $targetProductIds->isNotEmpty()
-        ) {
+        if ($targetProductIds->isNotEmpty()) {
+            $actualSales = DB::table('stock_outs')
+                ->select('product_id')
+                ->selectRaw('COALESCE(SUM(quantity), 0) AS sold_qty')
 
-            $actualSales =
-                DB::table('stock_outs')
-                    ->select('product_id')
+                /*
+                 * Uang yang benar-benar menjadi nilai penjualan toko:
+                 * subtotal dikurangi deduction/potongan petugas.
+                 */
+                ->selectRaw('
+                    COALESCE(
+                        SUM(
+                            subtotal - COALESCE(deduction_amount, 0)
+                        ),
+                        0
+                    ) AS actual_revenue
+                ')
 
-                    ->selectRaw(
-                        'COALESCE(SUM(quantity), 0) AS sold_qty'
-                    )
+                /*
+                 * Keuntungan setelah potongan petugas:
+                 * uang penjualan bersih dikurangi modal barang.
+                 */
+                ->selectRaw('
+                    COALESCE(
+                        SUM(
+                            (
+                                subtotal - COALESCE(deduction_amount, 0)
+                            )
+                            -
+                            (
+                                unit_purchase_price * quantity
+                            )
+                        ),
+                        0
+                    ) AS net_profit
+                ')
 
-                    ->selectRaw(
-                        'COALESCE(SUM(subtotal), 0) AS actual_revenue'
-                    )
-
-                    ->selectRaw(
-                        'COALESCE(SUM(total_profit), 0) AS sales_profit'
-                    )
-
-                    ->whereIn(
-                        'product_id',
-                        $targetProductIds
-                    )
-
-                    ->whereBetween(
-                        'transaction_date',
-                        [
-                            $startDate,
-                            $endDate,
-                        ]
-                    )
-
-                    ->groupBy(
-                        'product_id'
-                    )
-
-                    ->get()
-
-                    ->keyBy(
-                        'product_id'
-                    );
+                ->whereIn('product_id', $targetProductIds)
+                ->whereBetween('transaction_date', [$startDate, $endDate])
+                ->groupBy('product_id')
+                ->get()
+                ->keyBy('product_id');
         }
 
 
@@ -185,39 +157,24 @@ class DashboardController extends Controller
         $dashboardActualRevenue = 0;
         $dashboardProfit = 0;
 
-        foreach (
-            $salesTargets
-            as $target
-        ) {
+        foreach ($salesTargets as $target) {
+            $actual = $actualSales->get($target->product_id);
 
-            $actual =
-                $actualSales->get(
-                    $target->product_id
-                );
+            $dashboardTargetQty += (int) $target->target_qty;
 
-            $dashboardTargetQty +=
-                (int) $target->target_qty;
+            $dashboardSoldQty += (int) (
+                $actual->sold_qty ?? 0
+            );
 
-            $dashboardSoldQty +=
-                (int) (
-                    $actual->sold_qty
-                    ?? 0
-                );
+            $dashboardTargetRevenue += (float) $target->target_revenue;
 
-            $dashboardTargetRevenue +=
-                (float) $target->target_revenue;
+            $dashboardActualRevenue += (float) (
+                $actual->actual_revenue ?? 0
+            );
 
-            $dashboardActualRevenue +=
-                (float) (
-                    $actual->actual_revenue
-                    ?? 0
-                );
-
-            $dashboardProfit +=
-                (float) (
-                    $actual->sales_profit
-                    ?? 0
-                );
+            $dashboardProfit += (float) (
+                $actual->net_profit ?? 0
+            );
         }
 
 
@@ -227,49 +184,33 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $dashboardRemainingQty =
-            max(
-                $dashboardTargetQty
-                - $dashboardSoldQty,
-                0
-            );
+        $dashboardRemainingQty = max(
+            $dashboardTargetQty - $dashboardSoldQty,
+            0
+        );
 
-        $dashboardTargetProgress =
-            $dashboardTargetQty > 0
-                ? min(
-                    100,
-                    (
-                        $dashboardSoldQty
-                        / $dashboardTargetQty
-                    ) * 100
-                )
-                : 0;
+        $dashboardTargetProgress = $dashboardTargetQty > 0
+            ? min(
+                100,
+                ($dashboardSoldQty / $dashboardTargetQty) * 100
+            )
+            : 0;
 
-        $dashboardRemainingPercent =
-            max(
-                100
-                - $dashboardTargetProgress,
-                0
-            );
+        $dashboardRemainingPercent = max(
+            100 - $dashboardTargetProgress,
+            0
+        );
 
-        $dashboardRevenueProgress =
-            $dashboardTargetRevenue > 0
-                ? min(
-                    100,
-                    (
-                        $dashboardActualRevenue
-                        / $dashboardTargetRevenue
-                    ) * 100
-                )
-                : 0;
+        $dashboardRevenueProgress = $dashboardTargetRevenue > 0
+            ? min(
+                100,
+                ($dashboardActualRevenue / $dashboardTargetRevenue) * 100
+            )
+            : 0;
 
-        $dashboardProfitMargin =
-            $dashboardActualRevenue > 0
-                ? (
-                    $dashboardProfit
-                    / $dashboardActualRevenue
-                ) * 100
-                : 0;
+        $dashboardProfitMargin = $dashboardActualRevenue > 0
+            ? ($dashboardProfit / $dashboardActualRevenue) * 100
+            : 0;
 
 
         /*
@@ -278,38 +219,16 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if (
-            $dashboardTargetProgress >= 100
-        ) {
-
-            $dashboardTargetStatus =
-                'Target Tercapai';
-
-        } elseif (
-            $dashboardTargetProgress >= 75
-        ) {
-
-            $dashboardTargetStatus =
-                'Hampir Selesai';
-
-        } elseif (
-            $dashboardTargetProgress >= 50
-        ) {
-
-            $dashboardTargetStatus =
-                'Cukup Baik';
-
-        } elseif (
-            $dashboardTargetProgress > 0
-        ) {
-
-            $dashboardTargetStatus =
-                'Masih Rendah';
-
+        if ($dashboardTargetProgress >= 100) {
+            $dashboardTargetStatus = 'Target Tercapai';
+        } elseif ($dashboardTargetProgress >= 75) {
+            $dashboardTargetStatus = 'Hampir Selesai';
+        } elseif ($dashboardTargetProgress >= 50) {
+            $dashboardTargetStatus = 'Cukup Baik';
+        } elseif ($dashboardTargetProgress > 0) {
+            $dashboardTargetStatus = 'Masih Rendah';
         } else {
-
-            $dashboardTargetStatus =
-                'Belum Ada Penjualan';
+            $dashboardTargetStatus = 'Belum Ada Penjualan';
         }
 
 
@@ -319,35 +238,32 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return view(
-            'dashboard',
-            compact(
-                'totalProducts',
-                'totalStock',
-                'totalStockIn',
-                'totalStockOut',
-                'chartLabels',
-                'chartStockIn',
-                'chartStockOut',
+        return view('dashboard', compact(
+            'totalProducts',
+            'totalStock',
+            'totalStockIn',
+            'totalStockOut',
+            'chartLabels',
+            'chartStockIn',
+            'chartStockOut',
 
-                'currentMonth',
-                'currentYear',
+            'currentMonth',
+            'currentYear',
 
-                'dashboardTargetQty',
-                'dashboardSoldQty',
-                'dashboardRemainingQty',
+            'dashboardTargetQty',
+            'dashboardSoldQty',
+            'dashboardRemainingQty',
 
-                'dashboardTargetRevenue',
-                'dashboardActualRevenue',
-                'dashboardProfit',
+            'dashboardTargetRevenue',
+            'dashboardActualRevenue',
+            'dashboardProfit',
 
-                'dashboardTargetProgress',
-                'dashboardRemainingPercent',
-                'dashboardRevenueProgress',
-                'dashboardProfitMargin',
+            'dashboardTargetProgress',
+            'dashboardRemainingPercent',
+            'dashboardRevenueProgress',
+            'dashboardProfitMargin',
 
-                'dashboardTargetStatus'
-            )
-        );
+            'dashboardTargetStatus'
+        ));
     }
 }
