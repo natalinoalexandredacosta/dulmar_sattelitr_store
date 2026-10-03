@@ -6,7 +6,19 @@
 
 
 
+
+
+
+
+
+
+
+
 use App\Http\Controllers\AuthController;
+
+
+
+
 
 
 
@@ -14,7 +26,15 @@ use App\Http\Controllers\CashAccountController;
 
 
 
+
+
+
+
 use App\Http\Controllers\CashController;
+
+
+
+
 
 
 
@@ -22,7 +42,17 @@ use App\Http\Controllers\CustomerController;
 
 
 
+
+
+
+
 use App\Http\Controllers\DashboardController;
+
+use App\Http\Controllers\SalesTargetController;
+
+
+
+
 
 
 
@@ -30,7 +60,15 @@ use App\Http\Controllers\HomepageBannerController;
 
 
 
+
+
+
+
 use App\Http\Controllers\ProductController;
+
+
+
+
 
 
 
@@ -38,7 +76,15 @@ use App\Http\Controllers\PromoCampaignController;
 
 
 
+
+
+
+
 use App\Http\Controllers\ReportController;
+
+
+
+
 
 
 
@@ -46,7 +92,15 @@ use App\Http\Controllers\StockInController;
 
 
 
+
+
+
+
 use App\Http\Controllers\StockOutController;
+
+
+
+
 
 
 
@@ -54,7 +108,15 @@ use App\Http\Controllers\SupplierController;
 
 
 
+
+
+
+
 use App\Http\Controllers\TeamProductCarryController;
+
+
+
+
 
 
 
@@ -62,11 +124,23 @@ use App\Http\Controllers\TestimonialController;
 
 
 
+
+
+
+
 use App\Http\Controllers\TvVoucherTransactionController;
 
 
 
+
+
+
+
 use App\Http\Controllers\UserManagementController;
+
+
+
+
 
 
 
@@ -78,7 +152,19 @@ use App\Http\Controllers\VisitorLogController;
 
 
 
+
+
+
+
+
+
+
+
 use App\Models\HomepageBanner;
+
+
+
+
 
 
 
@@ -86,7 +172,15 @@ use App\Models\Product;
 
 
 
+
+
+
+
 use App\Models\PromoCampaign;
+
+
+
+
 
 
 
@@ -98,7 +192,19 @@ use App\Models\Testimonial;
 
 
 
+
+
+
+
+
+
+
+
 use Illuminate\Http\Request;
+
+
+
+
 
 
 
@@ -114,11 +220,31 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -126,11 +252,27 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
 
 
 
+
+
+
+
 */
+
+
+
+
+
+
+
+
 
 
 
@@ -146,7 +288,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $search = trim((string) $request->query('search', ''));
+
+
+
+
 
 
 
@@ -158,7 +312,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $homepageBanners = HomepageBanner::query()
+
+
+
+
 
 
 
@@ -166,11 +332,23 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->orderBy('sort_order')
 
 
 
+
+
+
+
         ->orderBy('id')
+
+
+
+
 
 
 
@@ -182,7 +360,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $categories = Product::query()
+
+
+
+
 
 
 
@@ -190,7 +380,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->where('category', '!=', '')
+
+
+
+
 
 
 
@@ -198,7 +396,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->distinct()
+
+
+
+
 
 
 
@@ -210,7 +416,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $categoryPriority = [
+
+
+
+
 
 
 
@@ -218,7 +436,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         'TV' => 2,
+
+
+
+
 
 
 
@@ -226,11 +452,23 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         'RCA' => 4,
 
 
 
+
+
+
+
         'Speaker' => 5,
+
+
+
+
 
 
 
@@ -242,11 +480,31 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $categories = $categories
 
 
 
+
+
+
+
         ->sortBy(function ($category) use ($categoryPriority) {
+
+
+
+
+
+
+
+
 
 
 
@@ -262,7 +520,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
                 return sprintf(
+
+
+
+
 
 
 
@@ -270,7 +540,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
                     $categoryPriority[$category],
+
+
+
+
 
 
 
@@ -278,7 +556,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -290,7 +576,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
             return '999-' . mb_strtolower(
+
+
+
+
 
 
 
@@ -298,7 +596,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
                 'UTF-8'
+
+
+
+
 
 
 
@@ -306,11 +612,27 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         })
 
 
 
+
+
+
+
         ->values();
+
+
+
+
+
+
+
+
 
 
 
@@ -326,7 +648,23 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     if ($search !== '') {
+
+
+
+
+
+
+
+
 
 
 
@@ -338,7 +676,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'product_name',
+
+
+
+
 
 
 
@@ -346,7 +692,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             '%' . $search . '%'
+
+
+
+
 
 
 
@@ -354,7 +708,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -370,7 +736,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
         $productQuery->where(
+
+
+
+
 
 
 
@@ -378,11 +756,23 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             $category
 
 
 
+
+
+
+
         );
+
+
+
+
 
 
 
@@ -394,11 +784,27 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $products = $productQuery
 
 
 
+
+
+
+
         ->orderBy('product_name')
+
+
+
+
 
 
 
@@ -410,11 +816,27 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $activePromoCampaign = PromoCampaign::query()
 
 
 
+
+
+
+
         ->with([
+
+
+
+
 
 
 
@@ -426,7 +848,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
                 $query->orderBy(
+
+
+
+
 
 
 
@@ -434,7 +868,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
                 );
+
+
+
+
 
 
 
@@ -442,7 +884,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ])
+
+
+
+
 
 
 
@@ -450,7 +900,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->whereDate(
+
+
+
+
 
 
 
@@ -458,7 +916,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             '<=',
+
+
+
+
 
 
 
@@ -466,7 +932,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -474,7 +948,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'end_date',
+
+
+
+
 
 
 
@@ -482,7 +964,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             now()->toDateString()
+
+
+
+
 
 
 
@@ -490,7 +980,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->orderByDesc('start_date')
+
+
+
+
 
 
 
@@ -498,7 +996,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->first();
+
+
+
+
+
+
+
+
 
 
 
@@ -514,7 +1024,23 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     if ($activePromoCampaign) {
+
+
+
+
+
+
+
+
 
 
 
@@ -526,7 +1052,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             $activePromoCampaign
+
+
+
+
 
 
 
@@ -534,7 +1068,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
                 ->keyBy('id');
+
+
+
+
 
 
 
@@ -546,11 +1088,27 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -558,7 +1116,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -570,7 +1136,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     $approvedTestimonials = Testimonial::query()
+
+
+
+
 
 
 
@@ -578,7 +1156,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'product',
+
+
+
+
 
 
 
@@ -586,7 +1172,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ])
+
+
+
+
 
 
 
@@ -594,7 +1188,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'status',
+
+
+
+
 
 
 
@@ -602,7 +1204,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -610,7 +1220,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         ->take(6)
+
+
+
+
 
 
 
@@ -622,7 +1240,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
     return view(
+
+
+
+
 
 
 
@@ -630,7 +1260,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
         compact(
+
+
+
+
 
 
 
@@ -638,7 +1276,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'categories',
+
+
+
+
 
 
 
@@ -646,7 +1292,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'category',
+
+
+
+
 
 
 
@@ -654,7 +1308,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'activePromoCampaign',
+
+
+
+
 
 
 
@@ -662,7 +1324,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
             'approvedTestimonials'
+
+
+
+
 
 
 
@@ -670,7 +1340,19 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -690,11 +1372,31 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -702,7 +1404,15 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -714,11 +1424,27 @@ Route::get('/', function (Request $request) {
 
 
 
+
+
+
+
+
+
+
+
 Route::get(
 
 
 
+
+
+
+
     '/produtu/{product}',
+
+
+
+
 
 
 
@@ -730,7 +1456,19 @@ Route::get(
 
 
 
+
+
+
+
+
+
+
+
         $activePromoCampaign = PromoCampaign::query()
+
+
+
+
 
 
 
@@ -738,7 +1476,15 @@ Route::get(
 
 
 
+
+
+
+
                 'is_active',
+
+
+
+
 
 
 
@@ -746,11 +1492,23 @@ Route::get(
 
 
 
+
+
+
+
             )
 
 
 
+
+
+
+
             ->whereDate(
+
+
+
+
 
 
 
@@ -758,7 +1516,15 @@ Route::get(
 
 
 
+
+
+
+
                 '<=',
+
+
+
+
 
 
 
@@ -766,7 +1532,15 @@ Route::get(
 
 
 
+
+
+
+
             )
+
+
+
+
 
 
 
@@ -774,7 +1548,15 @@ Route::get(
 
 
 
+
+
+
+
                 'end_date',
+
+
+
+
 
 
 
@@ -782,7 +1564,15 @@ Route::get(
 
 
 
+
+
+
+
                 now()->toDateString()
+
+
+
+
 
 
 
@@ -790,11 +1580,23 @@ Route::get(
 
 
 
+
+
+
+
             ->whereHas(
 
 
 
+
+
+
+
                 'products',
+
+
+
+
 
 
 
@@ -806,7 +1608,19 @@ Route::get(
 
 
 
+
+
+
+
+
+
+
+
                     $query->where(
+
+
+
+
 
 
 
@@ -814,7 +1628,15 @@ Route::get(
 
 
 
+
+
+
+
                         $product->id
+
+
+
+
 
 
 
@@ -822,7 +1644,15 @@ Route::get(
 
 
 
+
+
+
+
                 }
+
+
+
+
 
 
 
@@ -830,7 +1660,15 @@ Route::get(
 
 
 
+
+
+
+
             ->with([
+
+
+
+
 
 
 
@@ -842,7 +1680,19 @@ Route::get(
 
 
 
+
+
+
+
+
+
+
+
                     $query->where(
+
+
+
+
 
 
 
@@ -850,7 +1700,15 @@ Route::get(
 
 
 
+
+
+
+
                         $product->id
+
+
+
+
 
 
 
@@ -858,7 +1716,15 @@ Route::get(
 
 
 
+
+
+
+
                 },
+
+
+
+
 
 
 
@@ -866,7 +1732,15 @@ Route::get(
 
 
 
+
+
+
+
             ->orderByDesc('start_date')
+
+
+
+
 
 
 
@@ -874,7 +1748,19 @@ Route::get(
 
 
 
+
+
+
+
             ->first();
+
+
+
+
+
+
+
+
 
 
 
@@ -890,7 +1776,23 @@ Route::get(
 
 
 
+
+
+
+
+
+
+
+
         if ($activePromoCampaign) {
+
+
+
+
+
+
+
+
 
 
 
@@ -902,7 +1804,15 @@ Route::get(
 
 
 
+
+
+
+
                 $activePromoCampaign
+
+
+
+
 
 
 
@@ -910,7 +1820,15 @@ Route::get(
 
 
 
+
+
+
+
                     ->first();
+
+
+
+
 
 
 
@@ -922,7 +1840,19 @@ Route::get(
 
 
 
+
+
+
+
+
+
+
+
         return view(
+
+
+
+
 
 
 
@@ -930,7 +1860,15 @@ Route::get(
 
 
 
+
+
+
+
             compact(
+
+
+
+
 
 
 
@@ -938,7 +1876,15 @@ Route::get(
 
 
 
+
+
+
+
                 'activePromoCampaign',
+
+
+
+
 
 
 
@@ -946,7 +1892,15 @@ Route::get(
 
 
 
+
+
+
+
             )
+
+
+
+
 
 
 
@@ -954,7 +1908,15 @@ Route::get(
 
 
 
+
+
+
+
     }
+
+
+
+
 
 
 
@@ -970,11 +1932,31 @@ Route::get(
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -982,11 +1964,27 @@ Route::get(
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
 
 
 
+
+
+
+
 */
+
+
+
+
+
+
+
+
 
 
 
@@ -1002,7 +2000,19 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
+
+
+
+
     $products = Product::query()
+
+
+
+
 
 
 
@@ -1010,7 +2020,15 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
             'id',
+
+
+
+
 
 
 
@@ -1018,11 +2036,23 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
         ])
 
 
 
+
+
+
+
         ->orderBy('id')
+
+
+
+
 
 
 
@@ -1034,7 +2064,19 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
+
+
+
+
     return response()
+
+
+
+
 
 
 
@@ -1042,7 +2084,15 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
             'sitemap',
+
+
+
+
 
 
 
@@ -1050,7 +2100,15 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -1058,7 +2116,15 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
             'Content-Type',
+
+
+
+
 
 
 
@@ -1066,7 +2132,19 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -1086,11 +2164,31 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1098,7 +2196,15 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1110,7 +2216,19 @@ Route::get('/sitemap.xml', function () {
 
 
 
+
+
+
+
+
+
+
+
 Route::middleware('guest')
+
+
+
+
 
 
 
@@ -1122,7 +2240,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::get('/login', [
+
+
+
+
 
 
 
@@ -1130,7 +2260,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'showLogin',
+
+
+
+
 
 
 
@@ -1142,7 +2280,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::post('/login', [
+
+
+
+
 
 
 
@@ -1150,7 +2300,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'login',
+
+
+
+
 
 
 
@@ -1162,7 +2320,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::get('/verify-otp', [
+
+
+
+
 
 
 
@@ -1170,7 +2340,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'showOtpForm',
+
+
+
+
 
 
 
@@ -1182,7 +2360,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::post('/verify-otp', [
+
+
+
+
 
 
 
@@ -1190,7 +2380,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'verifyOtp',
+
+
+
+
 
 
 
@@ -1202,7 +2400,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::get('/forgot-password', [
+
+
+
+
 
 
 
@@ -1210,7 +2420,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'showForgotPassword',
+
+
+
+
 
 
 
@@ -1222,7 +2440,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::post('/forgot-password', [
+
+
+
+
 
 
 
@@ -1230,7 +2460,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'sendResetOtp',
+
+
+
+
 
 
 
@@ -1242,7 +2480,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::get(
+
+
+
+
 
 
 
@@ -1250,7 +2500,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             [
+
+
+
+
 
 
 
@@ -1258,11 +2516,23 @@ Route::middleware('guest')
 
 
 
+
+
+
+
                 'showResetOtpForm',
 
 
 
+
+
+
+
             ]
+
+
+
+
 
 
 
@@ -1274,7 +2544,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::post(
+
+
+
+
 
 
 
@@ -1282,7 +2564,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             [
+
+
+
+
 
 
 
@@ -1290,11 +2580,23 @@ Route::middleware('guest')
 
 
 
+
+
+
+
                 'verifyResetOtp',
 
 
 
+
+
+
+
             ]
+
+
+
+
 
 
 
@@ -1306,7 +2608,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::get('/reset-password', [
+
+
+
+
 
 
 
@@ -1314,7 +2628,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'showResetPasswordForm',
+
+
+
+
 
 
 
@@ -1326,7 +2648,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
         Route::post('/reset-password', [
+
+
+
+
 
 
 
@@ -1334,11 +2668,23 @@ Route::middleware('guest')
 
 
 
+
+
+
+
             'resetPassword',
 
 
 
+
+
+
+
         ])->name('password.update');
+
+
+
+
 
 
 
@@ -1354,11 +2700,31 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1366,7 +2732,15 @@ Route::middleware('guest')
 
 
 
+
+
+
+
 |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1378,7 +2752,19 @@ Route::middleware('guest')
 
 
 
+
+
+
+
+
+
+
+
 Route::middleware([
+
+
+
+
 
 
 
@@ -1386,7 +2772,15 @@ Route::middleware([
 
 
 
+
+
+
+
     'idle.timeout',
+
+
+
+
 
 
 
@@ -1398,11 +2792,27 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1410,7 +2820,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1422,7 +2840,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/logout', [
+
+
+
+
 
 
 
@@ -1430,7 +2860,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'logout',
+
+
+
+
 
 
 
@@ -1446,11 +2884,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1458,11 +2916,27 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
 
 
 
+
+
+
+
     */
+
+
+
+
+
+
+
+
 
 
 
@@ -1474,7 +2948,15 @@ Route::middleware([
 
 
 
+
+
+
+
         DashboardController::class,
+
+
+
+
 
 
 
@@ -1482,7 +2964,15 @@ Route::middleware([
 
 
 
+
+
+
+
     ])
+
+
+
+
 
 
 
@@ -1490,7 +2980,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:dashboard.view'
+
+
+
+
 
 
 
@@ -1498,7 +2996,50 @@ Route::middleware([
 
 
 
+
+
+
+
         ->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | TARGET PENJUALAN BULANAN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/sales-targets', [
+        SalesTargetController::class,
+        'index',
+    ])->name('sales-targets.index');
+
+    Route::post('/sales-targets', [
+        SalesTargetController::class,
+        'store',
+    ])->name('sales-targets.store');
+
+    Route::put('/sales-targets/{salesTarget}', [
+        SalesTargetController::class,
+        'update',
+    ])->name('sales-targets.update');
+
+    Route::delete('/sales-targets/{salesTarget}', [
+        SalesTargetController::class,
+        'destroy',
+    ])->name('sales-targets.destroy');
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1514,7 +3055,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1522,7 +3071,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1534,7 +3091,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/visitor-logs', [
+
+
+
+
 
 
 
@@ -1542,7 +3111,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -1558,11 +3135,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1570,7 +3167,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1582,7 +3187,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/testimonials', [
+
+
+
+
 
 
 
@@ -1590,7 +3207,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -1602,7 +3227,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/testimonials/create', [
+
+
+
+
 
 
 
@@ -1610,7 +3247,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -1622,7 +3267,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/testimonials', [
+
+
+
+
 
 
 
@@ -1630,7 +3287,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -1642,7 +3307,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/testimonials/{testimonial}', [
+
+
+
+
 
 
 
@@ -1650,7 +3327,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'show',
+
+
+
+
 
 
 
@@ -1662,7 +3347,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -1670,7 +3367,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1678,11 +3383,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1694,7 +3411,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -1702,7 +3431,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1710,11 +3447,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1726,7 +3475,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -1734,7 +3495,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1742,11 +3511,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'approve',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1758,7 +3539,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -1766,7 +3559,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1774,11 +3575,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'reject',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1790,7 +3603,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -1798,7 +3623,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1806,11 +3639,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'pending',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1822,7 +3667,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -1830,7 +3687,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1838,7 +3703,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroyProof',
+
+
+
+
 
 
 
@@ -1846,11 +3719,23 @@ Route::middleware([
 
 
 
+
+
+
+
     )->name(
 
 
 
+
+
+
+
         'testimonials.proofs.destroy'
+
+
+
+
 
 
 
@@ -1862,7 +3747,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -1870,7 +3767,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1878,11 +3783,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1898,11 +3815,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1910,7 +3847,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -1922,7 +3867,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/homepage-banners', [
+
+
+
+
 
 
 
@@ -1930,7 +3887,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -1942,7 +3907,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/homepage-banners', [
+
+
+
+
 
 
 
@@ -1950,7 +3927,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -1962,7 +3947,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -1970,7 +3967,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -1978,11 +3983,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -1994,7 +4011,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -2002,7 +4031,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2010,11 +4047,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'toggle',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2026,7 +4075,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -2034,7 +4095,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2042,11 +4111,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2062,11 +4143,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2074,7 +4175,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2086,7 +4195,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/cash', [
+
+
+
+
 
 
 
@@ -2094,7 +4215,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -2106,7 +4235,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/cash', [
+
+
+
+
 
 
 
@@ -2114,7 +4255,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -2126,7 +4275,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -2134,7 +4295,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2142,11 +4311,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2158,7 +4339,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -2166,7 +4359,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2174,11 +4375,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'approve',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2190,7 +4403,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -2198,7 +4423,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2206,11 +4439,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'reject',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2222,7 +4467,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -2230,7 +4487,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2238,11 +4503,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2258,11 +4535,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2270,11 +4567,27 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
 
 
 
+
+
+
+
     */
+
+
+
+
+
+
+
+
 
 
 
@@ -2286,11 +4599,23 @@ Route::middleware([
 
 
 
+
+
+
+
         CashAccountController::class,
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -2300,53 +4625,118 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
     /*
 
+
+
     |--------------------------------------------------------------------------
+
+
 
     | EXPORT HISTORI KAS ADMIN - EXCEL
 
+
+
     |--------------------------------------------------------------------------
+
+
 
     */
 
 
 
+
+
+
+
     Route::get(
+
+
 
         '/cash-accounts/export/excel',
 
+
+
         [
 
+
+
             CashAccountController::class,
+
+
 
             'exportExcel',
 
+
+
         ]
 
+
+
     )->name(
+
+
 
         'cash-accounts.export.excel'
 
+
+
     );
 
 
 
+
+
+
+
     /*
+
     |--------------------------------------------------------------------------
+
     | EXPORT HISTORI KAS ADMIN - PDF
+
     |--------------------------------------------------------------------------
+
     */
 
+
+
     Route::get(
+
         '/cash-accounts/export/pdf',
+
         [
+
             CashAccountController::class,
+
             'exportPdf',
+
         ]
+
     )->name(
+
         'cash-accounts.export.pdf'
+
     );
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2363,7 +4753,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2371,7 +4769,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2383,7 +4789,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post(
+
+
+
+
 
 
 
@@ -2391,11 +4809,23 @@ Route::middleware([
 
 
 
+
+
+
+
         [
 
 
 
+
+
+
+
             CashAccountController::class,
+
+
+
+
 
 
 
@@ -2403,11 +4833,23 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -2415,6 +4857,10 @@ Route::middleware([
 
 
 
+
+
+
+
     );
 
 
@@ -2423,7 +4869,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -2431,11 +4889,23 @@ Route::middleware([
 
 
 
+
+
+
+
         [
 
 
 
+
+
+
+
             CashAccountController::class,
+
+
+
+
 
 
 
@@ -2443,11 +4913,23 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -2455,7 +4937,23 @@ Route::middleware([
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2471,7 +4969,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2479,7 +4985,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2491,7 +5005,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post(
+
+
+
+
 
 
 
@@ -2499,11 +5025,23 @@ Route::middleware([
 
 
 
+
+
+
+
         [
 
 
 
+
+
+
+
             CashAccountController::class,
+
+
+
+
 
 
 
@@ -2511,11 +5049,23 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -2523,6 +5073,10 @@ Route::middleware([
 
 
 
+
+
+
+
     );
 
 
@@ -2531,7 +5085,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -2539,7 +5105,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2547,7 +5121,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'updateBank',
+
+
+
+
 
 
 
@@ -2555,7 +5137,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -2563,7 +5153,23 @@ Route::middleware([
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2579,7 +5185,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2587,7 +5201,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2599,7 +5221,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post(
+
+
+
+
 
 
 
@@ -2607,7 +5241,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2615,7 +5257,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'addMosan',
+
+
+
+
 
 
 
@@ -2623,7 +5273,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -2631,7 +5289,19 @@ Route::middleware([
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -2643,7 +5313,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/cash-accounts/mosan',
+
+
+
+
 
 
 
@@ -2651,7 +5329,15 @@ Route::middleware([
 
 
 
+
+
+
+
             CashAccountController::class,
+
+
+
+
 
 
 
@@ -2659,11 +5345,23 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -2671,7 +5369,23 @@ Route::middleware([
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2687,7 +5401,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2695,7 +5417,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2707,7 +5437,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post(
+
+
+
+
 
 
 
@@ -2715,7 +5457,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2723,7 +5473,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'transferToBank',
+
+
+
+
 
 
 
@@ -2731,11 +5489,23 @@ Route::middleware([
 
 
 
+
+
+
+
     )->name(
 
 
 
+
+
+
+
         'cash-accounts.transfer-to-bank'
+
+
+
+
 
 
 
@@ -2751,11 +5521,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2763,11 +5553,27 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
 
 
 
+
+
+
+
     */
+
+
+
+
+
+
+
+
 
 
 
@@ -2779,7 +5585,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/cash-accounts/mosan/transfer-to-bank',
+
+
+
+
 
 
 
@@ -2787,7 +5601,15 @@ Route::middleware([
 
 
 
+
+
+
+
             CashAccountController::class,
+
+
+
+
 
 
 
@@ -2795,7 +5617,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -2803,7 +5633,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'cash-accounts.mosan.transfer-to-bank'
+
+
+
+
 
 
 
@@ -2819,11 +5657,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -2831,11 +5689,27 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
 
 
 
+
+
+
+
     */
+
+
+
+
+
+
+
+
 
 
 
@@ -2847,7 +5721,15 @@ Route::middleware([
 
 
 
+
+
+
+
         UserManagementController::class,
+
+
+
+
 
 
 
@@ -2855,7 +5737,15 @@ Route::middleware([
 
 
 
+
+
+
+
     ])
+
+
+
+
 
 
 
@@ -2863,11 +5753,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:users.view'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -2879,7 +5781,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/users/create', [
+
+
+
+
 
 
 
@@ -2887,7 +5801,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -2895,7 +5817,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -2903,7 +5833,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -2915,7 +5853,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/users', [
+
+
+
+
 
 
 
@@ -2923,7 +5873,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -2931,7 +5889,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -2939,7 +5905,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -2951,7 +5925,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -2959,7 +5945,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -2967,7 +5961,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -2975,7 +5977,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -2983,11 +5993,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:users.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -2999,7 +6021,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -3007,7 +6041,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3015,7 +6057,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -3023,7 +6073,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3031,11 +6089,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:users.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3047,7 +6117,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -3055,7 +6137,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3063,7 +6153,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -3071,11 +6169,23 @@ Route::middleware([
 
 
 
+
+
+
+
     )->middleware(
 
 
 
+
+
+
+
         'permission:users.edit'
+
+
+
+
 
 
 
@@ -3087,7 +6197,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -3095,7 +6217,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3103,7 +6233,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
+
+
+
+
 
 
 
@@ -3111,7 +6249,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3119,11 +6265,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:users.delete'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3139,11 +6297,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -3151,7 +6329,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -3163,7 +6349,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/products', [
+
+
+
+
 
 
 
@@ -3171,7 +6369,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -3179,7 +6385,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3187,7 +6401,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3199,7 +6421,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/products/create', [
+
+
+
+
 
 
 
@@ -3207,7 +6441,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -3215,7 +6457,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3223,7 +6473,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3235,7 +6493,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/products', [
+
+
+
+
 
 
 
@@ -3243,7 +6513,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -3251,7 +6529,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3259,7 +6545,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3271,7 +6565,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -3279,7 +6585,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3287,7 +6601,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -3295,7 +6617,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3303,11 +6633,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:products.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3319,7 +6661,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -3327,7 +6681,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3335,7 +6697,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -3343,7 +6713,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3351,11 +6729,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:products.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3367,7 +6757,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -3375,7 +6777,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3383,7 +6793,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
+
+
+
+
 
 
 
@@ -3391,7 +6809,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3399,11 +6825,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:products.delete'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3419,11 +6857,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -3431,11 +6889,27 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
 
 
 
+
+
+
+
     */
+
+
+
+
+
+
+
+
 
 
 
@@ -3447,7 +6921,15 @@ Route::middleware([
 
 
 
+
+
+
+
         PromoCampaignController::class,
+
+
+
+
 
 
 
@@ -3455,7 +6937,15 @@ Route::middleware([
 
 
 
+
+
+
+
     ])
+
+
+
+
 
 
 
@@ -3463,11 +6953,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:promo-campaigns.view'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3479,7 +6981,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -3487,7 +7001,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3495,7 +7017,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'create',
+
+
+
+
 
 
 
@@ -3503,7 +7033,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3511,7 +7049,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:promo-campaigns.create'
+
+
+
+
 
 
 
@@ -3519,7 +7065,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->name(
+
+
+
+
 
 
 
@@ -3527,7 +7081,19 @@ Route::middleware([
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -3539,7 +7105,15 @@ Route::middleware([
 
 
 
+
+
+
+
         PromoCampaignController::class,
+
+
+
+
 
 
 
@@ -3547,7 +7121,15 @@ Route::middleware([
 
 
 
+
+
+
+
     ])
+
+
+
+
 
 
 
@@ -3555,7 +7137,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:promo-campaigns.create'
+
+
+
+
 
 
 
@@ -3563,7 +7153,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->name(
+
+
+
+
 
 
 
@@ -3571,7 +7169,19 @@ Route::middleware([
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -3583,7 +7193,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/promo-campaigns/{promoCampaign}/edit',
+
+
+
+
 
 
 
@@ -3591,7 +7209,15 @@ Route::middleware([
 
 
 
+
+
+
+
             PromoCampaignController::class,
+
+
+
+
 
 
 
@@ -3599,7 +7225,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -3607,7 +7241,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3615,7 +7257,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3623,11 +7273,27 @@ Route::middleware([
 
 
 
+
+
+
+
             'promo-campaigns.edit'
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -3639,7 +7305,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/promo-campaigns/{promoCampaign}',
+
+
+
+
 
 
 
@@ -3647,7 +7321,15 @@ Route::middleware([
 
 
 
+
+
+
+
             PromoCampaignController::class,
+
+
+
+
 
 
 
@@ -3655,7 +7337,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -3663,7 +7353,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3671,7 +7369,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3679,11 +7385,27 @@ Route::middleware([
 
 
 
+
+
+
+
             'promo-campaigns.update'
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -3695,7 +7417,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/promo-campaigns/{promoCampaign}',
+
+
+
+
 
 
 
@@ -3703,7 +7433,15 @@ Route::middleware([
 
 
 
+
+
+
+
             PromoCampaignController::class,
+
+
+
+
 
 
 
@@ -3711,7 +7449,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -3719,7 +7465,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3727,7 +7481,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3735,11 +7497,31 @@ Route::middleware([
 
 
 
+
+
+
+
             'promo-campaigns.destroy'
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3755,7 +7537,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -3763,7 +7553,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -3775,7 +7573,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/stock-ins', [
+
+
+
+
 
 
 
@@ -3783,7 +7593,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -3791,7 +7609,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3799,7 +7625,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3811,7 +7645,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/stock-ins/create', [
+
+
+
+
 
 
 
@@ -3819,7 +7665,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -3827,7 +7681,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3835,7 +7697,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3847,7 +7717,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/stock-ins', [
+
+
+
+
 
 
 
@@ -3855,7 +7737,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -3863,7 +7753,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -3871,7 +7769,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3883,7 +7789,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -3891,7 +7809,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3899,7 +7825,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -3907,7 +7841,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3915,11 +7857,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:stock-ins.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3931,7 +7885,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -3939,7 +7905,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3947,7 +7921,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -3955,7 +7937,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -3963,11 +7953,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:stock-ins.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -3979,7 +7981,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -3987,7 +8001,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -3995,7 +8017,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
+
+
+
+
 
 
 
@@ -4003,7 +8033,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4011,11 +8049,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:stock-ins.delete'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4031,11 +8081,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4043,7 +8113,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4055,7 +8133,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/stock-outs', [
+
+
+
+
 
 
 
@@ -4063,7 +8153,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -4071,7 +8169,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4079,7 +8185,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4091,7 +8205,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/stock-outs/create', [
+
+
+
+
 
 
 
@@ -4099,7 +8225,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -4107,7 +8241,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4115,7 +8257,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4127,7 +8277,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/stock-outs', [
+
+
+
+
 
 
 
@@ -4135,7 +8297,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -4143,7 +8313,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4151,7 +8329,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4163,7 +8349,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -4171,7 +8369,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4179,7 +8385,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -4187,7 +8401,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4195,11 +8417,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:stock-outs.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4211,7 +8445,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -4219,7 +8465,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4227,7 +8481,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -4235,7 +8497,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4243,11 +8513,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:stock-outs.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4259,7 +8541,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -4267,7 +8561,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4275,7 +8577,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'verifyCustomerPayment',
+
+
+
+
 
 
 
@@ -4283,7 +8593,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4291,7 +8609,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:stock-outs.verify-payment'
+
+
+
+
 
 
 
@@ -4299,7 +8625,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->name(
+
+
+
+
 
 
 
@@ -4307,7 +8641,19 @@ Route::middleware([
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -4319,7 +8665,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/stock-outs/{stockOut}/confirm-deposit',
+
+
+
+
 
 
 
@@ -4327,7 +8681,15 @@ Route::middleware([
 
 
 
+
+
+
+
             StockOutController::class,
+
+
+
+
 
 
 
@@ -4335,7 +8697,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4343,7 +8713,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4351,7 +8729,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4359,11 +8745,27 @@ Route::middleware([
 
 
 
+
+
+
+
             'stock-outs.confirm-deposit'
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -4375,7 +8777,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/stock-outs/{stockOut}',
+
+
+
+
 
 
 
@@ -4383,7 +8793,15 @@ Route::middleware([
 
 
 
+
+
+
+
             StockOutController::class,
+
+
+
+
 
 
 
@@ -4391,7 +8809,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4399,7 +8825,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4407,7 +8841,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4423,11 +8865,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4435,7 +8897,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4447,7 +8917,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -4455,7 +8937,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4463,7 +8953,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'index',
+
+
+
+
 
 
 
@@ -4471,7 +8969,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )->name(
+
+
+
+
 
 
 
@@ -4479,7 +8985,19 @@ Route::middleware([
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -4491,7 +9009,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/team-product-carries/create',
+
+
+
+
 
 
 
@@ -4499,7 +9025,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TeamProductCarryController::class,
+
+
+
+
 
 
 
@@ -4507,7 +9041,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4515,11 +9057,27 @@ Route::middleware([
 
 
 
+
+
+
+
         'team-product-carries.create'
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -4531,7 +9089,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/team-product-carries',
+
+
+
+
 
 
 
@@ -4539,7 +9105,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TeamProductCarryController::class,
+
+
+
+
 
 
 
@@ -4547,7 +9121,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4555,11 +9137,27 @@ Route::middleware([
 
 
 
+
+
+
+
         'team-product-carries.store'
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -4571,7 +9169,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/team-product-carries/{teamProductCarry}/edit',
+
+
+
+
 
 
 
@@ -4579,7 +9185,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TeamProductCarryController::class,
+
+
+
+
 
 
 
@@ -4587,7 +9201,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4595,11 +9217,27 @@ Route::middleware([
 
 
 
+
+
+
+
         'team-product-carries.edit'
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -4611,7 +9249,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/team-product-carries/{teamProductCarry}',
+
+
+
+
 
 
 
@@ -4619,7 +9265,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TeamProductCarryController::class,
+
+
+
+
 
 
 
@@ -4627,7 +9281,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4635,11 +9297,27 @@ Route::middleware([
 
 
 
+
+
+
+
         'team-product-carries.update'
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
 
 
 
@@ -4651,7 +9329,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/team-product-carries/{teamProductCarry}',
+
+
+
+
 
 
 
@@ -4659,7 +9345,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TeamProductCarryController::class,
+
+
+
+
 
 
 
@@ -4667,7 +9361,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -4675,11 +9377,31 @@ Route::middleware([
 
 
 
+
+
+
+
         'team-product-carries.destroy'
 
 
 
+
+
+
+
     );
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4695,7 +9417,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4703,7 +9433,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4715,7 +9453,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/suppliers', [
+
+
+
+
 
 
 
@@ -4723,7 +9473,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -4731,7 +9489,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4739,7 +9505,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4751,7 +9525,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/suppliers/create', [
+
+
+
+
 
 
 
@@ -4759,7 +9545,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -4767,7 +9561,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4775,7 +9577,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4787,7 +9597,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/suppliers', [
+
+
+
+
 
 
 
@@ -4795,7 +9617,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -4803,7 +9633,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -4811,7 +9649,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4823,7 +9669,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -4831,7 +9689,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4839,7 +9705,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -4847,7 +9721,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4855,11 +9737,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:suppliers.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4871,7 +9765,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -4879,7 +9785,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4887,7 +9801,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -4895,7 +9817,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4903,11 +9833,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:suppliers.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4919,7 +9861,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -4927,7 +9881,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -4935,7 +9897,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
+
+
+
+
 
 
 
@@ -4943,7 +9913,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -4951,11 +9929,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:suppliers.delete'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -4971,11 +9961,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4983,7 +9993,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -4995,7 +10013,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/customers', [
+
+
+
+
 
 
 
@@ -5003,7 +10033,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -5011,7 +10049,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5019,7 +10065,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5031,7 +10085,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/customers/create', [
+
+
+
+
 
 
 
@@ -5039,7 +10105,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -5047,7 +10121,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5055,7 +10137,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5067,7 +10157,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/customers', [
+
+
+
+
 
 
 
@@ -5075,7 +10177,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -5083,7 +10193,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5091,7 +10209,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5103,7 +10229,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -5111,7 +10249,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5119,7 +10265,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -5127,7 +10281,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5135,11 +10297,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:customers.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5151,7 +10325,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -5159,7 +10345,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5167,7 +10361,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -5175,7 +10377,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5183,11 +10393,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:customers.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5199,7 +10421,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -5207,7 +10441,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5215,7 +10457,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
+
+
+
+
 
 
 
@@ -5223,7 +10473,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5231,11 +10489,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:customers.delete'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5251,11 +10521,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -5263,7 +10553,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -5275,7 +10573,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/tv-vouchers', [
+
+
+
+
 
 
 
@@ -5283,7 +10593,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -5291,7 +10609,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5299,7 +10625,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5311,7 +10645,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/tv-vouchers/report', [
+
+
+
+
 
 
 
@@ -5319,7 +10665,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'report',
+
+
+
+
 
 
 
@@ -5327,7 +10681,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5335,7 +10697,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5347,7 +10717,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/tv-vouchers/create', [
+
+
+
+
 
 
 
@@ -5355,7 +10737,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'create',
+
+
+
+
 
 
 
@@ -5363,7 +10753,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5371,7 +10769,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5383,7 +10789,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::post('/tv-vouchers', [
+
+
+
+
 
 
 
@@ -5391,7 +10809,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'store',
+
+
+
+
 
 
 
@@ -5399,7 +10825,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5407,7 +10841,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5419,7 +10861,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -5427,11 +10881,23 @@ Route::middleware([
 
 
 
+
+
+
+
         [
 
 
 
+
+
+
+
             TvVoucherTransactionController::class,
+
+
+
+
 
 
 
@@ -5439,7 +10905,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -5447,7 +10921,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5455,11 +10937,23 @@ Route::middleware([
 
 
 
+
+
+
+
         )
 
 
 
+
+
+
+
         ->name(
+
+
+
+
 
 
 
@@ -5467,6 +10961,10 @@ Route::middleware([
 
 
 
+
+
+
+
         );
 
 
@@ -5475,7 +10973,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -5483,7 +10993,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5491,7 +11009,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'setPaymentMethod',
+
+
+
+
 
 
 
@@ -5499,7 +11025,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5507,7 +11041,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:tv-vouchers.confirm-deposit'
+
+
+
+
 
 
 
@@ -5515,7 +11057,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->name(
+
+
+
+
 
 
 
@@ -5523,7 +11073,19 @@ Route::middleware([
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -5535,7 +11097,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/tv-vouchers/{tvVoucher}/confirm-deposit',
+
+
+
+
 
 
 
@@ -5543,7 +11113,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TvVoucherTransactionController::class,
+
+
+
+
 
 
 
@@ -5551,7 +11129,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -5559,7 +11145,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5567,7 +11161,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5575,11 +11177,27 @@ Route::middleware([
 
 
 
+
+
+
+
             'tv-vouchers.confirm-deposit'
 
 
 
+
+
+
+
         );
+
+
+
+
+
+
+
+
 
 
 
@@ -5591,7 +11209,15 @@ Route::middleware([
 
 
 
+
+
+
+
         '/tv-vouchers/{tvVoucher}',
+
+
+
+
 
 
 
@@ -5599,7 +11225,15 @@ Route::middleware([
 
 
 
+
+
+
+
             TvVoucherTransactionController::class,
+
+
+
+
 
 
 
@@ -5607,7 +11241,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ]
+
+
+
+
 
 
 
@@ -5615,7 +11257,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5623,7 +11273,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5635,7 +11293,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -5643,7 +11313,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5651,7 +11329,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'edit',
+
+
+
+
 
 
 
@@ -5659,7 +11345,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5667,11 +11361,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:tv-vouchers.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5683,7 +11389,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::put(
+
+
+
+
 
 
 
@@ -5691,7 +11409,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5699,7 +11425,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -5707,7 +11441,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5715,11 +11457,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:tv-vouchers.edit'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5731,7 +11485,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::patch(
+
+
+
+
 
 
 
@@ -5739,7 +11505,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5747,7 +11521,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'update',
+
+
+
+
 
 
 
@@ -5755,11 +11537,23 @@ Route::middleware([
 
 
 
+
+
+
+
     )->middleware(
 
 
 
+
+
+
+
         'permission:tv-vouchers.edit'
+
+
+
+
 
 
 
@@ -5771,7 +11565,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::delete(
+
+
+
+
 
 
 
@@ -5779,7 +11585,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5787,7 +11601,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'destroy',
+
+
+
+
 
 
 
@@ -5795,7 +11617,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5803,11 +11633,23 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:tv-vouchers.delete'
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5823,11 +11665,31 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     /*
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -5835,7 +11697,15 @@ Route::middleware([
 
 
 
+
+
+
+
     |--------------------------------------------------------------------------
+
+
+
+
 
 
 
@@ -5847,7 +11717,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get('/reports', [
+
+
+
+
 
 
 
@@ -5855,7 +11737,15 @@ Route::middleware([
 
 
 
+
+
+
+
         'index',
+
+
+
+
 
 
 
@@ -5863,7 +11753,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->middleware(
+
+
+
+
 
 
 
@@ -5871,7 +11769,15 @@ Route::middleware([
 
 
 
+
+
+
+
         )
+
+
+
+
 
 
 
@@ -5883,7 +11789,19 @@ Route::middleware([
 
 
 
+
+
+
+
+
+
+
+
     Route::get(
+
+
+
+
 
 
 
@@ -5891,7 +11809,15 @@ Route::middleware([
 
 
 
+
+
+
+
         [
+
+
+
+
 
 
 
@@ -5899,7 +11825,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'exportExcel',
+
+
+
+
 
 
 
@@ -5907,7 +11841,15 @@ Route::middleware([
 
 
 
+
+
+
+
     )
+
+
+
+
 
 
 
@@ -5915,7 +11857,15 @@ Route::middleware([
 
 
 
+
+
+
+
             'permission:reports.view'
+
+
+
+
 
 
 
@@ -5923,7 +11873,15 @@ Route::middleware([
 
 
 
+
+
+
+
         ->name(
+
+
+
+
 
 
 
@@ -5931,7 +11889,15 @@ Route::middleware([
 
 
 
+
+
+
+
         );
+
+
+
+
 
 
 
