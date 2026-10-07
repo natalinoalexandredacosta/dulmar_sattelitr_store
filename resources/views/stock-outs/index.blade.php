@@ -1171,9 +1171,9 @@
 
         .chart-card {
             margin: 35px 0;
-
             padding: 30px;
 
+            border: 1px solid #e5e7eb;
             border-radius: 10px;
 
             background: white;
@@ -1196,6 +1196,8 @@
         .chart-header h3 {
             margin: 0 0 8px;
 
+            color: #111827;
+
             font-size: 24px;
         }
 
@@ -1212,6 +1214,7 @@
 
             padding: 12px 18px;
 
+            border: 1px solid #fecaca;
             border-radius: 8px;
 
             background: #fee2e2;
@@ -1236,10 +1239,9 @@
             position: relative;
 
             width: 100%;
-            max-width: 370px;
-            height: 300px;
+            height: 460px;
 
-            margin: 0 auto;
+            margin: 0;
         }
 
         .chart-empty {
@@ -1529,8 +1531,9 @@
             }
 
             .chart-container {
-                max-width: 280px;
-                height: 260px;
+                width: 100%;
+                max-width: none;
+                height: 420px;
             }
         }
     </style>
@@ -2738,7 +2741,7 @@
                 <div class="chart-container">
 
                     <canvas
-                        id="stockOutPieChart"
+                        id="stockOutChart"
                         role="img"
                         aria-label="Grafik barang keluar berdasarkan produk"
                     ></canvas>
@@ -3043,7 +3046,7 @@
 
 
 <form
-    id="idleLogoutForm\"
+    id="idleLogoutForm"
     action="{{ route('logout') }}"
     method="POST"
     style="display: none;"
@@ -3991,70 +3994,148 @@
 
     @if ($chartValues->sum() > 0)
 
-        const chartLabels =
+        const stockOutChartLabels =
             {{ Illuminate\Support\Js::from($chartLabels) }};
 
-        const chartValues =
+        const stockOutChartValues =
             {{ Illuminate\Support\Js::from($chartValues) }};
 
-        const chartColors = [
-            '#2563eb',
-            '#dc2626',
-            '#16a34a',
-            '#f59e0b',
-            '#7c3aed',
-            '#0891b2',
-            '#db2777',
-            '#65a30d',
-            '#ea580c',
-            '#4f46e5'
-        ];
+        /*
+         * Warna mengikuti sistem Dulmar:
+         * - ranking 1 : merah
+         * - ranking 2 : biru
+         * - ranking 3 : orange
+         * - sisanya   : biru muda
+         */
+        const stockOutBarColors =
+            stockOutChartValues.map(
+                function (value, index) {
+                    if (index === 0) {
+                        return '#dc2626';
+                    }
 
+                    if (index === 1) {
+                        return '#2563eb';
+                    }
+
+                    if (index === 2) {
+                        return '#f59e0b';
+                    }
+
+                    return '#60a5fa';
+                }
+            );
+
+        const stockOutBorderColors =
+            stockOutChartValues.map(
+                function (value, index) {
+                    if (index === 0) {
+                        return '#b91c1c';
+                    }
+
+                    if (index === 1) {
+                        return '#1d4ed8';
+                    }
+
+                    if (index === 2) {
+                        return '#d97706';
+                    }
+
+                    return '#2563eb';
+                }
+            );
+
+        const stockOutValueLabelPlugin = {
+            id: 'stockOutValueLabel',
+
+            afterDatasetsDraw(chart) {
+                const ctx = chart.ctx;
+
+                chart.data.datasets.forEach(
+                    function (dataset, datasetIndex) {
+                        const meta =
+                            chart.getDatasetMeta(
+                                datasetIndex
+                            );
+
+                        meta.data.forEach(
+                            function (bar, index) {
+                                const value =
+                                    Number(
+                                        dataset.data[index]
+                                    );
+
+                                ctx.save();
+
+                                ctx.fillStyle =
+                                    '#111827';
+
+                                ctx.font =
+                                    '600 12px Arial';
+
+                                ctx.textAlign =
+                                    'left';
+
+                                ctx.textBaseline =
+                                    'middle';
+
+                                ctx.fillText(
+                                    value + ' unit',
+                                    bar.x + 8,
+                                    bar.y
+                                );
+
+                                ctx.restore();
+                            }
+                        );
+                    }
+                );
+            }
+        };
 
         new Chart(
             document.getElementById(
-                'stockOutPieChart'
+                'stockOutChart'
             ),
             {
-                type: 'doughnut',
+                type: 'bar',
 
                 data: {
-
                     labels:
-                        chartLabels,
+                        stockOutChartLabels,
 
                     datasets: [
                         {
                             label:
-                                'Jumlah barang keluar',
+                                'Jumlah Barang Keluar',
 
                             data:
-                                chartValues,
+                                stockOutChartValues,
 
                             backgroundColor:
-                                chartLabels.map(
-                                    function (_, index) {
-
-                                        return chartColors[
-                                            index
-                                            % chartColors.length
-                                        ];
-                                    }
-                                ),
+                                stockOutBarColors,
 
                             borderColor:
-                                '#ffffff',
+                                stockOutBorderColors,
 
                             borderWidth:
-                                3,
+                                1,
 
-                            hoverOffset:
-                                12
+                            borderRadius:
+                                7,
+
+                            borderSkipped:
+                                false,
+
+                            barThickness:
+                                24
                         }
                     ]
                 },
 
                 options: {
+                    indexAxis:
+                        'y',
 
                     responsive:
                         true,
@@ -4062,82 +4143,99 @@
                     maintainAspectRatio:
                         false,
 
-                    cutout:
-                        '55%',
+                    layout: {
+                        padding: {
+                            right:
+                                65
+                        }
+                    },
 
                     plugins: {
-
                         legend: {
+                            display:
+                                false
+                        },
 
-                            position:
-                                'bottom',
+                        tooltip: {
+                            callbacks: {
+                                label:
+                                    function (context) {
+                                        return (
+                                            context.raw
+                                            + ' unit'
+                                        );
+                                    }
+                            }
+                        }
+                    },
 
-                            labels: {
+                    scales: {
+                        x: {
+                            beginAtZero:
+                                true,
 
-                                padding:
-                                    18,
+                            ticks: {
+                                color:
+                                    '#374151',
+
+                                precision:
+                                    0
+                            },
+
+                            grid: {
+                                color:
+                                    '#e5e7eb'
+                            },
+
+                            border: {
+                                color:
+                                    '#d1d5db'
+                            },
+
+                            title: {
+                                display:
+                                    true,
+
+                                text:
+                                    'Jumlah Barang Keluar (unit)',
+
+                                color:
+                                    '#374151',
 
                                 font: {
-                                    size:
-                                        14
+                                    weight:
+                                        '600'
                                 }
                             }
                         },
 
-                        tooltip: {
+                        y: {
+                            ticks: {
+                                color:
+                                    '#111827',
 
-                            callbacks: {
+                                font: {
+                                    weight:
+                                        '600'
+                                }
+                            },
 
-                                label:
-                                    function (
-                                        context
-                                    ) {
+                            grid: {
+                                display:
+                                    false
+                            },
 
-                                        const total =
-                                            context
-                                                .dataset
-                                                .data
-                                                .reduce(
-                                                    function (
-                                                        result,
-                                                        value
-                                                    ) {
-
-                                                        return result
-                                                            + Number(
-                                                                value
-                                                            );
-                                                    },
-                                                    0
-                                                );
-
-                                        const value =
-                                            Number(
-                                                context.raw
-                                            );
-
-                                        const percentage =
-                                            total > 0
-                                                ? (
-                                                    (
-                                                        value
-                                                        / total
-                                                    )
-                                                    * 100
-                                                ).toFixed(1)
-                                                : 0;
-
-                                        return context.label
-                                            + ': '
-                                            + value
-                                            + ' unit ('
-                                            + percentage
-                                            + '%)';
-                                    }
+                            border: {
+                                color:
+                                    '#d1d5db'
                             }
                         }
                     }
-                }
+                },
+
+                plugins: [
+                    stockOutValueLabelPlugin
+                ]
             }
         );
 
