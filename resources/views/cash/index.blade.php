@@ -300,6 +300,62 @@
             color: #7c3aed;
         }
 
+        .summary-grid-breakdown {
+            display: grid;
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .summary-card.purchase {
+            border-left-color: #0ea5e9;
+        }
+
+        .summary-card.loan-out {
+            border-left-color: #f97316;
+        }
+
+        .summary-card.loan-returned {
+            border-left-color: #16a34a;
+        }
+
+        .summary-card.loan-outstanding {
+            border-left-color: #dc2626;
+        }
+
+        .summary-card.other-expense {
+            border-left-color: #64748b;
+        }
+
+        .summary-card.regular-income {
+            border-left-color: #8b5cf6;
+        }
+
+        .summary-card.purchase .summary-value {
+            color: #0284c7;
+        }
+
+        .summary-card.loan-out .summary-value {
+            color: #ea580c;
+        }
+
+        .summary-card.loan-returned .summary-value {
+            color: #15803d;
+        }
+
+        .summary-card.loan-outstanding .summary-value {
+            color: #dc2626;
+        }
+
+        .summary-card.other-expense .summary-value {
+            color: #475569;
+        }
+
+        .summary-card.regular-income .summary-value {
+            color: #7c3aed;
+        }
+
         .summary-note {
             margin-top: 7px;
             font-size: 11px;
@@ -433,6 +489,29 @@
             font-size: 12px;
             color: #9a3412;
             margin-top: 7px;
+            line-height: 1.6;
+        }
+
+        .loan-reference-group {
+            display: none;
+        }
+
+        .loan-reference-group.show {
+            display: block;
+        }
+
+        .loan-balance-preview {
+            margin-top: 8px;
+            padding: 10px 12px;
+            border-radius: 7px;
+            background: #eff6ff;
+            color: #1e40af;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .loan-balance-preview strong {
+            color: #1d4ed8;
         }
 
         .btn-primary {
@@ -886,7 +965,8 @@
 
         @media (max-width: 1300px) {
 
-            .summary-grid {
+            .summary-grid,
+            .summary-grid-breakdown {
                 grid-template-columns:
                     repeat(3, minmax(0, 1fr));
             }
@@ -965,7 +1045,8 @@
                 font-size: 27px;
             }
 
-            .summary-grid {
+            .summary-grid,
+            .summary-grid-breakdown {
                 grid-template-columns: 1fr;
             }
 
@@ -1274,6 +1355,85 @@
         </section>
 
 
+        <section class="summary-grid-breakdown">
+
+            <div class="summary-card purchase">
+                <div class="summary-label">
+                    Total Pembelian Barang
+                </div>
+
+                <h2 class="summary-value">
+                    ${{ number_format($totalPurchaseExpense ?? 0, 2) }}
+                </h2>
+
+                <div class="summary-note">
+                    Belanja stok / pembelian barang yang sudah disetujui
+                </div>
+            </div>
+
+
+            <div class="summary-card loan-out">
+                <div class="summary-label">
+                    Pinjaman Aktif
+                </div>
+
+                <h2 class="summary-value">
+                    ${{ number_format($totalLoanOutstanding ?? 0, 2) }}
+                </h2>
+
+                <div class="summary-note">
+                    Sisa uang yang masih dipinjam dan belum dikembalikan
+                </div>
+            </div>
+
+
+            <div class="summary-card loan-returned">
+                <div class="summary-label">
+                    Pinjaman Sudah Kembali
+                </div>
+
+                <h2 class="summary-value">
+                    ${{ number_format($totalLoanReturned ?? 0, 2) }}
+                </h2>
+
+                <div class="summary-note">
+                    Histori pinjaman yang sudah dikembalikan dan masuk kembali ke kas
+                </div>
+            </div>
+
+
+            <div class="summary-card other-expense">
+                <div class="summary-label">
+                    Keperluan Lain
+                </div>
+
+                <h2 class="summary-value">
+                    ${{ number_format($totalOtherExpense ?? 0, 2) }}
+                </h2>
+
+                <div class="summary-note">
+                    Operasional dan pengeluaran selain pembelian / pinjaman
+                </div>
+            </div>
+
+
+            <div class="summary-card regular-income">
+                <div class="summary-label">
+                    Cash Masuk Biasa
+                </div>
+
+                <h2 class="summary-value">
+                    ${{ number_format($totalRegularIncome ?? 0, 2) }}
+                </h2>
+
+                <div class="summary-note">
+                    Cash masuk di luar pengembalian pinjaman
+                </div>
+            </div>
+
+        </section>
+
+
         <section class="card">
 
             <div class="card-header">
@@ -1422,8 +1582,77 @@
 
                         <div class="borrower-grid">
 
+                            <div
+                                id="loanReferenceGroup"
+                                class="form-group loan-reference-group"
+                            >
 
-                            <div class="form-group">
+                                <label class="form-label">
+                                    Pilih Pinjaman Aktif
+                                </label>
+
+                                <select
+                                    name="loan_reference"
+                                    id="loanReference"
+                                    class="form-control"
+                                >
+
+                                    <option value="">
+                                        -- Pilih Pinjaman --
+                                    </option>
+
+                                    @foreach(($activeLoans ?? collect()) as $loan)
+
+                                        <option
+                                            value="{{ $loan->id }}"
+                                            data-borrower="{{ $loan->borrower_name }}"
+                                            data-remaining="{{ number_format($loan->remaining_amount, 2, '.', '') }}"
+                                            data-loan-amount="{{ number_format($loan->loan_amount, 2, '.', '') }}"
+                                            data-returned="{{ number_format($loan->returned_amount, 2, '.', '') }}"
+                                            {{ (string) old('loan_reference') === (string) $loan->id ? 'selected' : '' }}
+                                        >
+                                            #{{ $loan->id }}
+                                            - {{ $loan->borrower_name }}
+                                            - Sisa ${{ number_format($loan->remaining_amount, 2) }}
+                                        </option>
+
+                                    @endforeach
+
+                                </select>
+
+                                <div
+                                    id="loanBalancePreview"
+                                    class="loan-balance-preview"
+                                    style="display:none;"
+                                >
+                                    <div>
+                                        Peminjam:
+                                        <strong id="loanPreviewBorrower">-</strong>
+                                    </div>
+
+                                    <div>
+                                        Pinjaman Awal:
+                                        <strong>$<span id="loanPreviewAmount">0.00</span></strong>
+                                    </div>
+
+                                    <div>
+                                        Sudah Kembali:
+                                        <strong>$<span id="loanPreviewReturned">0.00</span></strong>
+                                    </div>
+
+                                    <div>
+                                        Sisa Pinjaman:
+                                        <strong>$<span id="loanPreviewRemaining">0.00</span></strong>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <div
+                                id="borrowerNameGroup"
+                                class="form-group"
+                            >
 
                                 <label class="form-label">
                                     Nama Peminjam
@@ -1449,11 +1678,14 @@
 
                                 <div class="loan-info">
 
-                                    Untuk Pinjaman Keluar, saldo baru berkurang setelah Admin menyetujui.
+                                    <strong>Pinjaman Keluar:</strong>
+                                    saldo kas berkurang setelah transaksi disetujui Admin.
 
                                     <br><br>
 
-                                    Untuk Pengembalian Pinjaman, saldo baru bertambah setelah Admin menyetujui pengembalian tersebut.
+                                    <strong>Pengembalian Pinjaman:</strong>
+                                    pilih pinjaman aktif. Setelah pengembalian disetujui Admin,
+                                    sisa pinjaman berkurang dan Cash Saat Ini otomatis bertambah.
 
                                 </div>
 
@@ -1836,7 +2068,8 @@
                                                 @json($transaction->category),
                                                 @json($transaction->borrower_name),
                                                 @json((string) $transaction->amount),
-                                                @json($transaction->description)
+                                                @json($transaction->description),
+                                                @json($transaction->loan_reference)
                                             )'
                                         >
                                             Edit
@@ -1998,6 +2231,45 @@
                     class="form-control"
                     required
                 >
+                </select>
+
+            </div>
+
+
+            <div
+                id="editLoanReferenceGroup"
+                class="form-group"
+                style="display:none; margin-top:16px;"
+            >
+
+                <label class="form-label">
+                    Pilih Pinjaman Aktif
+                </label>
+
+                <select
+                    id="editLoanReference"
+                    name="loan_reference"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        -- Pilih Pinjaman --
+                    </option>
+
+                    @foreach(($activeLoans ?? collect()) as $loan)
+
+                        <option
+                            value="{{ $loan->id }}"
+                            data-borrower="{{ $loan->borrower_name }}"
+                            data-remaining="{{ number_format($loan->remaining_amount, 2, '.', '') }}"
+                        >
+                            #{{ $loan->id }}
+                            - {{ $loan->borrower_name }}
+                            - Sisa ${{ number_format($loan->remaining_amount, 2) }}
+                        </option>
+
+                    @endforeach
+
                 </select>
 
             </div>
@@ -2353,6 +2625,8 @@
 
     const expenseCategories = [
 
+        'Pembelian Barang',
+
         'Belanja Stok',
 
         'Pinjaman Keluar',
@@ -2515,34 +2789,139 @@
             'borrowerGroup'
         );
 
+    const borrowerNameGroup =
+        document.getElementById(
+            'borrowerNameGroup'
+        );
+
     const borrowerName =
         document.getElementById(
             'borrowerName'
+        );
+
+    const loanReferenceGroup =
+        document.getElementById(
+            'loanReferenceGroup'
+        );
+
+    const loanReference =
+        document.getElementById(
+            'loanReference'
+        );
+
+    const loanBalancePreview =
+        document.getElementById(
+            'loanBalancePreview'
+        );
+
+    const loanPreviewBorrower =
+        document.getElementById(
+            'loanPreviewBorrower'
+        );
+
+    const loanPreviewAmount =
+        document.getElementById(
+            'loanPreviewAmount'
+        );
+
+    const loanPreviewReturned =
+        document.getElementById(
+            'loanPreviewReturned'
+        );
+
+    const loanPreviewRemaining =
+        document.getElementById(
+            'loanPreviewRemaining'
         );
 
     const oldCategory =
         @json(old('category'));
 
 
-    function updateBorrowerVisibility()
+    function updateLoanPreview()
     {
+        if (!loanReference) {
+            return;
+        }
+
+        const selectedOption =
+            loanReference.options[
+                loanReference.selectedIndex
+            ];
 
         if (
-            cashCategory
-            &&
-            isLoanCategory(
-                cashCategory.value
-            )
+            !selectedOption
+            ||
+            !selectedOption.value
         ) {
+            loanBalancePreview.style.display =
+                'none';
+
+            return;
+        }
+
+        const borrower =
+            selectedOption.dataset.borrower
+            || '';
+
+        borrowerName.value =
+            borrower;
+
+        borrowerName.readOnly =
+            true;
+
+        loanPreviewBorrower.textContent =
+            borrower || '-';
+
+        loanPreviewAmount.textContent =
+            Number(
+                selectedOption.dataset.loanAmount
+                || 0
+            ).toFixed(2);
+
+        loanPreviewReturned.textContent =
+            Number(
+                selectedOption.dataset.returned
+                || 0
+            ).toFixed(2);
+
+        loanPreviewRemaining.textContent =
+            Number(
+                selectedOption.dataset.remaining
+                || 0
+            ).toFixed(2);
+
+        loanBalancePreview.style.display =
+            'block';
+    }
+
+
+    function updateBorrowerVisibility()
+    {
+        if (
+            !cashCategory
+            ||
+            !borrowerGroup
+        ) {
+            return;
+        }
+
+        const category =
+            cashCategory.value;
+
+        const isLoanOut =
+            category === 'Pinjaman Keluar';
+
+        const isRepayment =
+            category === 'Pengembalian Pinjaman';
+
+        if (isLoanOut || isRepayment) {
 
             borrowerGroup
                 .classList
                 .add(
                     'show'
                 );
-
-            borrowerName.required =
-                true;
 
         } else {
 
@@ -2551,12 +2930,80 @@
                 .remove(
                     'show'
                 );
+        }
+
+
+        if (isLoanOut) {
+
+            borrowerNameGroup.style.display =
+                'block';
+
+            borrowerName.readOnly =
+                false;
+
+            borrowerName.required =
+                true;
+
+            loanReference.required =
+                false;
+
+            loanReference.value =
+                '';
+
+            loanReferenceGroup
+                .classList
+                .remove(
+                    'show'
+                );
+
+            loanBalancePreview.style.display =
+                'none';
+
+        } else if (isRepayment) {
+
+            borrowerNameGroup.style.display =
+                'block';
+
+            borrowerName.readOnly =
+                true;
+
+            borrowerName.required =
+                true;
+
+            loanReference.required =
+                true;
+
+            loanReferenceGroup
+                .classList
+                .add(
+                    'show'
+                );
+
+            updateLoanPreview();
+
+        } else {
 
             borrowerName.required =
                 false;
 
-        }
+            borrowerName.readOnly =
+                false;
 
+            loanReference.required =
+                false;
+
+            loanReference.value =
+                '';
+
+            loanReferenceGroup
+                .classList
+                .remove(
+                    'show'
+                );
+
+            loanBalancePreview.style.display =
+                'none';
+        }
     }
 
 
@@ -2604,6 +3051,20 @@
     }
 
 
+    if (loanReference) {
+
+        loanReference.addEventListener(
+            'change',
+            function () {
+
+                updateLoanPreview();
+
+            }
+        );
+
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | MODAL EDIT
@@ -2616,7 +3077,8 @@
         category,
         borrower,
         amount,
-        description
+        description,
+        loanReferenceValue
     ) {
 
         const modal =
@@ -2647,6 +3109,16 @@
         const borrowerInput =
             document.getElementById(
                 'editBorrowerName'
+            );
+
+        const loanReferenceGroupEdit =
+            document.getElementById(
+                'editLoanReferenceGroup'
+            );
+
+        const loanReferenceInput =
+            document.getElementById(
+                'editLoanReference'
             );
 
         const amountInput =
@@ -2685,26 +3157,65 @@
         descriptionInput.value =
             description || '';
 
+        loanReferenceInput.value =
+            loanReferenceValue || '';
 
-        if (
-            isLoanCategory(
-                category
-            )
-        ) {
+
+        if (category === 'Pinjaman Keluar') {
 
             borrowerGroupEdit.style.display =
                 'block';
 
+            borrowerInput.readOnly =
+                false;
+
             borrowerInput.required =
                 true;
+
+            loanReferenceGroupEdit.style.display =
+                'none';
+
+            loanReferenceInput.required =
+                false;
+
+        } else if (category === 'Pengembalian Pinjaman') {
+
+            borrowerGroupEdit.style.display =
+                'block';
+
+            borrowerInput.readOnly =
+                true;
+
+            borrowerInput.required =
+                true;
+
+            loanReferenceGroupEdit.style.display =
+                'block';
+
+            loanReferenceInput.required =
+                true;
+
+            syncEditLoanBorrower();
 
         } else {
 
             borrowerGroupEdit.style.display =
                 'none';
 
+            borrowerInput.readOnly =
+                false;
+
             borrowerInput.required =
                 false;
+
+            loanReferenceGroupEdit.style.display =
+                'none';
+
+            loanReferenceInput.required =
+                false;
+
+            loanReferenceInput.value =
+                '';
 
         }
 
@@ -2736,28 +3247,109 @@
         );
 
 
-    function updateEditBorrowerVisibility()
+    const editLoanReferenceGroup =
+        document.getElementById(
+            'editLoanReferenceGroup'
+        );
+
+    const editLoanReference =
+        document.getElementById(
+            'editLoanReference'
+        );
+
+
+    function syncEditLoanBorrower()
     {
+        if (
+            !editLoanReference
+            ||
+            !editBorrowerName
+        ) {
+            return;
+        }
+
+        const selectedOption =
+            editLoanReference.options[
+                editLoanReference.selectedIndex
+            ];
 
         if (
-            isLoanCategory(
-                editCashCategory.value
-            )
+            selectedOption
+            &&
+            selectedOption.value
         ) {
+
+            editBorrowerName.value =
+                selectedOption.dataset.borrower
+                || '';
+
+        }
+    }
+
+
+    function updateEditBorrowerVisibility()
+    {
+        const category =
+            editCashCategory.value;
+
+        if (category === 'Pinjaman Keluar') {
 
             editBorrowerGroup.style.display =
                 'block';
 
+            editBorrowerName.readOnly =
+                false;
+
             editBorrowerName.required =
                 true;
+
+            editLoanReferenceGroup.style.display =
+                'none';
+
+            editLoanReference.required =
+                false;
+
+            editLoanReference.value =
+                '';
+
+        } else if (category === 'Pengembalian Pinjaman') {
+
+            editBorrowerGroup.style.display =
+                'block';
+
+            editBorrowerName.readOnly =
+                true;
+
+            editBorrowerName.required =
+                true;
+
+            editLoanReferenceGroup.style.display =
+                'block';
+
+            editLoanReference.required =
+                true;
+
+            syncEditLoanBorrower();
 
         } else {
 
             editBorrowerGroup.style.display =
                 'none';
 
+            editBorrowerName.readOnly =
+                false;
+
             editBorrowerName.required =
                 false;
+
+            editLoanReferenceGroup.style.display =
+                'none';
+
+            editLoanReference.required =
+                false;
+
+            editLoanReference.value =
+                '';
 
         }
 
@@ -2795,6 +3387,20 @@
             function () {
 
                 updateEditBorrowerVisibility();
+
+            }
+        );
+
+    }
+
+
+    if (editLoanReference) {
+
+        editLoanReference.addEventListener(
+            'change',
+            function () {
+
+                syncEditLoanBorrower();
 
             }
         );
