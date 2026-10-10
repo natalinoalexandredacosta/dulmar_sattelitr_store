@@ -2853,7 +2853,7 @@ class CashController extends Controller
 
                 . "<b>Kategori:</b> {$category}\n"
 
-                . "<b>Jumlah:</b> \\${$amount}\n";
+                . "<b>Jumlah:</b> $" . $amount . "\n";
 
 
 
@@ -3099,7 +3099,7 @@ class CashController extends Controller
 
                 . "<b>Kategori:</b> {$category}\n"
 
-                . "<b>Jumlah:</b> \\${$amount}\n";
+                . "<b>Jumlah:</b> $" . $amount . "\n";
 
 
 
@@ -3127,7 +3127,7 @@ class CashController extends Controller
 
                 . "<b>Disetujui Oleh:</b> {$approvedBy}\n"
 
-                . "<b>Saldo Kas Sekarang:</b> \\${$balance}\n\n"
+                . "<b>Saldo Kas Sekarang:</b> $" . $balance . "\n\n"
 
                 . "✅ Transaksi berhasil diproses.";
 
@@ -3281,7 +3281,7 @@ class CashController extends Controller
 
                 . "<b>Kategori:</b> {$category}\n"
 
-                . "<b>Jumlah:</b> \\${$amount}\n";
+                . "<b>Jumlah:</b> $" . $amount . "\n";
 
 
 
@@ -3549,7 +3549,7 @@ class CashController extends Controller
 
                 . "<b>Kategori:</b> {$category}\n"
 
-                . "<b>Jumlah:</b> +\\${$amount}\n"
+                . "<b>Jumlah:</b> +$" . $amount . "\n"
 
                 . "<b>Keterangan:</b> {$description}\n"
 
@@ -3557,7 +3557,7 @@ class CashController extends Controller
 
                 . "<b>Status:</b> ✅ DISETUJUI\n\n"
 
-                . "<b>Saldo Kas Sekarang:</b> \\${$balance}";
+                . "<b>Saldo Kas Sekarang:</b> $" . $balance;
 
 
 
