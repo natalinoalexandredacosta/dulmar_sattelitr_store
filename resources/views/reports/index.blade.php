@@ -1808,6 +1808,10 @@
                             </th>
 
                             <th>
+                                Setoran Bersih
+                            </th>
+
+                            <th>
                                 Keuntungan Bersih
                             </th>
 
@@ -1845,6 +1849,9 @@
                                  * Fallback disediakan supaya aman
                                  * apabila alias belum tersedia.
                                  */
+                                $setoranBersih =
+                                    (float) $sale->subtotal - $staffCost;
+
                                 $netProfit =
                                     isset($sale->net_profit)
                                         ? (float) $sale->net_profit
@@ -1972,6 +1979,10 @@
                                 </td>
 
 
+                                <td class="total-sale">
+                                    ${{ number_format($setoranBersih, 2) }}
+                                </td>
+
                                 <td class="profit">
 
                                     ${{
@@ -2001,7 +2012,7 @@
                             <tr>
 
                                 <td
-                                    colspan="12"
+                                    colspan="13"
                                     class="empty-data"
                                 >
 
@@ -2059,6 +2070,13 @@
                                 <td class="total-deduction">
                                     ${{ number_format(
                                         $totalDeduction,
+                                        2
+                                    ) }}
+                                </td>
+
+                                <td class="total-sales">
+                                    ${{ number_format(
+                                        $totalSales - $totalDeduction,
                                         2
                                     ) }}
                                 </td>
